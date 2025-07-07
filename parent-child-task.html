@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亲子任务 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .task-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+            overflow: hidden;
+            margin: 16px;
+        }
+        .task-header {
+            background: linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .task-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: familyGlow 4s ease-in-out infinite;
+        }
+        @keyframes familyGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .family-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: familyFloat 3s ease-in-out infinite;
+        }
+        @keyframes familyFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .participants-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .participant-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .participant-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .participant-card.child {
+            border: 2px solid #8B5CF6;
+        }
+        .participant-card.parent {
+            border: 2px solid #EC4899;
+        }
+        .participant-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+        }
+        .participant-card.child .participant-avatar {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+        }
+        .participant-card.parent .participant-avatar {
+            background: linear-gradient(135deg, #EC4899, #F97316);
+        }
+        .participant-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .participant-role {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .task-content {
+            padding: 24px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #EC4899, #8B5CF6);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .task-description {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .task-description::before {
+            content: '👨‍👩‍👧‍👦';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .role-section {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            transition: all 0.3s ease;
+        }
+        .role-section.child-role {
+            border-color: #8B5CF6;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        }
+        .role-section.parent-role {
+            border-color: #EC4899;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+        }
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .role-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+        .role-section.child-role .role-avatar {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+        }
+        .role-section.parent-role .role-avatar {
+            background: linear-gradient(135deg, #EC4899, #F97316);
+        }
+        .role-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .task-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .task-steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+        }
+        .step-number {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .collaboration-zone {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        .collaboration-zone::before {
+            content: '🤝';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .timer-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .timer-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+        .timer-label {
+            font-size: 12px;
+            color: #92400e;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .action-btn {
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .primary-btn {
+            background: linear-gradient(45deg, #EC4899, #8B5CF6);
+            color: white;
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(236, 72, 153, 0.3);
+        }
+        .secondary-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: #374151;
+        }
+        .secondary-btn:hover {
+            background: #f9fafb;
+            border-color: #EC4899;
+            transform: translateY(-1px);
+        }
+        .progress-indicator {
+            background: #f3f4f6;
+            border-radius: 10px;
+            height: 8px;
+            margin: 16px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #EC4899, #8B5CF6);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .tips-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            position: relative;
+        }
+        .tips-card::before {
+            content: '💡';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 20px;
+        }
+        .voice-record-area {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .voice-record-area.recording {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+        .voice-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 auto 16px;
+        }
+        .voice-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        .voice-btn.recording {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: recordingPulse 1s ease-in-out infinite;
+        }
+        @keyframes recordingPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .sharing-area {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .share-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .share-btn {
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #374151;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .share-btn:hover {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+        }
+        .floating-help {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            animation: helpFloat 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+        @keyframes helpFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="text-xl font-bold">亲子任务</h1>
+            </div>
+            <div class="text-sm opacity-90">
+                <i class="fas fa-heart mr-1"></i>
+                <span>家庭时光</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="pb-20">
+        <div class="task-container">
+            <!-- 任务头部 -->
+            <div class="task-header">
+                <div class="family-icon">👨‍👩‍👧‍👦</div>
+                <h2 class="text-2xl font-bold mb-2">家庭故事创作</h2>
+                <p class="text-pink-100">和爸爸妈妈一起创作属于我们家的故事</p>
+            </div>
+
+            <!-- 参与者区域 -->
+            <div class="participants-area">
+                <div class="participant-card child">
+                    <div class="participant-avatar">👧</div>
+                    <div class="participant-name">小明</div>
+                    <div class="participant-role">小创作家</div>
+                </div>
+                <div class="participant-card parent">
+                    <div class="participant-avatar">👩</div>
+                    <div class="participant-name">妈妈</div>
+                    <div class="participant-role">指导老师</div>
+                </div>
+            </div>
+
+            <!-- 任务内容 -->
+            <div class="task-content">
+                <!-- 任务介绍 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-info-circle"></i></div>
+                    <span>任务介绍</span>
+                </div>
+
+                <div class="task-description">
+                    <h4 class="font-semibold text-amber-800 mb-2">📖 我们的家庭故事</h4>
+                    <p class="text-sm text-amber-700 leading-relaxed mb-3">
+                        今天我们要一起创作一个关于我们家庭的温馨故事！这个故事可以是真实发生的事情，
+                        也可以是想象中的有趣冒险。最重要的是，这是属于我们家的独特故事。
+                    </p>
+                    <div class="text-xs text-amber-600 font-medium">
+                        ⏰ 建议用时：30-45分钟 | 🎯 难度：简单 | 👥 适合年龄：6-12岁
+                    </div>
+                </div>
+
+                <!-- 小朋友的任务 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-child"></i></div>
+                    <span>小朋友的任务</span>
+                </div>
+
+                <div class="role-section child-role">
+                    <div class="role-header">
+                        <div class="role-avatar">👧</div>
+                        <div class="role-title">我来创作故事</div>
+                    </div>
+                    
+                    <ul class="task-steps">
+                        <li>
+                            <div class="step-number">1</div>
+                            <div>
+                                <div class="font-medium mb-1">想一个故事主题</div>
+                                <div class="text-sm text-gray-600">比如：我们家的宠物、一次旅行、或者想象中的冒险</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">2</div>
+                            <div>
+                                <div class="font-medium mb-1">描述故事开头</div>
+                                <div class="text-sm text-gray-600">用自己的话说出故事是怎么开始的</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">3</div>
+                            <div>
+                                <div class="font-medium mb-1">添加有趣的细节</div>
+                                <div class="text-sm text-gray-600">想想故事中发生了什么有趣的事情</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">4</div>
+                            <div>
+                                <div class="font-medium mb-1">想一个结尾</div>
+                                <div class="text-sm text-gray-600">故事最后是怎样的？大家都开心吗？</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 家长的任务 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-user-friends"></i></div>
+                    <span>家长的任务</span>
+                </div>
+
+                <div class="role-section parent-role">
+                    <div class="role-header">
+                        <div class="role-avatar">👩</div>
+                        <div class="role-title">我来引导和记录</div>
+                    </div>
+                    
+                    <ul class="task-steps">
+                        <li>
+                            <div class="step-number">1</div>
+                            <div>
+                                <div class="font-medium mb-1">启发孩子思考</div>
+                                <div class="text-sm text-gray-600">用开放性问题引导孩子展开想象</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">2</div>
+                            <div>
+                                <div class="font-medium mb-1">鼓励表达</div>
+                                <div class="text-sm text-gray-600">给予积极的反馈，鼓励孩子详细描述</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">3</div>
+                            <div>
+                                <div class="font-medium mb-1">记录故事内容</div>
+                                <div class="text-sm text-gray-600">帮助孩子把故事写下来或录音</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="step-number">4</div>
+                            <div>
+                                <div class="font-medium mb-1">一起完善故事</div>
+                                <div class="text-sm text-gray-600">和孩子一起让故事更加完整生动</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 协作区域 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-handshake"></i></div>
+                    <span>一起协作</span>
+                </div>
+
+                <div class="collaboration-zone">
+                    <h4 class="font-semibold text-sky-800 mb-3">🤝 合作创作时间</h4>
+                    <p class="text-sm text-sky-700 leading-relaxed mb-4">
+                        现在让我们一起开始创作吧！小朋友负责想象和讲述，家长负责引导和记录。
+                        记住，这是我们共同的创作时间，要互相配合哦！
+                    </p>
+                    
+                    <!-- 任务进度 -->
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm font-medium text-sky-700">创作进度</span>
+                            <span class="text-sm text-sky-600" id="progressText">0%</span>
+                        </div>
+                        <div class="progress-indicator">
+                            <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- 录音区域 -->
+                    <div class="voice-record-area" id="voiceArea">
+                        <button class="voice-btn" id="voiceBtn" onclick="toggleRecording()">
+                            <i class="fas fa-microphone" id="voiceIcon"></i>
+                        </button>
+                        <div class="font-medium text-gray-700 mb-2" id="voiceStatus">点击开始录制故事</div>
+                        <div class="text-xs text-gray-500" id="recordingTime">录制时间：00:00</div>
+                    </div>
+                </div>
+
+                <!-- 计时器 -->
+                <div class="timer-section">
+                    <div class="timer-display" id="timerDisplay">30:00</div>
+                    <div class="timer-label">建议用时</div>
+                </div>
+
+                <!-- 创作提示 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-lightbulb"></i></div>
+                    <span>创作小贴士</span>
+                </div>
+
+                <div class="tips-card">
+                    <h4 class="font-semibold text-green-800 mb-2">💡 让故事更精彩的小技巧</h4>
+                    <ul class="text-sm text-green-700 space-y-2">
+                        <li>• <strong>问开放性问题：</strong>"然后发生了什么？" "你觉得他为什么这样做？"</li>
+                        <li>• <strong>添加感官描述：</strong>"那时候你听到了什么声音？" "闻到了什么味道？"</li>
+                        <li>• <strong>鼓励想象：</strong>"如果是你，你会怎么做？" "还能想到别的办法吗？"</li>
+                        <li>• <strong>连接现实：</strong>"这让你想到了什么？" "我们家也有类似的经历吗？"</li>
+                    </ul>
+                </div>
+
+                <!-- 示例对话 -->
+                <div class="bg-gray-50 rounded-xl p-4 my-4">
+                    <h4 class="font-semibold text-gray-700 mb-3">📝 示例对话</h4>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex gap-3">
+                            <div class="text-pink-600 font-medium">妈妈：</div>
+                            <div class="text-gray-700">"我们来创作一个关于我们家小猫的故事吧！你觉得它会有什么冒险呢？"</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="text-purple-600 font-medium">小明：</div>
+                            <div class="text-gray-700">"我觉得小猫会飞到云朵上，然后遇到彩虹！"</div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="text-pink-600 font-medium">妈妈：</div>
+                            <div class="text-gray-700">"哇，太有趣了！它是怎么飞上去的呢？云朵摸起来是什么感觉？"</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn primary-btn" onclick="startTask()">
+                        <i class="fas fa-play text-lg"></i>
+                        <span>开始创作</span>
+                    </button>
+                    
+                    <button class="action-btn secondary-btn" onclick="viewInstructions()">
+                        <i class="fas fa-book text-lg"></i>
+                        <span>查看详细说明</span>
+                    </button>
+                </div>
+
+                <!-- 分享区域 -->
+                <div class="sharing-area">
+                    <h4 class="font-semibold text-amber-800 mb-2">🎉 完成后可以...</h4>
+                    <p class="text-sm text-amber-700 mb-3">创作完成后，你们可以把这个美好的故事分享给更多人！</p>
+                    
+                    <div class="share-buttons">
+                        <button class="share-btn" onclick="saveStory()">
+                            <i class="fas fa-save text-blue-500"></i>
+                            <span>保存故事</span>
+                        </button>
+                        <button class="share-btn" onclick="shareFamily()">
+                            <i class="fas fa-users text-green-500"></i>
+                            <span>分享家庭</span>
+                        </button>
+                        <button class="share-btn" onclick="createBook()">
+                            <i class="fas fa-book text-purple-500"></i>
+                            <span>制作绘本</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动帮助按钮 -->
+    <div class="floating-help" onclick="showHelp()" title="帮助">
+        <i class="fas fa-question"></i>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let recordingStartTime = 0;
+        let recordingInterval = null;
+        let taskProgress = 0;
+        let taskTimer = 30 * 60; // 30分钟
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTask();
+            startTaskTimer();
+        });
+
+        // 初始化任务
+        function initializeTask() {
+            updateProgress(0);
+            updateTimer();
+        }
+
+        // 开始任务计时器
+        function startTaskTimer() {
+            setInterval(() => {
+                if (taskTimer > 0) {
+                    taskTimer--;
+                    updateTimer();
+                }
+            }, 1000);
+        }
+
+        // 更新计时器显示
+        function updateTimer() {
+            const minutes = Math.floor(taskTimer / 60);
+            const seconds = taskTimer % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 切换录音状态
+        function toggleRecording() {
+            const voiceBtn = document.getElementById('voiceBtn');
+            const voiceIcon = document.getElementById('voiceIcon');
+            const voiceStatus = document.getElementById('voiceStatus');
+            const voiceArea = document.getElementById('voiceArea');
+
+            if (!isRecording) {
+                // 开始录音
+                isRecording = true;
+                recordingStartTime = Date.now();
+                voiceBtn.classList.add('recording');
+                voiceArea.classList.add('recording');
+                voiceIcon.className = 'fas fa-stop';
+                voiceStatus.textContent = '正在录制中...';
+                
+                // 开始录音计时
+                recordingInterval = setInterval(updateRecordingTime, 1000);
+                
+                showNotification('开始录制故事，说出你们的创意吧！', 'info');
+                
+                // 更新进度
+                updateProgress(25);
+            } else {
+                // 停止录音
+                stopRecording();
+            }
+        }
+
+        // 停止录音
+        function stopRecording() {
+            isRecording = false;
+            const voiceBtn = document.getElementById('voiceBtn');
+            const voiceIcon = document.getElementById('voiceIcon');
+            const voiceStatus = document.getElementById('voiceStatus');
+            const voiceArea = document.getElementById('voiceArea');
+
+            voiceBtn.classList.remove('recording');
+            voiceArea.classList.remove('recording');
+            voiceIcon.className = 'fas fa-microphone';
+            voiceStatus.textContent = '录制完成！点击重新录制';
+
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
+            }
+
+            showNotification('录制完成！你们的故事很精彩！', 'success');
+            updateProgress(75);
+        }
+
+        // 更新录音时间
+        function updateRecordingTime() {
+            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('recordingTime').textContent = 
+                `录制时间：${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // 更新任务进度
+        function updateProgress(progress) {
+            taskProgress = progress;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = progress + '%';
+        }
+
+        // 开始任务
+        function startTask() {
+            showNotification('太好了！让我们开始这次温馨的家庭创作时光吧！', 'success');
+            updateProgress(10);
+            
+            // 滚动到协作区域
+            document.querySelector('.collaboration-zone').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // 查看详细说明
+        function viewInstructions() {
+            const instructions = `
+📖 亲子故事创作详细指南
+
+🎯 活动目标：
+• 增进亲子沟通与感情
+• 培养孩子的想象力和表达能力
+• 创造美好的家庭回忆
+• 提升孩子的语言组织能力
+
+👨‍👩‍👧‍👦 角色分工：
+【小朋友】
+• 发挥想象力，构思故事情节
+• 用自己的语言描述故事
+• 表达内心的想法和感受
+
+【家长】
+• 用开放性问题引导孩子思考
+• 给予积极的鼓励和反馈
+• 帮助记录和整理故事内容
+• 与孩子一起完善故事细节
+
+🔧 操作步骤：
+1. 选择一个舒适的环境，确保不被打扰
+2. 和孩子一起选择故事主题
+3. 引导孩子开始讲述故事
+4. 适时提问，帮助孩子展开想象
+5. 记录故事内容（文字或录音）
+6. 和孩子一起回顾和完善故事
+
+💡 引导技巧：
+• "然后发生了什么？"
+• "你觉得他当时的心情怎么样？"
+• "如果是你会怎么做？"
+• "这个地方是什么样子的？"
+• "还有什么有趣的事情吗？"
+
+⭐ 完成标准：
+• 故事有清晰的开头、过程和结尾
+• 孩子能够独立表达想法
+• 家长和孩子都积极参与
+• 创作过程愉快和谐
+
+🎉 后续活动：
+• 可以把故事画成图画
+• 制作成家庭故事书
+• 分享给其他家庭成员
+• 继续创作系列故事
+            `;
+            
+            showNotification(instructions, 'info');
+        }
+
+        // 保存故事
+        function saveStory() {
+            showNotification('故事已保存到家庭故事集中！', 'success');
+            updateProgress(90);
+        }
+
+        // 分享给家庭
+        function shareFamily() {
+            showNotification('故事已分享给家庭群组！', 'success');
+        }
+
+        // 制作绘本
+        function createBook() {
+            showNotification('正在为你们制作专属故事绘本...', 'info');
+            setTimeout(() => {
+                updateProgress(100);
+                showNotification('恭喜！你们的家庭故事绘本制作完成！', 'success');
+            }, 3000);
+        }
+
+        // 显示帮助
+        function showHelp() {
+            const helpText = `
+👨‍👩‍👧‍👦 亲子任务帮助
+
+🎯 这个任务的目的：
+• 增进亲子感情，创造美好回忆
+• 培养孩子的想象力和表达能力
+• 让家庭成员更好地了解彼此
+• 在轻松愉快的氛围中学习
+
+⏰ 时间安排建议：
+• 总用时：30-45分钟
+• 准备阶段：5分钟
+• 创作阶段：25-35分钟
+• 分享阶段：5分钟
+
+🗣️ 录音功能说明：
+• 点击麦克风按钮开始录制
+• 再次点击停止录制
+• 可以重复录制直到满意
+• 录音会自动保存
+
+💡 创作不顺利怎么办：
+• 从简单的日常生活开始
+• 可以先聊聊今天发生的事
+• 问一些引导性问题
+• 保持轻松愉快的氛围
+• 记住过程比结果更重要
+
+❓ 需要更多帮助？
+可以点击页面上的提示卡片，或者查看示例对话。
+            `;
+            
+            showNotification(helpText, 'info');
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            parent.postMessage({
+                type: 'navigate',
+                page: 'parent-panel'
+            }, '*');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+    </script>
+</body>
+</html>

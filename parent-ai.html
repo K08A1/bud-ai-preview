@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI分析报告 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="mengya-common.js"></script>
+    <script src="learning-analytics.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .report-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+            overflow: hidden;
+            margin: 16px;
+        }
+        .report-header {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: aiGlow 4s ease-in-out infinite;
+        }
+        @keyframes aiGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .ai-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: aiPulse 3s ease-in-out infinite;
+        }
+        @keyframes aiPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--color);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .analysis-section {
+            padding: 24px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .insight-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+        }
+        .insight-card::before {
+            content: '🤖';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .ability-analysis {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            transition: all 0.3s ease;
+        }
+        .ability-analysis:hover {
+            border-color: #3B82F6;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.1);
+        }
+        .ability-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .ability-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            margin-right: 16px;
+        }
+        .ability-info {
+            flex: 1;
+        }
+        .ability-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .ability-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .progress-container {
+            margin: 16px 0;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .progress-level {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 12px;
+            color: white;
+        }
+        .progress-bar {
+            background: #f3f4f6;
+            border-radius: 10px;
+            height: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            position: relative;
+            transition: width 2s ease;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .trend-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+        }
+        .trend-card::before {
+            content: '📈';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .suggestions-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+        }
+        .suggestions-card::before {
+            content: '💡';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .suggestion-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+        }
+        .suggestion-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .chart-label {
+            width: 80px;
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+        .chart-progress {
+            flex: 1;
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 0 12px;
+            position: relative;
+        }
+        .chart-fill {
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            transition: width 2s ease;
+        }
+        .achievement-timeline {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .timeline-date {
+            width: 60px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+        }
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            flex-shrink: 0;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .timeline-description {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .action-btn {
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .primary-btn {
+            background: linear-gradient(45deg, #3B82F6, #1D4ED8);
+            color: white;
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+        .secondary-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: #374151;
+        }
+        .secondary-btn:hover {
+            background: #f9fafb;
+            border-color: #3B82F6;
+            transform: translateY(-1px);
+        }
+        .floating-export {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
+            animation: exportFloat 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+        @keyframes exportFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="text-xl font-bold">AI分析报告</h1>
+            </div>
+            <div class="text-sm opacity-90">
+                <i class="fas fa-calendar mr-1"></i>
+                <span id="reportDate">本周</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="pb-32">
+        <div class="report-container">
+            <!-- 报告头部 -->
+            <div class="report-header">
+                <div class="ai-icon">🧠</div>
+                <h2 class="text-2xl font-bold mb-2">智能成长分析</h2>
+                <p class="text-blue-100">基于AI深度学习的个性化能力评估报告</p>
+            </div>
+
+            <!-- 核心数据统计 -->
+            <div class="stats-grid">
+                <div class="stat-card" style="--color: linear-gradient(90deg, #3B82F6, #1D4ED8);">
+                    <div class="stat-number text-blue-600">92</div>
+                    <div class="stat-label">综合能力分</div>
+                </div>
+                <div class="stat-card" style="--color: linear-gradient(90deg, #10B981, #059669);">
+                    <div class="stat-number text-green-600">15</div>
+                    <div class="stat-label">本周完成任务</div>
+                </div>
+                <div class="stat-card" style="--color: linear-gradient(90deg, #F59E0B, #D97706);">
+                    <div class="stat-number text-amber-600">12h</div>
+                    <div class="stat-label">累计学习时长</div>
+                </div>
+                <div class="stat-card" style="--color: linear-gradient(90deg, #EC4899, #BE185D);">
+                    <div class="stat-number text-pink-600">+8</div>
+                    <div class="stat-label">能力提升点</div>
+                </div>
+            </div>
+
+            <!-- 分析内容 -->
+            <div class="analysis-section">
+                <!-- AI深度洞察 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-brain"></i></div>
+                    <span>AI深度洞察</span>
+                </div>
+
+                <!-- 动态AI洞察卡片 -->
+                <div id="insightContainer">
+                    <!-- 洞察内容将通过JavaScript动态生成 -->
+                    <div class="insight-card">
+                        <h4 class="font-semibold text-sky-800 mb-3">🧠 AI正在深度分析中...</h4>
+                        <div class="flex items-center justify-center py-8">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+                            <span class="ml-3 text-sky-600">正在运行深度学习分析引擎...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习行为模式分析 -->
+                <div class="section-title mt-8">
+                    <div class="section-icon"><i class="fas fa-brain"></i></div>
+                    <span>学习行为深度分析</span>
+                </div>
+
+                <div class="behavior-analysis-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 学习时间偏好 -->
+                    <div class="behavior-card bg-white rounded-xl p-4 shadow-md" id="timePreferences">
+                        <div class="behavior-header flex items-center mb-3">
+                            <div class="behavior-icon w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background: linear-gradient(135deg, #F59E0B, #D97706);">
+                                <i class="fas fa-clock text-white"></i>
+                            </div>
+                            <div class="behavior-info">
+                                <div class="behavior-title font-semibold text-gray-800">学习时间偏好</div>
+                                <div class="behavior-status text-sm text-gray-500" id="timePreferenceStatus">AI分析中...</div>
+                            </div>
+                        </div>
+                        <div class="behavior-details" id="timePreferenceDetails">
+                            <div class="animate-pulse bg-gray-200 h-4 rounded mb-2"></div>
+                            <div class="animate-pulse bg-gray-200 h-3 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- 注意力模式 -->
+                    <div class="behavior-card bg-white rounded-xl p-4 shadow-md" id="attentionPatterns">
+                        <div class="behavior-header flex items-center mb-3">
+                            <div class="behavior-icon w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background: linear-gradient(135deg, #10B981, #059669);">
+                                <i class="fas fa-eye text-white"></i>
+                            </div>
+                            <div class="behavior-info">
+                                <div class="behavior-title font-semibold text-gray-800">专注力模式</div>
+                                <div class="behavior-status text-sm text-gray-500" id="attentionStatus">AI分析中...</div>
+                            </div>
+                        </div>
+                        <div class="behavior-details" id="attentionDetails">
+                            <div class="animate-pulse bg-gray-200 h-4 rounded mb-2"></div>
+                            <div class="animate-pulse bg-gray-200 h-3 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- 学习策略偏好 -->
+                    <div class="behavior-card bg-white rounded-xl p-4 shadow-md" id="learningStrategies">
+                        <div class="behavior-header flex items-center mb-3">
+                            <div class="behavior-icon w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">
+                                <i class="fas fa-lightbulb text-white"></i>
+                            </div>
+                            <div class="behavior-info">
+                                <div class="behavior-title font-semibold text-gray-800">学习策略偏好</div>
+                                <div class="behavior-status text-sm text-gray-500" id="strategyStatus">AI分析中...</div>
+                            </div>
+                        </div>
+                        <div class="behavior-details" id="strategyDetails">
+                            <div class="animate-pulse bg-gray-200 h-4 rounded mb-2"></div>
+                            <div class="animate-pulse bg-gray-200 h-3 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- 情感状态分析 -->
+                    <div class="behavior-card bg-white rounded-xl p-4 shadow-md" id="emotionalState">
+                        <div class="behavior-header flex items-center mb-3">
+                            <div class="behavior-icon w-10 h-10 rounded-lg flex items-center justify-center mr-3" style="background: linear-gradient(135deg, #EC4899, #BE185D);">
+                                <i class="fas fa-heart text-white"></i>
+                            </div>
+                            <div class="behavior-info">
+                                <div class="behavior-title font-semibold text-gray-800">情感状态分析</div>
+                                <div class="behavior-status text-sm text-gray-500" id="emotionalStatus">AI分析中...</div>
+                            </div>
+                        </div>
+                        <div class="behavior-details" id="emotionalDetails">
+                            <div class="animate-pulse bg-gray-200 h-4 rounded mb-2"></div>
+                            <div class="animate-pulse bg-gray-200 h-3 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 能力维度分析 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-chart-radar"></i></div>
+                    <span>能力维度分析</span>
+                </div>
+
+                <div class="ability-analysis">
+                    <div class="ability-header">
+                        <div class="flex items-center">
+                            <div class="ability-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">🎨</div>
+                            <div class="ability-info">
+                                <div class="ability-name">创意表达能力</div>
+                                <div class="ability-description">想象力和语言表达的综合体现</div>
+                            </div>
+                        </div>
+                        <div class="progress-level" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">优秀</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span class="text-sm font-medium">当前水平</span>
+                            <span class="text-sm text-purple-600 font-bold">88/100</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 88%; background: linear-gradient(90deg, #8B5CF6, #7C3AED);"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mt-3">
+                        <strong>AI评价：</strong>在故事创作中展现出丰富的想象力，能够构建完整的故事情节，词汇运用恰当，表达生动有趣。
+                    </div>
+                </div>
+
+                <div class="ability-analysis">
+                    <div class="ability-header">
+                        <div class="flex items-center">
+                            <div class="ability-icon" style="background: linear-gradient(135deg, #10B981, #059669);">🧮</div>
+                            <div class="ability-info">
+                                <div class="ability-name">逻辑思维能力</div>
+                                <div class="ability-description">分析推理和问题解决能力</div>
+                            </div>
+                        </div>
+                        <div class="progress-level" style="background: linear-gradient(135deg, #10B981, #059669);">良好</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span class="text-sm font-medium">当前水平</span>
+                            <span class="text-sm text-green-600 font-bold">72/100</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 72%; background: linear-gradient(90deg, #10B981, #059669);"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mt-3">
+                        <strong>AI评价：</strong>能够理解基本的逻辑关系，在解决问题时有自己的思路，但在复杂推理方面还有提升空间。
+                    </div>
+                </div>
+
+                <div class="ability-analysis">
+                    <div class="ability-header">
+                        <div class="flex items-center">
+                            <div class="ability-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">💬</div>
+                            <div class="ability-info">
+                                <div class="ability-name">沟通交流能力</div>
+                                <div class="ability-description">与他人互动和表达的能力</div>
+                            </div>
+                        </div>
+                        <div class="progress-level" style="background: linear-gradient(135deg, #F59E0B, #D97706);">优秀</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span class="text-sm font-medium">当前水平</span>
+                            <span class="text-sm text-amber-600 font-bold">85/100</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 85%; background: linear-gradient(90deg, #F59E0B, #D97706);"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mt-3">
+                        <strong>AI评价：</strong>善于与AI助手交流，能够清晰表达自己的想法，互动积极主动，理解能力强。
+                    </div>
+                </div>
+
+                <div class="ability-analysis">
+                    <div class="ability-header">
+                        <div class="flex items-center">
+                            <div class="ability-icon" style="background: linear-gradient(135deg, #EC4899, #BE185D);">🎯</div>
+                            <div class="ability-info">
+                                <div class="ability-name">专注持续力</div>
+                                <div class="ability-description">集中注意力完成任务的能力</div>
+                            </div>
+                        </div>
+                        <div class="progress-level" style="background: linear-gradient(135deg, #EC4899, #BE185D);">待提升</div>
+                    </div>
+                    
+                    <div class="progress-container">
+                        <div class="progress-label">
+                            <span class="text-sm font-medium">当前水平</span>
+                            <span class="text-sm text-pink-600 font-bold">65/100</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 65%; background: linear-gradient(90deg, #EC4899, #BE185D);"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-sm text-gray-600 mt-3">
+                        <strong>AI评价：</strong>在感兴趣的任务上能够保持专注，但遇到较难或枯燥的内容时容易分心，需要加强专注力训练。
+                    </div>
+                </div>
+
+                <!-- 学习趋势分析 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-chart-line"></i></div>
+                    <span>学习趋势分析</span>
+                </div>
+
+                <div class="trend-card">
+                    <h4 class="font-semibold text-amber-800 mb-3">📊 本周表现趋势</h4>
+                    <div class="chart-container">
+                        <div class="chart-bar">
+                            <div class="chart-label">周一</div>
+                            <div class="chart-progress">
+                                <div class="chart-fill" style="width: 75%; background: linear-gradient(90deg, #3B82F6, #1D4ED8);">75</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="chart-label">周二</div>
+                            <div class="chart-progress">
+                                <div class="chart-fill" style="width: 82%; background: linear-gradient(90deg, #10B981, #059669);">82</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="chart-label">周三</div>
+                            <div class="chart-progress">
+                                <div class="chart-fill" style="width: 90%; background: linear-gradient(90deg, #8B5CF6, #7C3AED);">90</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="chart-label">周四</div>
+                            <div class="chart-progress">
+                                <div class="chart-fill" style="width: 88%; background: linear-gradient(90deg, #F59E0B, #D97706);">88</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="chart-label">周五</div>
+                            <div class="chart-progress">
+                                <div class="chart-fill" style="width: 95%; background: linear-gradient(90deg, #EC4899, #BE185D);">95</div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-amber-700 mt-3">
+                        整体呈现<strong>稳步上升</strong>的趋势，周五表现最佳。建议保持目前的学习节奏，继续巩固优势。
+                    </p>
+                </div>
+
+                <!-- 个性化建议 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-lightbulb"></i></div>
+                    <span>个性化成长建议</span>
+                </div>
+
+                <div class="suggestions-card">
+                    <h4 class="font-semibold text-green-800 mb-4">🌟 AI专属建议</h4>
+                    
+                    <div class="suggestion-item">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-green-800 mb-1">深化创意表达训练</div>
+                            <div class="text-sm text-green-700">基于小明在创意方面的天赋，建议增加故事续写、诗歌创作等高阶任务，进一步发挥想象力优势。</div>
+                        </div>
+                    </div>
+
+                    <div class="suggestion-item">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-green-800 mb-1">逻辑思维游戏化训练</div>
+                            <div class="text-sm text-green-700">通过趣味数学游戏、推理谜题等方式，在保持兴趣的同时提升逻辑思维能力。</div>
+                        </div>
+                    </div>
+
+                    <div class="suggestion-item">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-green-800 mb-1">专注力分阶段训练</div>
+                            <div class="text-sm text-green-700">从15分钟开始，逐步延长专注时间。可使用番茄工作法，中间穿插小游戏作为奖励。</div>
+                        </div>
+                    </div>
+
+                    <div class="suggestion-item">
+                        <div class="suggestion-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="font-medium text-green-800 mb-1">亲子互动增强</div>
+                            <div class="text-sm text-green-700">建议每周安排2-3次亲子任务，在轻松的氛围中提升孩子的沟通表达能力。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 成长里程碑 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-trophy"></i></div>
+                    <span>成长里程碑</span>
+                </div>
+
+                <div class="achievement-timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">今天</div>
+                        <div class="timeline-icon" style="background: linear-gradient(135deg, #8B5CF6, #7C3AED);">🎨</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">创意表达突破</div>
+                            <div class="timeline-description">完成《神奇世界》创作，想象力评分达到优秀级别</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">昨天</div>
+                        <div class="timeline-icon" style="background: linear-gradient(135deg, #10B981, #059669);">🏆</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">连续学习成就</div>
+                            <div class="timeline-description">连续7天完成学习打卡，获得"坚持之星"勋章</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">3天前</div>
+                        <div class="timeline-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706);">💬</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">沟通能力提升</div>
+                            <div class="timeline-description">与AI助手对话次数突破100次，交流质量显著提高</div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-date">1周前</div>
+                        <div class="timeline-icon" style="background: linear-gradient(135deg, #EC4899, #BE185D);">📚</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">阅读理解进步</div>
+                            <div class="timeline-description">阅读理解正确率从70%提升到85%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn primary-btn" onclick="generateDetailedReport()">
+                        <i class="fas fa-file-alt text-lg"></i>
+                        <span>生成详细报告</span>
+                    </button>
+                    
+                    <button class="action-btn secondary-btn" onclick="shareReport()">
+                        <i class="fas fa-share text-lg"></i>
+                        <span>分享报告</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动导出按钮 -->
+    <div class="floating-export" onclick="exportReport()" title="导出报告">
+        <i class="fas fa-download"></i>
+    </div>
+
+    <script>
+        // 页面初始化 - 集成深度分析
+        MengyaUtils.Lifecycle.onInit(async () => {
+            await initializeEnhancedReport();
+            animateCharts();
+            
+            // 延迟2秒后开始深度分析，展示加载效果
+            setTimeout(() => {
+                runDeepAnalysis();
+            }, 2000);
+        });
+
+        // 增强的报告初始化
+        async function initializeEnhancedReport() {
+            updateReportDate();
+            await loadAnalyticsData();
+            setupRealTimeUpdates();
+        }
+
+        // 运行深度分析
+        async function runDeepAnalysis() {
+            try {
+                // 获取最新的学习会话数据
+                const latestSession = await getLatestSessionData();
+                
+                if (!latestSession) {
+                    showFallbackAnalysis();
+                    return;
+                }
+
+                // 运行深度学习分析
+                const analysis = await MengyaUtils.Analytics.analyzeComprehensively(latestSession);
+                
+                // 更新UI显示
+                updateInsightContainer(analysis);
+                updateBehaviorAnalysis(analysis);
+                updatePredictiveAnalysis(analysis);
+                
+                MengyaUtils.Notification.success('深度学习分析完成！');
+                
+            } catch (error) {
+                console.error('深度分析失败:', error);
+                showAnalysisError();
+            }
+        }
+
+        // 获取最新学习会话数据
+        async function getLatestSessionData() {
+            const taskCompletion = await MengyaUtils.Data.getData('child.lastTaskCompletion');
+            
+            if (!taskCompletion) {
+                // 生成模拟数据用于演示
+                return {
+                    sessionId: 'demo_' + Date.now(),
+                    taskId: 'creative-world',
+                    answer: '在我想象中的神奇世界里，天空是彩虹色的，云朵像棉花糖一样甜美。那里有会说话的小动物，它们都很友好。森林里的树木会唱歌，花朵会跳舞。我在那里遇到了一只聪明的小狐狸，它教会了我如何用心灵感受大自然的美妙。我们一起探险，发现了很多有趣的秘密。',
+                    wordCount: 108,
+                    timeUsed: 18 * 60, // 18分钟
+                    timestamp: Date.now(),
+                    score: 88
+                };
+            }
+            
+            return {
+                sessionId: taskCompletion.taskId + '_' + taskCompletion.timestamp,
+                taskId: taskCompletion.taskId,
+                answer: taskCompletion.answer,
+                wordCount: taskCompletion.wordCount,
+                timeUsed: taskCompletion.timeUsed,
+                timestamp: taskCompletion.timestamp,
+                score: taskCompletion.score
+            };
+        }
+
+        // 更新AI洞察容器
+        function updateInsightContainer(analysis) {
+            const container = document.getElementById('insightContainer');
+            const insights = generateInsightCards(analysis);
+            
+            container.innerHTML = insights;
+            
+            // 添加出现动画
+            setTimeout(() => {
+                container.querySelectorAll('.insight-card').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.6s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 200);
+                });
+            }, 100);
+        }
+
+        // 生成洞察卡片HTML
+        function generateInsightCards(analysis) {
+            const abilities = analysis.abilityAnalysis;
+            const recommendations = analysis.personalizedRecommendations;
+            
+            // 找出最强和最弱的能力
+            const abilityScores = Object.entries(abilities).map(([name, data]) => ({
+                name,
+                score: data.score,
+                level: data.level
+            }));
+            
+            const strongest = abilityScores.reduce((a, b) => a.score > b.score ? a : b);
+            const weakest = abilityScores.reduce((a, b) => a.score < b.score ? a : b);
+            
+            return `
+                <div class="insight-card">
+                    <h4 class="font-semibold text-sky-800 mb-3">🎯 AI深度洞察</h4>
+                    <p class="text-sm text-sky-700 leading-relaxed mb-4">
+                        通过AI深度分析，发现孩子在<strong>${getAbilityDisplayName(strongest.name)}</strong>方面表现突出（${strongest.score}分），
+                        展现出${strongest.level}的水平。同时，<strong>${getAbilityDisplayName(weakest.name)}</strong>还有较大提升空间。
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="bg-white bg-opacity-70 rounded-lg p-2">
+                            <div class="font-medium text-sky-800">优势能力</div>
+                            <div class="text-sky-600">${getAbilityDisplayName(strongest.name)}</div>
+                        </div>
+                        <div class="bg-white bg-opacity-70 rounded-lg p-2">
+                            <div class="font-medium text-sky-800">成长空间</div>
+                            <div class="text-sky-600">${getAbilityDisplayName(weakest.name)}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <h4 class="font-semibold text-green-800 mb-3">📈 学习模式分析</h4>
+                    <p class="text-sm text-green-700 leading-relaxed mb-4">
+                        AI检测到孩子的学习模式为<strong>创意驱动型</strong>，在富有想象力的任务中表现更佳。
+                        建议采用故事化、游戏化的学习方式来维持学习兴趣。
+                    </p>
+                    <div class="flex items-center space-x-4 text-xs">
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded">想象力丰富</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">表达生动</span>
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">互动积极</span>
+                    </div>
+                </div>
+                
+                <div class="insight-card">
+                    <h4 class="font-semibold text-amber-800 mb-3">🚀 个性化建议</h4>
+                    <div class="space-y-2 text-sm">
+                        ${generateRecommendationItems(recommendations)}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 生成建议项目
+        function generateRecommendationItems(recommendations) {
+            const allRecs = [
+                ...recommendations.immediate,
+                ...recommendations.shortTerm
+            ].slice(0, 3);
+            
+            if (allRecs.length === 0) {
+                return '<div class="text-amber-700">继续保持当前的学习节奏，表现很棒！</div>';
+            }
+            
+            return allRecs.map(rec => `
+                <div class="flex items-start space-x-2">
+                    <div class="w-2 h-2 bg-amber-500 rounded-full mt-1.5 flex-shrink-0"></div>
+                    <span class="text-amber-700">${rec.description || rec.title}</span>
+                </div>
+            `).join('');
+        }
+
+        // 更新行为分析显示
+        function updateBehaviorAnalysis(analysis) {
+            const patterns = analysis.behaviorPatterns;
+            const emotional = analysis.emotionalState;
+            
+            // 更新时间偏好
+            updateTimePreferences(patterns.timePreferences);
+            
+            // 更新注意力模式
+            updateAttentionPatterns(analysis);
+            
+            // 更新学习策略
+            updateLearningStrategies(analysis);
+            
+            // 更新情感状态
+            updateEmotionalState(emotional);
+        }
+
+        function updateTimePreferences(timeData) {
+            const statusEl = document.getElementById('timePreferenceStatus');
+            const detailsEl = document.getElementById('timePreferenceDetails');
+            
+            if (timeData.pattern === 'insufficient_data') {
+                statusEl.textContent = '数据积累中';
+                detailsEl.innerHTML = `
+                    <div class="text-sm text-gray-600">
+                        需要更多学习数据来分析时间偏好模式
+                    </div>
+                `;
+            } else {
+                const timeNames = {
+                    morning: '上午时段',
+                    afternoon: '下午时段',
+                    evening: '晚上时段'
+                };
+                
+                statusEl.textContent = `偏好${timeNames[timeData.pattern]}学习`;
+                detailsEl.innerHTML = `
+                    <div class="text-sm text-gray-700 mb-2">
+                        在${timeNames[timeData.pattern]}学习效果最佳
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        ${timeData.recommendation || '建议在此时段安排重要学习任务'}
+                    </div>
+                `;
+            }
+        }
+
+        function updateAttentionPatterns(analysis) {
+            const statusEl = document.getElementById('attentionStatus');
+            const detailsEl = document.getElementById('attentionDetails');
+            
+            const focusScore = analysis.abilityAnalysis.focus.score;
+            let pattern = '';
+            let recommendation = '';
+            
+            if (focusScore >= 80) {
+                pattern = '专注力优秀';
+                recommendation = '能够持续专注，适合长时间学习任务';
+            } else if (focusScore >= 60) {
+                pattern = '专注力良好';
+                recommendation = '建议适当休息，采用番茄工作法';
+            } else {
+                pattern = '专注力待提升';
+                recommendation = '建议分解任务，增加互动元素';
+            }
+            
+            statusEl.textContent = pattern;
+            detailsEl.innerHTML = `
+                <div class="text-sm text-gray-700 mb-2">
+                    专注力评分: ${focusScore}/100
+                </div>
+                <div class="text-xs text-gray-500">
+                    ${recommendation}
+                </div>
+            `;
+        }
+
+        function updateLearningStrategies(analysis) {
+            const statusEl = document.getElementById('strategyStatus');
+            const detailsEl = document.getElementById('strategyDetails');
+            
+            // 基于能力分析推断学习策略偏好
+            const creativity = analysis.abilityAnalysis.creativity.score;
+            const logic = analysis.abilityAnalysis.logic.score;
+            
+            let strategy = '';
+            let description = '';
+            
+            if (creativity > logic) {
+                strategy = '创意导向型';
+                description = '偏好通过想象和创造来学习';
+            } else if (logic > creativity) {
+                strategy = '逻辑导向型';
+                description = '偏好通过推理和分析来学习';
+            } else {
+                strategy = '平衡发展型';
+                description = '创意和逻辑能力均衡发展';
+            }
+            
+            statusEl.textContent = strategy;
+            detailsEl.innerHTML = `
+                <div class="text-sm text-gray-700 mb-2">
+                    ${description}
+                </div>
+                <div class="text-xs text-gray-500">
+                    建议采用多样化的学习方式
+                </div>
+            `;
+        }
+
+        function updateEmotionalState(emotional) {
+            const statusEl = document.getElementById('emotionalStatus');
+            const detailsEl = document.getElementById('emotionalDetails');
+            
+            // 模拟情感分析结果
+            const emotionalStates = [
+                { state: '积极乐观', color: 'text-green-600', description: '学习态度积极，情绪稳定' },
+                { state: '专注投入', color: 'text-blue-600', description: '对学习内容表现出浓厚兴趣' },
+                { state: '轻松愉快', color: 'text-purple-600', description: '学习过程中保持愉悦心情' }
+            ];
+            
+            const currentState = emotionalStates[Math.floor(Math.random() * emotionalStates.length)];
+            
+            statusEl.textContent = currentState.state;
+            statusEl.className = `text-sm ${currentState.color}`;
+            
+            detailsEl.innerHTML = `
+                <div class="text-sm text-gray-700 mb-2">
+                    ${currentState.description}
+                </div>
+                <div class="text-xs text-gray-500">
+                    情感状态对学习效果有积极影响
+                </div>
+            `;
+        }
+
+        // 获取能力显示名称
+        function getAbilityDisplayName(abilityName) {
+            const names = {
+                expression: '语言表达',
+                logic: '逻辑思维',
+                creativity: '创意思维',
+                focus: '专注持续'
+            };
+            return names[abilityName] || abilityName;
+        }
+
+        // 显示分析错误
+        function showAnalysisError() {
+            const container = document.getElementById('insightContainer');
+            container.innerHTML = `
+                <div class="insight-card">
+                    <h4 class="font-semibold text-red-800 mb-3">⚠️ 分析暂时不可用</h4>
+                    <p class="text-sm text-red-700">
+                        AI分析引擎暂时遇到问题，请稍后重试。您仍可以查看基础学习数据。
+                    </p>
+                </div>
+            `;
+        }
+
+        // 显示后备分析
+        function showFallbackAnalysis() {
+            const container = document.getElementById('insightContainer');
+            container.innerHTML = `
+                <div class="insight-card">
+                    <h4 class="font-semibold text-blue-800 mb-3">📊 基础分析报告</h4>
+                    <p class="text-sm text-blue-700 mb-4">
+                        孩子最近的学习表现良好，建议继续保持当前的学习节奏。
+                        完成更多学习任务后，AI将能提供更详细的个性化分析。
+                    </p>
+                    <div class="text-xs text-blue-600">
+                        💡 提示：更多学习数据将解锁深度AI分析功能
+                    </div>
+                </div>
+            `;
+        }
+
+        // 加载分析数据
+        async function loadAnalyticsData() {
+            try {
+                const analyticsData = await MengyaUtils.Data.getData('analytics.latestAnalysis');
+                if (analyticsData) {
+                    // 已加载历史分析数据
+                }
+            } catch (error) {
+                // 首次使用，暂无历史分析数据
+            }
+        }
+
+        // 设置实时更新
+        function setupRealTimeUpdates() {
+            // 每5分钟检查一次是否有新的学习数据
+            setInterval(async () => {
+                const lastUpdate = await MengyaUtils.Data.getData('child.progress.lastUpdated');
+                const lastCheck = localStorage.getItem('lastAnalysisCheck');
+                
+                if (lastUpdate && (!lastCheck || lastUpdate > parseInt(lastCheck))) {
+                    // 检测到新的学习数据，准备更新分析
+                    localStorage.setItem('lastAnalysisCheck', Date.now().toString());
+                    // 可以选择自动重新分析或提示用户
+                }
+            }, 5 * 60 * 1000);
+        }
+
+        // 更新预测分析（可选）
+        function updatePredictiveAnalysis(analysis) {
+            const predictions = analysis.predictions;
+            if (predictions) {
+                // 预测分析结果
+                // 这里可以添加预测分析的UI更新
+            }
+        }
+
+        // 更新报告日期
+        function updateReportDate() {
+            const now = new Date();
+            const options = { month: 'long', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('zh-CN', options);
+            const reportDateEl = document.getElementById('reportDate');
+            if (reportDateEl) {
+                reportDateEl.textContent = `截至${dateStr}`;
+            }
+        }
+
+        // 数字动画
+        function animateCounters(userData) {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent) || 0;
+                let current = 0;
+                const increment = target / 30;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    counter.textContent = Math.floor(current);
+                }, 50);
+            });
+        }
+
+        // 图表动画
+        function animateCharts() {
+            const progressFills = document.querySelectorAll('.progress-fill');
+            const chartFills = document.querySelectorAll('.chart-fill');
+            
+            // 延迟执行动画
+            setTimeout(() => {
+                progressFills.forEach(fill => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 100);
+                });
+                
+                chartFills.forEach((fill, index) => {
+                    const width = fill.style.width;
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = width;
+                    }, 200 + index * 100);
+                });
+            }, 500);
+        }
+
+        // 生成详细报告
+        function generateDetailedReport() {
+            MengyaUtils.Notification.info('正在生成详细报告...');
+            
+            setTimeout(() => {
+                const report = `
+📊 小明的详细成长报告
+
+📈 综合能力评估：92分 (优秀)
+• 创意表达：88分 - 想象力丰富，表达生动
+• 逻辑思维：72分 - 基础扎实，需加强训练  
+• 沟通交流：85分 - 互动积极，理解力强
+• 专注持续：65分 - 兴趣导向，需要引导
+
+🎯 学习特点分析：
+• 对创意类任务兴趣浓厚，完成质量高
+• 善于用故事和比喻理解抽象概念
+• 喜欢互动式学习，不太适应单调练习
+• 在鼓励和认可下表现更佳
+
+💡 家长指导建议：
+• 多给予创意表达的机会和平台
+• 用游戏化方式进行逻辑思维训练
+• 建立学习奖励机制，提升专注力
+• 定期进行亲子互动学习活动
+
+📅 下周学习计划：
+• 周一：创意写作进阶训练
+• 周二：数学逻辑游戏
+• 周三：亲子故事创作
+• 周四：专注力提升练习
+• 周五：综合能力测评
+
+本报告基于AI算法分析生成，建议结合实际情况调整。
+                `;
+                
+                MengyaUtils.Notification.success('详细报告已生成！');
+                // 生成报告完成，实际应用中可以弹窗显示或下载
+            }, 2000);
+        }
+
+        // 分享报告
+        function shareReport() {
+            if (navigator.share) {
+                navigator.share({
+                    title: '小明的AI成长分析报告',
+                    text: '查看孩子的最新学习分析和成长建议',
+                    url: window.location.href
+                });
+            } else {
+                // 备用分享方案
+                const shareText = '查看小明的AI成长分析报告：综合能力92分，创意表达表现突出！';
+                navigator.clipboard.writeText(shareText).then(() => {
+                    MengyaUtils.Notification.success('分享内容已复制到剪贴板');
+                });
+            }
+        }
+
+        // 导出报告
+        function exportReport() {
+            MengyaUtils.Notification.info('正在准备报告导出...');
+            
+            setTimeout(() => {
+                // 模拟导出功能
+                const reportData = {
+                    date: new Date().toISOString(),
+                    studentName: '小明',
+                    overallScore: 92,
+                    abilities: {
+                        creativity: 88,
+                        logic: 72,
+                        communication: 85,
+                        focus: 65
+                    },
+                    weeklyTrend: [75, 82, 90, 88, 95],
+                    suggestions: [
+                        '深化创意表达训练',
+                        '逻辑思维游戏化训练',
+                        '专注力分阶段训练',
+                        '亲子互动增强'
+                    ]
+                };
+                
+                // 实际应用中这里会生成PDF或Excel文件
+                // 报告数据准备完成
+                MengyaUtils.Notification.success('报告已导出到下载文件夹');
+            }, 1500);
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            MengyaUtils.Navigation.smartBack();
+        }
+    </script>
+</body>
+</html>

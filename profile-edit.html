@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑资料 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 32px;
+        }
+        .edit-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px;
+            background: white;
+            border-radius: 24px;
+            margin-top: -20px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+        }
+        .avatar-display {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.3);
+        }
+        .avatar-display:hover {
+            transform: scale(1.05);
+        }
+        .avatar-edit-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            background: #10B981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+        }
+        .interest-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .interest-tag {
+            padding: 6px 12px;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .interest-tag.selected {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border-color: #8B5CF6;
+        }
+        .save-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        .avatar-option:hover,
+        .avatar-option.selected {
+            border-color: #8B5CF6;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg text-white">
+        <div class="flex items-center justify-between max-w-600px mx-auto">
+            <div class="flex items-center gap-4">
+                <button class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold">编辑个人资料</h1>
+                    <p class="text-sm opacity-80">完善你的学习档案</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑表单 -->
+    <div class="edit-container">
+        <!-- 头像部分 -->
+        <div class="avatar-section">
+            <div class="avatar-container">
+                <div class="avatar-display" id="currentAvatar" onclick="showAvatarSelector()">
+                    🌟
+                </div>
+                <div class="avatar-edit-btn">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mt-4">选择你的头像</h3>
+        </div>
+
+        <!-- 基本信息 -->
+        <form id="profileForm">
+            <div class="form-group">
+                <label class="form-label">昵称</label>
+                <input type="text" class="form-input" id="nickname" value="小明" placeholder="输入你的昵称">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">年龄</label>
+                <select class="form-select" id="age">
+                    <option value="">请选择年龄</option>
+                    <option value="5">5岁</option>
+                    <option value="6">6岁</option>
+                    <option value="7">7岁</option>
+                    <option value="8">8岁</option>
+                    <option value="9">9岁</option>
+                    <option value="10">10岁</option>
+                    <option value="11">11岁</option>
+                    <option value="12">12岁</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">学习目标</label>
+                <select class="form-select" id="learningGoal">
+                    <option value="">选择你的学习目标</option>
+                    <option value="expression">提升表达能力</option>
+                    <option value="reading">增强阅读理解</option>
+                    <option value="creativity">培养创意思维</option>
+                    <option value="communication">改善沟通交流</option>
+                    <option value="comprehensive">全面发展</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">兴趣爱好</label>
+                <p class="text-sm text-gray-600 mb-2">选择你感兴趣的内容（可多选）</p>
+                <div class="interest-tags">
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="story">📚 故事阅读</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="art">🎨 绘画创作</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="music">🎵 音乐欣赏</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="science">🔬 科学探索</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="sports">⚽ 体育运动</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="nature">🌿 自然观察</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="games">🎮 益智游戏</div>
+                    <div class="interest-tag" onclick="toggleInterest(this)" data-interest="cooking">🍳 烹饪体验</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">自我介绍</label>
+                <textarea class="form-input" id="introduction" rows="4" placeholder="用几句话介绍一下自己吧..."></textarea>
+            </div>
+
+            <button type="submit" class="save-btn">
+                <i class="fas fa-save mr-2"></i>
+                保存资料
+            </button>
+        </form>
+
+        <!-- 头像选择器（隐藏） -->
+        <div id="avatarSelector" style="display: none;">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">选择头像</h4>
+            <div class="avatar-grid">
+                <div class="avatar-option" onclick="selectAvatar('🌟')">🌟</div>
+                <div class="avatar-option" onclick="selectAvatar('🎨')">🎨</div>
+                <div class="avatar-option" onclick="selectAvatar('📚')">📚</div>
+                <div class="avatar-option" onclick="selectAvatar('🚀')">🚀</div>
+                <div class="avatar-option" onclick="selectAvatar('🦄')">🦄</div>
+                <div class="avatar-option" onclick="selectAvatar('🌈')">🌈</div>
+                <div class="avatar-option" onclick="selectAvatar('⭐')">⭐</div>
+                <div class="avatar-option" onclick="selectAvatar('🎯')">🎯</div>
+                <div class="avatar-option" onclick="selectAvatar('🏆')">🏆</div>
+                <div class="avatar-option" onclick="selectAvatar('💎')">💎</div>
+                <div class="avatar-option" onclick="selectAvatar('🎪')">🎪</div>
+                <div class="avatar-option" onclick="selectAvatar('🎭')">🎭</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedInterests = [];
+        let currentAvatarEmoji = '🌟';
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProfileData();
+            setupFormValidation();
+        });
+
+        // 加载个人资料数据
+        function loadProfileData() {
+            const savedProfile = localStorage.getItem('userProfile');
+            if (savedProfile) {
+                try {
+                    const profile = JSON.parse(savedProfile);
+                    document.getElementById('nickname').value = profile.nickname || '';
+                    document.getElementById('age').value = profile.age || '';
+                    document.getElementById('learningGoal').value = profile.learningGoal || '';
+                    document.getElementById('introduction').value = profile.introduction || '';
+                    
+                    if (profile.avatar) {
+                        currentAvatarEmoji = profile.avatar;
+                        document.getElementById('currentAvatar').textContent = profile.avatar;
+                    }
+                    
+                    if (profile.interests) {
+                        selectedInterests = profile.interests;
+                        profile.interests.forEach(interest => {
+                            const tag = document.querySelector(`[data-interest="${interest}"]`);
+                            if (tag) {
+                                tag.classList.add('selected');
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error('加载个人资料失败:', e);
+                }
+            }
+        }
+
+        // 显示头像选择器
+        function showAvatarSelector() {
+            const selector = document.getElementById('avatarSelector');
+            if (selector.style.display === 'none') {
+                selector.style.display = 'block';
+                selector.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                selector.style.display = 'none';
+            }
+        }
+
+        // 选择头像
+        function selectAvatar(emoji) {
+            currentAvatarEmoji = emoji;
+            document.getElementById('currentAvatar').textContent = emoji;
+            
+            // 更新选中状态
+            document.querySelectorAll('.avatar-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.classList.add('selected');
+            
+            // 隐藏选择器
+            setTimeout(() => {
+                document.getElementById('avatarSelector').style.display = 'none';
+            }, 500);
+            
+            vibrateDevice();
+            showNotification('头像已更换！', 'success');
+        }
+
+        // 切换兴趣标签
+        function toggleInterest(element) {
+            const interest = element.getAttribute('data-interest');
+            
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                selectedInterests = selectedInterests.filter(i => i !== interest);
+            } else {
+                element.classList.add('selected');
+                selectedInterests.push(interest);
+            }
+            
+            vibrateDevice();
+        }
+
+        // 设置表单验证
+        function setupFormValidation() {
+            const form = document.getElementById('profileForm');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const nickname = document.getElementById('nickname').value.trim();
+                const age = document.getElementById('age').value;
+                
+                if (!nickname) {
+                    showNotification('请输入昵称', 'error');
+                    return;
+                }
+                
+                if (!age) {
+                    showNotification('请选择年龄', 'error');
+                    return;
+                }
+                
+                saveProfile();
+            });
+        }
+
+        // 保存个人资料
+        function saveProfile() {
+            const profileData = {
+                nickname: document.getElementById('nickname').value.trim(),
+                age: document.getElementById('age').value,
+                learningGoal: document.getElementById('learningGoal').value,
+                introduction: document.getElementById('introduction').value.trim(),
+                interests: selectedInterests,
+                avatar: currentAvatarEmoji,
+                lastUpdated: Date.now()
+            };
+            
+            try {
+                localStorage.setItem('userProfile', JSON.stringify(profileData));
+                
+                showNotification('个人资料保存成功！', 'success');
+                vibrateDevice([100, 50, 100]);
+                
+                // 延迟返回
+                setTimeout(() => {
+                    navigateBack();
+                }, 1500);
+                
+            } catch (e) {
+                console.error('保存失败:', e);
+                showNotification('保存失败，请重试', 'error');
+            }
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            parent.postMessage({
+                type: 'navigate',
+                page: 'profile'
+            }, '*');
+        }
+
+        // 震动反馈
+        function vibrateDevice(pattern = [50]) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+
+        // 添加输入动画效果
+        document.querySelectorAll('.form-input, .form-select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // 字数统计
+        const introduction = document.getElementById('introduction');
+        introduction.addEventListener('input', function() {
+            const maxLength = 200;
+            const currentLength = this.value.length;
+            
+            if (currentLength > maxLength) {
+                this.value = this.value.substring(0, maxLength);
+            }
+            
+            // 可以添加字数显示
+            // 字数统计更新
+        });
+    </script>
+</body>
+</html> 

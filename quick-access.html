@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>萌芽AI - 快速访问</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .app-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid transparent;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-8px);
+            border-color: #667eea;
+            box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+        }
+        
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .app-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+        
+        .app-desc {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .new-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">萌芽AI</div>
+        <div class="subtitle">快速访问所有功能</div>
+    </div>
+    
+    <div class="app-grid">
+        <!-- 账号中心 - 新功能 -->
+        <div class="app-card" onclick="openPage('account-center.html')" style="position: relative;">
+            <div class="new-badge">NEW</div>
+            <div class="app-icon">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <div class="app-title">账号中心</div>
+            <div class="app-desc">账号管理、会员体系、充值支付</div>
+        </div>
+        
+        <!-- 主页 -->
+        <div class="app-card" onclick="openPage('home.html')">
+            <div class="app-icon">
+                <i class="fas fa-home"></i>
+            </div>
+            <div class="app-title">首页</div>
+            <div class="app-desc">欢迎页面和主要导航</div>
+        </div>
+        
+        <!-- 个人中心 -->
+        <div class="app-card" onclick="openPage('profile.html')">
+            <div class="app-icon">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="app-title">个人中心</div>
+            <div class="app-desc">用户资料、成就、功能中心</div>
+        </div>
+        
+        <!-- 家长面板 -->
+        <div class="app-card" onclick="openPage('parent-panel.html')">
+            <div class="app-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="app-title">家长面板</div>
+            <div class="app-desc">学习监控、进度管理、家长控制</div>
+        </div>
+        
+        <!-- 学习仪表盘 -->
+        <div class="app-card" onclick="openPage('learning-dashboard.html')">
+            <div class="app-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="app-title">学习仪表盘</div>
+            <div class="app-desc">学习数据、进度追踪、智能分析</div>
+        </div>
+        
+        <!-- AI助手 -->
+        <div class="app-card" onclick="openPage('ai-assistant.html')">
+            <div class="app-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="app-title">AI助手</div>
+            <div class="app-desc">智能对话、学习辅导、问题解答</div>
+        </div>
+        
+        <!-- 家庭中心 -->
+        <div class="app-card" onclick="openPage('family-center.html')">
+            <div class="app-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="app-title">家庭中心</div>
+            <div class="app-desc">家庭互动、亲子活动、协作学习</div>
+        </div>
+        
+        <!-- 故事墙 -->
+        <div class="app-card" onclick="openPage('story-wall.html')">
+            <div class="app-icon">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="app-title">故事墙</div>
+            <div class="app-desc">创作展示、故事分享、作品管理</div>
+        </div>
+        
+        <!-- 勋章中心 -->
+        <div class="app-card" onclick="openPage('badge-center.html')">
+            <div class="app-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="app-title">勋章中心</div>
+            <div class="app-desc">成就管理、勋章收集、进度展示</div>
+        </div>
+        
+        <!-- 评估中心 -->
+        <div class="app-card" onclick="openPage('evaluation.html')">
+            <div class="app-icon">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div class="app-title">评估中心</div>
+            <div class="app-desc">能力测评、学习诊断、发展建议</div>
+        </div>
+        
+        <!-- 协作学习 -->
+        <div class="app-card" onclick="openPage('collaborative-learning.html')">
+            <div class="app-icon">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <div class="app-title">协作学习</div>
+            <div class="app-desc">团队项目、合作任务、社交学习</div>
+        </div>
+        
+        <!-- 家长社区 -->
+        <div class="app-card" onclick="openPage('parent-community.html')">
+            <div class="app-icon">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="app-title">家长社区</div>
+            <div class="app-desc">经验交流、育儿分享、专家指导</div>
+        </div>
+        
+        <!-- 设置中心 -->
+        <div class="app-card" onclick="openPage('settings.html')">
+            <div class="app-icon">
+                <i class="fas fa-cog"></i>
+            </div>
+            <div class="app-title">设置中心</div>
+            <div class="app-desc">系统设置、隐私管理、偏好配置</div>
+        </div>
+        
+        <!-- 学习路径 -->
+        <div class="app-card" onclick="openPage('learning-path.html')">
+            <div class="app-icon">
+                <i class="fas fa-route"></i>
+            </div>
+            <div class="app-title">学习路径</div>
+            <div class="app-desc">个性化路径、进度规划、目标设定</div>
+        </div>
+        
+        <!-- 家庭成就 -->
+        <div class="app-card" onclick="openPage('family-achievements.html')">
+            <div class="app-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="app-title">家庭成就</div>
+            <div class="app-desc">家庭荣誉、集体目标、共同成长</div>
+        </div>
+        
+        <!-- 报告详情 -->
+        <div class="app-card" onclick="openPage('report-detail.html')">
+            <div class="app-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="app-title">报告详情</div>
+            <div class="app-desc">详细报告、数据分析、趋势洞察</div>
+        </div>
+    </div>
+    
+    <script>
+        function openPage(url) {
+            // 添加点击动画效果
+            event.target.closest('.app-card').style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                // 在原型内部跳转，不打开新标签页
+                window.location.href = url;
+                event.target.closest('.app-card').style.transform = '';
+            }, 150);
+        }
+        
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.close();
+            }
+        });
+        
+        // 显示快捷提示
+        setTimeout(() => {
+            const toast = document.createElement('div');
+            toast.innerHTML = `
+                <div style="position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 12px 16px; border-radius: 8px; font-size: 14px; z-index: 1000;">
+                    💡 提示：点击任意卡片访问对应功能
+                </div>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }, 1000);
+    </script>
+</body>
+</html> 

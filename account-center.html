@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号中心 - 萌芽AI学习助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="mengya-common.js"></script>
+    <style>
+        body { font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .membership-card { border-radius: 20px; padding: 24px; color: white; position: relative; overflow: hidden; }
+        .membership-card.normal { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); }
+        .membership-card.premium { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #333; }
+        .membership-card.vip { background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%); }
+        .feature-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease; cursor: pointer; }
+        .feature-card:hover { transform: translateY(-4px); }
+        .points-badge { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 50px; color: white; padding: 8px 16px; font-weight: bold; font-size: 14px; }
+        .recharge-option { transition: all 0.3s ease; }
+        .recharge-option:hover { transform: translateY(-2px); }
+        .recharge-option.selected { border-color: #667eea !important; background: #667eea !important; color: white !important; }
+        .tab-button { padding: 12px 16px; border: none; background: #f1f5f9; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.3s; flex: 1; text-align: center; font-size: 14px; }
+        .tab-button.active { background: #667eea; color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; padding: 20px; }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 16px; width: 100%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+        .membership-plan { cursor: pointer; transition: all 0.3s ease; border-radius: 12px; }
+        .membership-plan:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); }
+        .subscription-period { cursor: pointer; transition: all 0.3s ease; }
+        .toggle-switch { width: 48px; height: 24px; background-color: #e5e7eb; border-radius: 12px; position: relative; cursor: pointer; transition: background-color 0.3s ease; }
+        .toggle-switch.active { background-color: #3b82f6; }
+        .toggle-slider { width: 20px; height: 20px; background-color: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: transform 0.3s ease; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        .toggle-switch.active .toggle-slider { transform: translateX(24px); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="gradient-bg px-6 py-4">
+        <div class="flex items-center justify-between">
+            <button onclick="navigateBack()" class="text-white text-xl">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="text-white text-lg font-bold">账号中心</h1>
+            <button onclick="showSettings()" class="text-white text-xl">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="px-6 py-6 space-y-6">
+        <!-- 用户信息卡片 -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg">
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                    <span id="userAvatar">李</span>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold text-gray-800" id="userName">李先生</h2>
+                    <p class="text-gray-600" id="userPhone">138****8888</p>
+                    <div class="points-badge inline-block mt-2">
+                        <i class="fas fa-coins mr-1"></i>
+                        <span id="userPoints">2,580</span> 积分
+                    </div>
+                </div>
+                <button onclick="editProfile()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-edit text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 会员卡片 -->
+        <div id="membershipCard" class="membership-card premium">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-bold mb-1">高级会员</h3>
+                    <p class="opacity-80">尊享专属特权</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm opacity-80">有效期至</div>
+                    <div class="font-bold" id="membershipExpiry">2024.12.31</div>
+                </div>
+            </div>
+            
+            <!-- 会员进度 -->
+            <div class="mb-4">
+                <div class="flex justify-between text-sm mb-2">
+                    <span>升级进度</span>
+                    <span id="upgradeProgress">75%</span>
+                </div>
+                <div class="w-full bg-white bg-opacity-30 rounded-full h-2">
+                    <div class="bg-white h-2 rounded-full transition-all duration-500" style="width: 75%" id="progressBar"></div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <div class="text-sm">
+                    <span class="opacity-80">距离VIP会员还需</span>
+                    <span class="font-bold" id="pointsToUpgrade">500积分</span>
+                </div>
+                <button onclick="upgradeMembership()" class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-30 transition-all">
+                    立即升级
+                </button>
+            </div>
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="flex space-x-2 p-1 bg-white rounded-xl">
+            <button class="tab-button active" onclick="switchTab('overview')">概览</button>
+            <button class="tab-button" onclick="switchTab('membership')">会员</button>
+            <button class="tab-button" onclick="switchTab('recharge')">充值</button>
+            <button class="tab-button" onclick="switchTab('records')">记录</button>
+        </div>
+
+        <!-- 概览标签页 -->
+        <div id="overviewTab" class="tab-content">
+            <!-- 快捷功能 -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="feature-card text-center" onclick="openRechargeTab()">
+                    <i class="fas fa-credit-card text-3xl text-blue-500 mb-3"></i>
+                    <h4 class="font-semibold text-gray-800">充值积分</h4>
+                    <p class="text-sm text-gray-600">购买积分解锁更多功能</p>
+                </div>
+                <div class="feature-card text-center" onclick="showInviteRewards()">
+                    <i class="fas fa-gift text-3xl text-green-500 mb-3"></i>
+                    <h4 class="font-semibold text-gray-800">邀请奖励</h4>
+                    <p class="text-sm text-gray-600">邀请好友获得丰厚奖励</p>
+                </div>
+                <div class="feature-card text-center" onclick="showDailyTasks()">
+                    <i class="fas fa-tasks text-3xl text-purple-500 mb-3"></i>
+                    <h4 class="font-semibold text-gray-800">每日任务</h4>
+                    <p class="text-sm text-gray-600">完成任务赚取积分</p>
+                </div>
+                <div class="feature-card text-center" onclick="showPointsMall()">
+                    <i class="fas fa-store text-3xl text-orange-500 mb-3"></i>
+                    <h4 class="font-semibold text-gray-800">积分商城</h4>
+                    <p class="text-sm text-gray-600">用积分兑换精美礼品</p>
+                </div>
+            </div>
+
+            <!-- 账户统计 -->
+            <div class="bg-white rounded-2xl p-6">
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">账户统计</h4>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl font-bold text-blue-600" id="totalPoints">2,580</div>
+                        <div class="text-sm text-gray-600">总积分</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-green-600" id="usedPoints">420</div>
+                        <div class="text-sm text-gray-600">已使用</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-purple-600" id="membershipDays">365</div>
+                        <div class="text-sm text-gray-600">会员天数</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 其他标签页内容 -->
+        <div id="membershipTab" class="tab-content hidden"></div>
+        <div id="rechargeTab" class="tab-content hidden"></div>
+        <div id="recordsTab" class="tab-content hidden"></div>
+    </div>
+
+    <!-- 支付模态框 -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold">选择支付方式</h3>
+                    <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="bg-gray-50 rounded-xl p-4 text-center">
+                        <div class="text-lg font-semibold text-gray-800">订单金额</div>
+                        <div class="text-3xl font-bold text-blue-600 mt-2" id="paymentAmount">￥6.8</div>
+                        <div class="text-sm text-gray-600 mt-1" id="paymentPoints">购买1000积分</div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 mb-6">
+                    <div class="payment-method border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-blue-400 transition-all" data-method="wechat">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fab fa-weixin text-2xl text-green-500"></i>
+                                <span class="font-semibold">微信支付</span>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500 hidden"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-method border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-blue-400 transition-all" data-method="alipay">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="fab fa-alipay text-2xl text-blue-500"></i>
+                                <span class="font-semibold">支付宝</span>
+                            </div>
+                            <i class="fas fa-check-circle text-green-500 hidden"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="confirmPayment()" class="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all">
+                    确认支付
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 详细的JavaScript代码将在下一个部分添加
+        let userData = {
+            name: '李先生',
+            phone: '138****8888', 
+            avatar: '李',
+            points: 2580,
+            totalPoints: 2580,
+            usedPoints: 420,
+            membershipLevel: 'pro', // 'free', 'pro', 'max'
+            membershipExpiry: '2024-12-31',
+            membershipDays: 365,
+            autoRenewal: true,
+            transactions: [
+                {
+                    id: 'tx1701234567890',
+                    type: 'subscription',
+                    amount: 4655, // 以分为单位
+                    points: 0,
+                    date: '2024-03-15',
+                    status: 'completed',
+                    desc: '订阅萌芽AI Pro - 季度'
+                },
+                {
+                    id: 'tx1701234567891',
+                    type: 'recharge',
+                    amount: 1280,
+                    points: 2000,
+                    date: '2024-03-10',
+                    status: 'completed',
+                    desc: '积分充值'
+                }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUserData();
+            generateTabContent();
+        });
+
+        function loadUserData() {
+            document.getElementById('userAvatar').textContent = userData.avatar;
+            document.getElementById('userName').textContent = userData.name;
+            document.getElementById('userPhone').textContent = userData.phone;
+            document.getElementById('userPoints').textContent = userData.points.toLocaleString();
+            
+            // 更新统计数据
+            document.getElementById('totalPoints').textContent = userData.points.toLocaleString();
+            document.getElementById('usedPoints').textContent = userData.usedPoints.toLocaleString();
+            document.getElementById('membershipDays').textContent = userData.membershipDays;
+            
+            updateMembershipCard();
+        }
+
+        // 更新会员卡片显示
+        function updateMembershipCard() {
+            const membershipCard = document.getElementById('membershipCard');
+            let levelText = '';
+            let levelClass = '';
+            let progressValue = 0;
+            let nextLevelPoints = 0;
+            
+            switch(userData.membershipLevel) {
+                case 'free':
+                    levelText = '免费版';
+                    levelClass = 'normal';
+                    progressValue = userData.points > 0 ? 50 : 0;
+                    nextLevelPoints = '升级至Pro';
+                    break;
+                case 'pro':
+                    levelText = '萌芽AI Pro';
+                    levelClass = 'premium';
+                    progressValue = userData.points > 5000 ? 85 : 75;
+                    nextLevelPoints = '升级至Max';
+                    break;
+                case 'max':
+                    levelText = '萌芽AI Max';
+                    levelClass = 'vip';
+                    progressValue = 100;
+                    nextLevelPoints = '已是最高等级';
+                    break;
+            }
+            
+            membershipCard.className = `membership-card ${levelClass}`;
+            membershipCard.querySelector('h3').textContent = levelText;
+            membershipCard.querySelector('#membershipExpiry').textContent = userData.membershipExpiry;
+            membershipCard.querySelector('#upgradeProgress').textContent = `${progressValue}%`;
+            membershipCard.querySelector('#progressBar').style.width = `${progressValue}%`;
+            membershipCard.querySelector('#pointsToUpgrade').textContent = nextLevelPoints;
+            
+            if (userData.points < 1000) {
+                levelText = '普通会员';
+                levelClass = 'membership-card basic';
+                progressValue = (userData.points / 1000) * 100;
+                nextLevelPoints = 1000 - userData.points;
+            } else if (userData.points < 5000) {
+                levelText = '高级会员';
+                levelClass = 'membership-card premium';
+                progressValue = ((userData.points - 1000) / 4000) * 100;
+                nextLevelPoints = 5000 - userData.points;
+            } else {
+                levelText = 'VIP会员';
+                levelClass = 'membership-card vip';
+                progressValue = 100;
+                nextLevelPoints = 0;
+            }
+            
+            membershipCard.className = levelClass;
+            membershipCard.querySelector('h3').textContent = levelText;
+            document.getElementById('progressBar').style.width = progressValue + '%';
+            document.getElementById('upgradeProgress').textContent = Math.round(progressValue) + '%';
+            
+            if (nextLevelPoints > 0) {
+                document.getElementById('pointsToUpgrade').textContent = nextLevelPoints + '积分';
+            } else {
+                document.getElementById('pointsToUpgrade').textContent = '已达最高等级';
+            }
+        }
+
+        function generateTabContent() {
+            generateMembershipContent();
+            generateRechargeContent();
+            generateRecordsContent();
+            setupEventListeners();
+        }
+
+        // 生成会员标签页内容
+        function generateMembershipContent() {
+            const container = document.getElementById('membershipTab');
+            container.innerHTML = `
+                <!-- 当前会员状态 -->
+                <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 mb-6 text-white">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1">萌芽AI Pro</h3>
+                            <p class="text-blue-100">当前订阅状态</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-blue-100">到期时间</div>
+                            <div class="font-bold">2024.12.31</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-blue-100">自动续费：已开启</div>
+                        <button class="bg-white bg-opacity-20 px-4 py-2 rounded-full text-sm font-semibold hover:bg-opacity-30 transition-all">
+                            管理订阅
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 订阅套餐对比 -->
+                <div class="bg-white rounded-2xl p-6 mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">订阅套餐对比</h4>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-2 text-sm font-semibold text-gray-600">功能特权</th>
+                                    <th class="text-center py-3 px-2 text-sm font-semibold text-gray-600">免费版</th>
+                                    <th class="text-center py-3 px-2 text-sm font-semibold text-blue-600">萌芽AI Pro</th>
+                                    <th class="text-center py-3 px-2 text-sm font-semibold text-purple-600">萌芽AI Max</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-2">AI学习助手</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">5次/天</td>
+                                    <td class="text-center py-3 px-2 text-blue-600">无限次</td>
+                                    <td class="text-center py-3 px-2 text-purple-600">无限次</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-2">学习模块</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">基础模块</td>
+                                    <td class="text-center py-3 px-2 text-blue-600">全部模块</td>
+                                    <td class="text-center py-3 px-2 text-purple-600">全部模块</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-2">学习报告</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">基础报告</td>
+                                    <td class="text-center py-3 px-2 text-blue-600">详细报告</td>
+                                    <td class="text-center py-3 px-2 text-purple-600">专业分析</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-2">家庭协作</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">-</td>
+                                    <td class="text-center py-3 px-2 text-blue-600">✓</td>
+                                    <td class="text-center py-3 px-2 text-purple-600">✓</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-2">专属导师</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">-</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">-</td>
+                                    <td class="text-center py-3 px-2 text-purple-600">✓</td>
+                                </tr>
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-2">线下活动</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">-</td>
+                                    <td class="text-center py-3 px-2 text-gray-500">-</td>
+                                    <td class="text-center py-3 px-2 text-purple-600">优先权</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 当前享有特权 -->
+                <div class="bg-white rounded-2xl p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">当前享有特权</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-blue-50 rounded-xl">
+                            <i class="fas fa-infinity text-2xl text-blue-500 mb-2"></i>
+                            <div class="text-sm font-semibold">无限AI问答</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-xl">
+                            <i class="fas fa-chart-line text-2xl text-green-500 mb-2"></i>
+                            <div class="text-sm font-semibold">详细学习报告</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded-xl">
+                            <i class="fas fa-users text-2xl text-purple-500 mb-2"></i>
+                            <div class="text-sm font-semibold">家庭协作</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 rounded-xl">
+                            <i class="fas fa-headset text-2xl text-orange-500 mb-2"></i>
+                            <div class="text-sm font-semibold">优先客服</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 生成充值标签页内容
+        function generateRechargeContent() {
+            const container = document.getElementById('rechargeTab');
+            container.innerHTML = `
+                <!-- 会员订阅套餐 -->
+                <div class="bg-white rounded-2xl p-6 mb-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">会员订阅套餐</h4>
+                    
+                    <div class="space-y-6 mb-8">
+                        <!-- 萌芽AI Pro -->
+                        <div class="membership-plan border-2 border-blue-200 bg-blue-50 rounded-xl p-6" data-plan="pro">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-800 mb-1">萌芽AI Pro</h5>
+                                    <p class="text-sm text-gray-600">适合日常学习使用</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-blue-600">￥19</div>
+                                    <div class="text-sm text-gray-500">起/月</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                    <div class="font-semibold text-gray-800">￥19/月</div>
+                                    <div class="text-xs text-gray-500 mt-1">月付</div>
+                                </div>
+                                <div class="text-center p-3 bg-white rounded-lg border border-blue-300 shadow-sm">
+                                    <div class="font-semibold text-blue-600">￥49/季</div>
+                                    <div class="text-xs text-blue-500 mt-1">省14%</div>
+                                </div>
+                                <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                    <div class="font-semibold text-gray-800">￥168/年</div>
+                                    <div class="text-xs text-green-600 mt-1">省26%</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>无限AI学习助手</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>全部学习模块</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>详细学习报告</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>家庭协作功能</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 萌芽AI Max -->
+                        <div class="membership-plan border-2 border-purple-300 bg-purple-50 rounded-xl p-6 relative" data-plan="max">
+                            <div class="absolute -top-3 -right-3 bg-purple-500 text-white text-xs px-3 py-1 rounded-full font-semibold">推荐</div>
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h5 class="text-lg font-bold text-gray-800 mb-1">萌芽AI Max</h5>
+                                    <p class="text-sm text-gray-600">专业学习解决方案</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-2xl font-bold text-purple-600">￥39</div>
+                                    <div class="text-sm text-gray-500">起/月</div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                    <div class="font-semibold text-gray-800">￥39/月</div>
+                                    <div class="text-xs text-gray-500 mt-1">月付</div>
+                                </div>
+                                <div class="text-center p-3 bg-white rounded-lg border border-purple-300 shadow-sm">
+                                    <div class="font-semibold text-purple-600">￥99/季</div>
+                                    <div class="text-xs text-purple-500 mt-1">省15%</div>
+                                </div>
+                                <div class="text-center p-3 bg-white rounded-lg shadow-sm">
+                                    <div class="font-semibold text-gray-800">￥328/年</div>
+                                    <div class="text-xs text-green-600 mt-1">省30%</div>
+                                </div>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-2">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>包含Pro全部功能</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>一对一专属导师</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>专业学习分析</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>线下活动优先权</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>
+                                    <span>VIP专属客服</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 订阅选项 -->
+                    <div class="mb-6">
+                        <h5 class="font-semibold text-gray-800 mb-4">选择订阅周期</h5>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button class="subscription-period border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-400 transition-all" data-period="monthly">
+                                <div class="font-semibold text-gray-800 mb-1">月度订阅</div>
+                                <div class="text-xs text-gray-500">灵活付费</div>
+                            </button>
+                            <button class="subscription-period border-2 border-blue-400 bg-blue-50 rounded-lg p-4 text-center" data-period="quarterly">
+                                <div class="font-semibold text-blue-600 mb-1">季度订阅</div>
+                                <div class="text-xs text-blue-500">热门选择</div>
+                            </button>
+                            <button class="subscription-period border-2 border-gray-200 rounded-lg p-4 text-center hover:border-blue-400 transition-all" data-period="yearly">
+                                <div class="font-semibold text-gray-800 mb-1">年度订阅</div>
+                                <div class="text-xs text-green-600">最省钱</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 自动续费选项 -->
+                    <div class="bg-gray-50 rounded-xl p-5 mb-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 mr-4">
+                                <div class="font-semibold text-gray-800 mb-1">开启自动续费</div>
+                                <div class="text-sm text-gray-600">享受额外5%优惠，随时可取消</div>
+                            </div>
+                            <div class="toggle-switch active" onclick="toggleAutoRenewal(this)">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="processSubscription()" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-xl font-semibold text-lg hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <i class="fas fa-crown mr-2"></i>
+                        立即订阅
+                    </button>
+                </div>
+
+                <!-- 积分充值 -->
+                <div class="bg-white rounded-2xl p-6">
+                    <div class="mb-6">
+                        <h4 class="text-lg font-semibold text-gray-800 mb-2">积分充值</h4>
+                        <p class="text-sm text-gray-500">用于购买额外服务</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="recharge-option border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer transition-all hover:border-green-400 hover:bg-green-50" data-amount="680" data-points="1000">
+                            <div class="text-lg font-bold text-gray-800 mb-2">1000积分</div>
+                            <div class="text-sm text-gray-600 mb-2">￥6.8</div>
+                            <div class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">课程兑换</div>
+                        </div>
+                        <div class="recharge-option border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50" data-amount="1280" data-points="2000">
+                            <div class="text-lg font-bold text-gray-800 mb-2">2000积分</div>
+                            <div class="text-sm text-gray-600 mb-2">￥12.8</div>
+                            <div class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">送200积分</div>
+                        </div>
+                        <div class="recharge-option border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer transition-all hover:border-purple-400 hover:bg-purple-50" data-amount="2980" data-points="5000">
+                            <div class="text-lg font-bold text-gray-800 mb-2">5000积分</div>
+                            <div class="text-sm text-gray-600 mb-2">￥29.8</div>
+                            <div class="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full">送1000积分</div>
+                        </div>
+                        <div class="recharge-option border-2 border-gray-200 rounded-xl p-4 text-center cursor-pointer transition-all hover:border-red-400 hover:bg-red-50" data-amount="4880" data-points="10000">
+                            <div class="text-lg font-bold text-gray-800 mb-2">10000积分</div>
+                            <div class="text-sm text-gray-600 mb-2">￥48.8</div>
+                            <div class="text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">超值套餐</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-6">
+                        <div class="text-sm text-amber-700">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            积分可用于：购买专项课程、兑换学习资料、解锁特殊功能等
+                        </div>
+                    </div>
+                    
+                    <button onclick="processPointsRecharge()" class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-4 rounded-xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl">
+                        购买积分
+                    </button>
+                </div>
+            `;
+        }
+
+        // 生成记录标签页内容
+        function generateRecordsContent() {
+            // 模拟交易记录
+            userData.transactions = [
+                { id: 'tx001', type: 'recharge', amount: 1280, points: 2000, date: '2024-01-20', status: 'completed' },
+                { id: 'tx002', type: 'consume', amount: 0, points: -200, date: '2024-01-18', status: 'completed', desc: '购买专属课程' },
+                { id: 'tx003', type: 'reward', amount: 0, points: 100, date: '2024-01-15', status: 'completed', desc: '每日签到奖励' },
+                { id: 'tx004', type: 'recharge', amount: 680, points: 1000, date: '2024-01-10', status: 'completed' },
+                { id: 'tx005', type: 'consume', amount: 0, points: -150, date: '2024-01-08', status: 'completed', desc: 'AI问答服务' }
+            ];
+
+            const container = document.getElementById('recordsTab');
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">消费记录</h4>
+                    <div id="transactionList"></div>
+                </div>
+            `;
+            
+            loadTransactionHistory();
+        }
+
+        // 加载交易历史
+        function loadTransactionHistory() {
+            const container = document.getElementById('transactionList');
+            if (!userData.transactions || userData.transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-inbox text-4xl mb-4"></i>
+                        <div>暂无消费记录</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const transactionHTML = userData.transactions.map(transaction => {
+                const isPositive = transaction.points > 0;
+                const typeText = {
+                    'recharge': '积分充值',
+                    'consume': '积分消费',
+                    'reward': '积分奖励',
+                    'subscription': '会员订阅'
+                }[transaction.type];
+                
+                const iconClass = {
+                    'recharge': 'fa-credit-card text-green-500',
+                    'consume': 'fa-shopping-cart text-red-500',
+                    'reward': 'fa-gift text-blue-500',
+                    'subscription': 'fa-crown text-purple-500'
+                }[transaction.type];
+
+                // 对于订阅类型，显示订阅信息而不是积分
+                let rightContent = '';
+                if (transaction.type === 'subscription') {
+                    rightContent = `
+                        <div class="font-semibold text-purple-600">
+                            ${transaction.desc}
+                        </div>
+                        <div class="text-sm text-gray-600">￥${(transaction.amount / 100).toFixed(2)}</div>
+                    `;
+                } else {
+                    rightContent = `
+                        <div class="font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}">
+                            ${isPositive ? '+' : ''}${transaction.points}积分
+                        </div>
+                        ${transaction.amount > 0 ? `<div class="text-sm text-gray-600">￥${(transaction.amount / 100).toFixed(2)}</div>` : ''}
+                    `;
+                }
+
+                return `
+                    <div class="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-800">${typeText}</div>
+                                <div class="text-sm text-gray-600">
+                                    ${transaction.date}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            ${rightContent}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = transactionHTML;
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 会员套餐选择
+            document.querySelectorAll('.membership-plan').forEach(plan => {
+                plan.addEventListener('click', function() {
+                    document.querySelectorAll('.membership-plan').forEach(p => {
+                        p.classList.remove('ring-2', 'ring-blue-500');
+                    });
+                    this.classList.add('ring-2', 'ring-blue-500');
+                    
+                    window.selectedPlan = this.dataset.plan;
+                });
+            });
+
+            // 订阅周期选择
+            document.querySelectorAll('.subscription-period').forEach(period => {
+                period.addEventListener('click', function() {
+                    document.querySelectorAll('.subscription-period').forEach(p => {
+                        p.classList.remove('border-blue-400', 'bg-blue-50');
+                        p.classList.add('border-gray-200');
+                    });
+                    this.classList.remove('border-gray-200');
+                    this.classList.add('border-blue-400', 'bg-blue-50');
+                    
+                    window.selectedPeriod = this.dataset.period;
+                });
+            });
+
+            // 充值选项点击事件
+            document.querySelectorAll('.recharge-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除其他选中状态
+                    document.querySelectorAll('.recharge-option').forEach(opt => {
+                        opt.classList.remove('border-blue-500', 'bg-blue-50', 'ring-2', 'ring-blue-200');
+                    });
+                    
+                    // 添加选中状态
+                    this.classList.add('border-blue-500', 'bg-blue-50', 'ring-2', 'ring-blue-200');
+                    
+                    // 保存选中的充值信息
+                    window.selectedRecharge = {
+                        amount: this.dataset.amount,
+                        points: this.dataset.points
+                    };
+                });
+            });
+            
+            // 支付方式选择
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', function() {
+                    document.querySelectorAll('.payment-method').forEach(m => {
+                        m.classList.remove('border-blue-500', 'bg-blue-50');
+                        m.querySelector('.fa-check-circle').classList.add('hidden');
+                    });
+                    
+                    this.classList.add('border-blue-500', 'bg-blue-50');
+                    this.querySelector('.fa-check-circle').classList.remove('hidden');
+                    
+                    window.selectedPayment = this.dataset.method;
+                });
+            });
+        }
+
+        // 处理会员订阅
+        function processSubscription() {
+            if (!window.selectedPlan) {
+                window.selectedPlan = 'pro'; // 默认选择Pro
+            }
+            if (!window.selectedPeriod) {
+                window.selectedPeriod = 'quarterly'; // 默认选择季度
+            }
+
+            const planPrices = {
+                'pro': { monthly: 19, quarterly: 49, yearly: 168 },
+                'max': { monthly: 39, quarterly: 99, yearly: 328 }
+            };
+
+            const planNames = {
+                'pro': '萌芽AI Pro',
+                'max': '萌芽AI Max'
+            };
+
+            const periodNames = {
+                'monthly': '月度订阅',
+                'quarterly': '季度订阅', 
+                'yearly': '年度订阅'
+            };
+
+            const price = planPrices[window.selectedPlan][window.selectedPeriod];
+            const planName = planNames[window.selectedPlan];
+            const periodName = periodNames[window.selectedPeriod];
+
+            // 计算自动续费优惠
+            const autoRenewal = document.querySelector('.toggle-switch').classList.contains('active');
+            const finalPrice = autoRenewal ? Math.round(price * 0.95) : price;
+            const savings = autoRenewal ? price - finalPrice : 0;
+
+            document.getElementById('paymentAmount').textContent = `￥${finalPrice}`;
+            document.getElementById('paymentPoints').textContent = `${planName} - ${periodName}${autoRenewal ? ' (自动续费优惠)' : ''}`;
+            
+            // 保存订阅信息
+            window.selectedSubscription = {
+                plan: window.selectedPlan,
+                period: window.selectedPeriod,
+                price: finalPrice,
+                autoRenewal: autoRenewal,
+                savings: savings
+            };
+
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        // 处理积分充值
+        function processPointsRecharge() {
+            if (!window.selectedRecharge) {
+                showToast('请先选择积分套餐', 'warning');
+                return;
+            }
+            
+            const amount = parseInt(window.selectedRecharge.amount);
+            const points = parseInt(window.selectedRecharge.points);
+            
+            document.getElementById('paymentAmount').textContent = `￥${(amount / 100).toFixed(2)}`;
+            document.getElementById('paymentPoints').textContent = `购买${points}积分`;
+            
+            // 标记为积分充值
+            window.isPointsRecharge = true;
+            
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        // 切换自动续费
+        function toggleAutoRenewal(element) {
+            element.classList.toggle('active');
+            const isActive = element.classList.contains('active');
+            showToast(isActive ? '已开启自动续费，享受5%优惠' : '已关闭自动续费', 'info');
+        }
+
+        // 显示提示信息
+        function showToast(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                warning: 'bg-yellow-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 ${colors[type]} text-white px-6 py-3 rounded-lg z-50 transition-all`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            event.target.classList.add('active');
+        }
+
+        function navigateBack() {
+            window.history.back();
+        }
+
+        function showSettings() {
+            // 跳转到设置页面
+            window.location.href = 'settings.html';
+        }
+
+        function editProfile() {
+            // 跳转到个人资料编辑页面
+            window.location.href = 'profile-edit.html';
+        }
+
+        function upgradeMembership() {
+            // 切换到充值标签页
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('rechargeTab').classList.remove('hidden');
+            document.querySelectorAll('.tab-button')[2].classList.add('active');
+        }
+
+        function openRechargeTab() {
+            // 切换到充值标签页
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('rechargeTab').classList.remove('hidden');
+            document.querySelectorAll('.tab-button')[2].classList.add('active');
+        }
+
+        function showInviteRewards() {
+            // 显示邀请奖励弹窗
+            showToast('邀请好友获得额外积分奖励！', 'success');
+        }
+
+        function showDailyTasks() {
+            // 显示每日任务弹窗
+            showToast('今日任务：完成3次AI问答互动', 'info');
+        }
+
+        function showPointsMall() {
+            // 显示积分商城信息
+            showToast('积分可兑换精美学习用品！', 'info');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').classList.remove('show');
+        }
+
+        function confirmPayment() {
+            if (!window.selectedPayment) {
+                showToast('请选择支付方式', 'warning');
+                return;
+            }
+            
+            const paymentMethod = window.selectedPayment === 'wechat' ? '微信支付' : '支付宝';
+            
+            // 处理会员订阅
+            if (window.selectedSubscription) {
+                const subscription = window.selectedSubscription;
+                
+                showToast(`正在使用${paymentMethod}支付...`, 'info');
+                
+                setTimeout(() => {
+                    // 更新用户会员状态
+                    userData.membershipLevel = subscription.plan;
+                    userData.membershipExpiry = getExpiryDate(subscription.period);
+                    userData.autoRenewal = subscription.autoRenewal;
+                    
+                    // 添加订阅记录
+                    const newTransaction = {
+                        id: 'tx' + Date.now(),
+                        type: 'subscription',
+                        amount: subscription.price * 100,
+                        points: 0,
+                        date: new Date().toISOString().split('T')[0],
+                        status: 'completed',
+                        desc: `订阅${subscription.plan === 'pro' ? '萌芽AI Pro' : '萌芽AI Max'} - ${subscription.period}`
+                    };
+                    userData.transactions.unshift(newTransaction);
+                    
+                    // 更新页面显示
+                    updateUserInfo();
+                    loadTransactionHistory();
+                    
+                    closePaymentModal();
+                    
+                    const savings = subscription.savings ? `，节省￥${subscription.savings}` : '';
+                    showToast(`订阅成功！${savings}`, 'success');
+                    
+                    // 清除选中状态
+                    window.selectedSubscription = null;
+                    window.selectedPayment = null;
+                    
+                }, 2000);
+                
+            } 
+            // 处理积分充值
+            else if (window.isPointsRecharge && window.selectedRecharge) {
+                const amount = parseInt(window.selectedRecharge.amount);
+                const points = parseInt(window.selectedRecharge.points);
+                
+                showToast(`正在使用${paymentMethod}支付...`, 'info');
+                
+                setTimeout(() => {
+                    // 更新用户积分
+                    userData.points += points;
+                    
+                    // 添加交易记录
+                    const newTransaction = {
+                        id: 'tx' + Date.now(),
+                        type: 'recharge',
+                        amount: amount,
+                        points: points,
+                        date: new Date().toISOString().split('T')[0],
+                        status: 'completed',
+                        desc: '积分充值'
+                    };
+                    userData.transactions.unshift(newTransaction);
+                    
+                    // 更新页面显示
+                    updateUserInfo();
+                    loadTransactionHistory();
+                    
+                    closePaymentModal();
+                    
+                    showToast('积分充值成功！', 'success');
+                    
+                    // 清除选中状态
+                    window.selectedRecharge = null;
+                    window.selectedPayment = null;
+                    window.isPointsRecharge = false;
+                    document.querySelectorAll('.recharge-option').forEach(opt => {
+                        opt.classList.remove('border-blue-500', 'bg-blue-50', 'ring-2', 'ring-blue-200');
+                    });
+                    
+                }, 2000);
+            } else {
+                showToast('请先选择订阅套餐或积分充值', 'error');
+                closePaymentModal();
+            }
+        }
+
+        // 获取会员到期日期
+        function getExpiryDate(period) {
+            const now = new Date();
+            switch(period) {
+                case 'monthly':
+                    now.setMonth(now.getMonth() + 1);
+                    break;
+                case 'quarterly':
+                    now.setMonth(now.getMonth() + 3);
+                    break;
+                case 'yearly':
+                    now.setFullYear(now.getFullYear() + 1);
+                    break;
+            }
+            return now.toISOString().split('T')[0];
+        }
+
+        // 更新用户信息显示
+        function updateUserInfo() {
+            document.getElementById('userPoints').textContent = userData.points.toLocaleString();
+            document.getElementById('totalPoints').textContent = userData.points.toLocaleString();
+            updateMembershipCard();
+        }
+    </script>
+</body>
+</html> 

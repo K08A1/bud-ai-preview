@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家长验证 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .auth-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(245, 158, 11, 0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #F59E0B, #D97706);
+        }
+        .auth-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+            color: white;
+            animation: iconPulse 2s ease-in-out infinite;
+        }
+        @keyframes iconPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .auth-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .auth-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+        .auth-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .auth-method {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .auth-method:hover {
+            border-color: #F59E0B;
+            background: #FEF3C7;
+            transform: translateY(-2px);
+        }
+        .auth-method-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .auth-method-content {
+            flex: 1;
+            text-align: left;
+        }
+        .auth-method-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .auth-method-desc {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .auth-method-arrow {
+            font-size: 16px;
+            color: #9CA3AF;
+        }
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .password-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .password-content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 350px;
+            width: 90%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .password-modal.show .password-content {
+            transform: scale(1);
+        }
+        .password-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 8px;
+            margin: 20px 0;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .password-input:focus {
+            border-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .number-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid #E5E7EB;
+            background: white;
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .number-btn:hover {
+            background: #F59E0B;
+            color: white;
+            border-color: #F59E0B;
+            transform: scale(1.05);
+        }
+        .number-btn.delete {
+            background: #EF4444;
+            color: white;
+            border-color: #EF4444;
+        }
+        .auth-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .auth-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        .auth-btn-primary {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        .auth-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+        .auth-btn-secondary {
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+        .auth-btn-secondary:hover {
+            background: #E5E7EB;
+        }
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        .demo-hint {
+            background: #EBF8FF;
+            border: 1px solid #3B82F6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 24px;
+            text-align: left;
+        }
+        .demo-hint-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1E40AF;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .demo-hint-content {
+            font-size: 12px;
+            color: #1E3A8A;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <!-- 返回按钮 -->
+    <div class="back-btn" onclick="navigateBack()">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+
+    <div class="gradient-bg">
+        <div class="auth-container">
+            <div class="auth-icon">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            
+            <h1 class="auth-title">家长模式验证</h1>
+            <p class="auth-subtitle">
+                为了保护孩子的学习环境，请选择验证方式进入家长管理面板
+            </p>
+
+            <div class="auth-methods">
+                <div class="auth-method" onclick="showPasswordModal()">
+                    <div class="auth-method-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="auth-method-content">
+                        <div class="auth-method-title">密码验证</div>
+                        <div class="auth-method-desc">输入6位数字密码</div>
+                    </div>
+                    <div class="auth-method-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <div class="auth-method" onclick="biometricAuth()">
+                    <div class="auth-method-icon">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <div class="auth-method-content">
+                        <div class="auth-method-title">生物识别</div>
+                        <div class="auth-method-desc">使用指纹或面容验证</div>
+                    </div>
+                    <div class="auth-method-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+
+                <div class="auth-method" onclick="questionAuth()">
+                    <div class="auth-method-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <div class="auth-method-content">
+                        <div class="auth-method-title">安全问题</div>
+                        <div class="auth-method-desc">回答预设的安全问题</div>
+                    </div>
+                    <div class="auth-method-arrow">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 演示提示 -->
+            <div class="demo-hint">
+                <div class="demo-hint-title">
+                    <i class="fas fa-info-circle"></i>
+                    演示说明
+                </div>
+                <div class="demo-hint-content">
+                    • 密码验证：输入 <strong>123456</strong><br>
+                    • 生物识别：模拟验证通过<br>
+                    • 安全问题：任意回答即可通过
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 密码输入模态框 -->
+    <div class="password-modal" id="passwordModal">
+        <div class="password-content">
+            <h3 class="text-lg font-bold text-center mb-4">输入家长密码</h3>
+            <input type="password" class="password-input" id="passwordInput" placeholder="••••••" maxlength="6" readonly>
+            
+            <div class="number-pad">
+                <button class="number-btn" onclick="inputNumber('1')">1</button>
+                <button class="number-btn" onclick="inputNumber('2')">2</button>
+                <button class="number-btn" onclick="inputNumber('3')">3</button>
+                <button class="number-btn" onclick="inputNumber('4')">4</button>
+                <button class="number-btn" onclick="inputNumber('5')">5</button>
+                <button class="number-btn" onclick="inputNumber('6')">6</button>
+                <button class="number-btn" onclick="inputNumber('7')">7</button>
+                <button class="number-btn" onclick="inputNumber('8')">8</button>
+                <button class="number-btn" onclick="inputNumber('9')">9</button>
+                <button class="number-btn" onclick="clearPassword()">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="number-btn" onclick="inputNumber('0')">0</button>
+                <button class="number-btn delete" onclick="deleteNumber()">
+                    <i class="fas fa-backspace"></i>
+                </button>
+            </div>
+
+            <div class="auth-buttons">
+                <button class="auth-btn auth-btn-secondary" onclick="closePasswordModal()">取消</button>
+                <button class="auth-btn auth-btn-primary" onclick="verifyPassword()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPassword = '';
+        const correctPassword = '123456';
+
+        // 显示密码模态框
+        function showPasswordModal() {
+            document.getElementById('passwordModal').classList.add('show');
+            currentPassword = '';
+            updatePasswordDisplay();
+        }
+
+        // 关闭密码模态框
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.remove('show');
+            currentPassword = '';
+            updatePasswordDisplay();
+        }
+
+        // 输入数字
+        function inputNumber(num) {
+            if (currentPassword.length < 6) {
+                currentPassword += num;
+                updatePasswordDisplay();
+                vibrateDevice([30]);
+                
+                // 如果输入完6位，自动验证
+                if (currentPassword.length === 6) {
+                    setTimeout(verifyPassword, 500);
+                }
+            }
+        }
+
+        // 删除数字
+        function deleteNumber() {
+            if (currentPassword.length > 0) {
+                currentPassword = currentPassword.slice(0, -1);
+                updatePasswordDisplay();
+                vibrateDevice([50]);
+            }
+        }
+
+        // 清空密码
+        function clearPassword() {
+            currentPassword = '';
+            updatePasswordDisplay();
+            vibrateDevice([100]);
+        }
+
+        // 更新密码显示
+        function updatePasswordDisplay() {
+            const input = document.getElementById('passwordInput');
+            input.value = '•'.repeat(currentPassword.length);
+        }
+
+        // 验证密码
+        function verifyPassword() {
+            if (currentPassword === correctPassword) {
+                showNotification('验证成功！正在进入家长模式...', 'success');
+                vibrateDevice([100, 50, 100, 50, 100]);
+                
+                closePasswordModal();
+                setTimeout(() => {
+                    navigateToPage('parent-panel');
+                }, 1500);
+            } else {
+                showNotification('密码错误，请重新输入', 'error');
+                vibrateDevice([200, 100, 200]);
+                
+                // 密码错误动画
+                const input = document.getElementById('passwordInput');
+                input.style.borderColor = '#EF4444';
+                input.style.animation = 'shake 0.5s ease-in-out';
+                
+                setTimeout(() => {
+                    input.style.borderColor = '#E5E7EB';
+                    input.style.animation = '';
+                    currentPassword = '';
+                    updatePasswordDisplay();
+                }, 1000);
+            }
+        }
+
+        // 生物识别验证
+        function biometricAuth() {
+            showNotification('正在启动生物识别...', 'info');
+            
+            // 模拟生物识别过程
+            setTimeout(() => {
+                if (Math.random() > 0.2) { // 80%成功率
+                    showNotification('生物识别成功！正在进入家长模式...', 'success');
+                    vibrateDevice([100, 50, 100]);
+                    
+                    setTimeout(() => {
+                        navigateToPage('parent-panel');
+                    }, 1500);
+                } else {
+                    showNotification('生物识别失败，请重试', 'error');
+                    vibrateDevice([200, 100, 200]);
+                }
+            }, 2000);
+        }
+
+        // 安全问题验证
+        function questionAuth() {
+            const questions = [
+                '您孩子最喜欢的颜色是什么？',
+                '您的生日是哪个月份？',
+                '您孩子的小名是什么？',
+                '您最喜欢的水果是什么？'
+            ];
+            
+            const randomQuestion = questions[Math.floor(Math.random() * questions.length)];
+            const answer = prompt(`安全问题验证\n\n${randomQuestion}\n\n请输入答案：`);
+            
+            if (answer && answer.trim() !== '') {
+                showNotification('安全问题验证成功！正在进入家长模式...', 'success');
+                vibrateDevice([100, 50, 100]);
+                
+                setTimeout(() => {
+                    navigateToPage('parent-panel');
+                }, 1500);
+            } else if (answer !== null) {
+                showNotification('请输入答案', 'error');
+            }
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            parent.postMessage({
+                type: 'navigate',
+                page: 'home'
+            }, '*');
+        }
+
+        // 导航到页面
+        function navigateToPage(page) {
+            parent.postMessage({
+                type: 'navigate',
+                page: page
+            }, '*');
+        }
+
+        // 震动反馈
+        function vibrateDevice(pattern = [50]) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('passwordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal();
+            }
+        });
+
+        // 添加shake动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 键盘支持
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('passwordModal').classList.contains('show')) {
+                if (e.key >= '0' && e.key <= '9') {
+                    inputNumber(e.key);
+                } else if (e.key === 'Backspace') {
+                    deleteNumber();
+                } else if (e.key === 'Enter') {
+                    verifyPassword();
+                } else if (e.key === 'Escape') {
+                    closePasswordModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

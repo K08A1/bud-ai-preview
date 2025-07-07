@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能力评估 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="mengya-common.js"></script>
+    <script src="learning-analytics.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .evaluation-container {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            min-height: calc(100vh - 120px);
+            position: relative;
+            overflow: hidden;
+        }
+        .evaluation-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899, #F59E0B, #10B981);
+            animation: evaluationFlow 3s ease-in-out infinite;
+        }
+        @keyframes evaluationFlow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        .hero-section {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.05), transparent);
+            animation: heroShine 3s infinite;
+        }
+        @keyframes heroShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .hero-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+            animation: heroFloat 4s ease-in-out infinite;
+        }
+        @keyframes heroFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+        .hero-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .hero-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+        .overall-score {
+            background: linear-gradient(135deg, #F0F9FF, #E0F2FE);
+            border: 2px solid #38BDF8;
+            border-radius: 20px;
+            padding: 24px;
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .overall-score::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.1), transparent);
+            animation: scoreShimmer 2s infinite;
+        }
+        @keyframes scoreShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        .score-circle-bg {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #38BDF8 0deg,
+                #38BDF8 var(--progress, 252deg),
+                #E5E7EB var(--progress, 252deg),
+                #E5E7EB 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scoreRotate 2s ease-in-out;
+        }
+        @keyframes scoreRotate {
+            0% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+        .score-circle-inner {
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .score-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #38BDF8;
+            line-height: 1;
+            animation: scoreCount 2s ease-out;
+        }
+        @keyframes scoreCount {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .score-label {
+            font-size: 11px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+        .score-description {
+            text-align: center;
+            color: #374151;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .abilities-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            padding: 20px;
+        }
+        .ability-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 2px solid transparent;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .ability-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.05), transparent);
+            transition: left 0.6s;
+        }
+        .ability-card:hover::before {
+            left: 100%;
+        }
+        .ability-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        .ability-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .ability-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+            animation: abilityIconFloat 3s ease-in-out infinite;
+        }
+        @keyframes abilityIconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        .ability-card:nth-child(1) .ability-icon {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+        }
+        .ability-card:nth-child(2) .ability-icon {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        .ability-card:nth-child(3) .ability-icon {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+        }
+        .ability-card:nth-child(4) .ability-icon {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+        }
+        .ability-info {
+            flex: 1;
+        }
+        .ability-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .ability-level {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 12px;
+        }
+        .ability-score {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .ability-card:nth-child(1) .ability-score {
+            color: #8B5CF6;
+        }
+        .ability-card:nth-child(2) .ability-score {
+            color: #10B981;
+        }
+        .ability-card:nth-child(3) .ability-score {
+            color: #F59E0B;
+        }
+        .ability-card:nth-child(4) .ability-score {
+            color: #3B82F6;
+        }
+        .progress-container {
+            margin-bottom: 16px;
+        }
+        .progress-bar {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: progressGlow 2s infinite;
+        }
+        @keyframes progressGlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .ability-card:nth-child(1) .progress-fill {
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+        }
+        .ability-card:nth-child(2) .progress-fill {
+            background: linear-gradient(90deg, #10B981, #059669);
+        }
+        .ability-card:nth-child(3) .progress-fill {
+            background: linear-gradient(90deg, #F59E0B, #D97706);
+        }
+        .ability-card:nth-child(4) .progress-fill {
+            background: linear-gradient(90deg, #3B82F6, #1D4ED8);
+        }
+        .ability-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .detail-item {
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .detail-item:hover {
+            transform: translateY(-2px);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        .detail-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .detail-label {
+            font-size: 10px;
+            color: #6B7280;
+        }
+        .growth-chart {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            margin: 20px;
+        }
+        .chart-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 20px 24px 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .chart-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .chart-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .chart-container {
+            padding: 24px 20px 40px 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 8px;
+            height: 120px;
+            margin-bottom: 16px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #8B5CF6 0%, #EC4899 100%);
+            border-radius: 6px 6px 0 0;
+            min-height: 20px;
+            position: relative;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            animation: barGrow 1s ease-out forwards;
+            animation-delay: calc(var(--index, 0) * 0.1s);
+            transform-origin: bottom;
+        }
+        .chart-bar::before {
+            content: attr(data-value);
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 600;
+            color: #374151;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .chart-bar:hover::before {
+            opacity: 1;
+        }
+        .chart-bar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4px;
+            margin-top: 8px;
+        }
+        .chart-label {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 500;
+            text-align: center;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+        .recommendations {
+            padding: 20px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .recommendation-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid #10B981;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .recommendation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.05), transparent);
+            transition: left 0.6s;
+        }
+        .recommendation-card:hover::before {
+            left: 100%;
+        }
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+        }
+        .recommendation-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .recommendation-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .recommendation-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .recommendation-content {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .recommendation-action {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .recommendation-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .achievements-section {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border-radius: 20px;
+            padding: 24px;
+            margin: 20px;
+            border: 1px solid #F59E0B;
+        }
+        .achievements-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .achievements-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .achievements-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #92400E;
+        }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .achievement-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            transition: all 0.3s ease;
+        }
+        .achievement-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+        }
+        .achievement-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .achievement-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .achievement-desc {
+            font-size: 10px;
+            color: #A16207;
+        }
+        .floating-actions {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+        .fab-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: fabFloat 4s ease-in-out infinite;
+        }
+        @keyframes fabFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .fab-button:hover {
+            transform: scale(1.1);
+        }
+        .fab-primary {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+        }
+        .fab-primary:hover {
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.6);
+        }
+        .fab-secondary {
+            background: linear-gradient(135deg, #10B981, #059669);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        .fab-secondary:hover {
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+        }
+        .loading-animation {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        @media (max-width: 480px) {
+            .chart-container {
+                padding: 20px 16px 36px 16px;
+            }
+            
+            .chart-bars {
+                height: 100px;
+                gap: 6px;
+            }
+            
+            .chart-label {
+                font-size: 10px;
+            }
+            
+            .chart-bar::before {
+                font-size: 10px;
+                top: -20px;
+            }
+        }
+        @media (max-width: 360px) {
+            .chart-labels {
+                padding: 0 2px;
+            }
+            
+            .chart-label {
+                font-size: 9px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold">能力评估</h1>
+                    <p class="text-xs opacity-80">了解你的学习成果</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="shareReport()">
+                    <i class="fas fa-share-alt text-sm"></i>
+                </button>
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="downloadReport()">
+                    <i class="fas fa-download text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="evaluation-container">
+        <!-- Hero 区域 -->
+        <div class="hero-section loading-animation">
+            <div class="hero-icon">🌟</div>
+            <div class="hero-title">小明的能力报告</div>
+            <div class="hero-subtitle">2024年3月学习成果总结</div>
+        </div>
+
+        <!-- 综合评分 -->
+        <div class="overall-score loading-animation" style="animation-delay: 0.2s">
+            <div class="score-circle" style="--progress: 252deg">
+                <div class="score-circle-bg">
+                    <div class="score-circle-inner">
+                        <div class="score-number" id="overallScore">0</div>
+                        <div class="score-label">综合评分</div>
+                    </div>
+                </div>
+            </div>
+            <div class="score-description">
+                <strong>表现优秀！</strong> 你在表达能力方面有了显著提升，继续保持这种学习热情，相信你会越来越棒！
+            </div>
+        </div>
+
+        <!-- 各项能力详情 -->
+        <div class="abilities-grid">
+            <div class="ability-card loading-animation" style="animation-delay: 0.4s">
+                <div class="ability-header">
+                    <div class="ability-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="ability-info">
+                        <div class="ability-name">表达能力</div>
+                        <div class="ability-level">中级 · 进步显著</div>
+                    </div>
+                    <div class="ability-score" id="expressionScore">0</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%" data-target="88"></div>
+                    </div>
+                </div>
+                <div class="ability-details">
+                    <div class="detail-item">
+                        <div class="detail-value">15</div>
+                        <div class="detail-label">完成任务</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">+12</div>
+                        <div class="detail-label">本月提升</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">92%</div>
+                        <div class="detail-label">正确率</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">8.5h</div>
+                        <div class="detail-label">练习时长</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ability-card loading-animation" style="animation-delay: 0.6s">
+                <div class="ability-header">
+                    <div class="ability-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="ability-info">
+                        <div class="ability-name">阅读理解</div>
+                        <div class="ability-level">中级 · 稳步提升</div>
+                    </div>
+                    <div class="ability-score" id="readingScore">0</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%" data-target="82"></div>
+                    </div>
+                </div>
+                <div class="ability-details">
+                    <div class="detail-item">
+                        <div class="detail-value">28</div>
+                        <div class="detail-label">完成阅读</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">+8</div>
+                        <div class="detail-label">本月提升</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">89%</div>
+                        <div class="detail-label">理解准确率</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">12.3h</div>
+                        <div class="detail-label">阅读时长</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ability-card loading-animation" style="animation-delay: 0.8s">
+                <div class="ability-header">
+                    <div class="ability-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="ability-info">
+                        <div class="ability-name">创意思维</div>
+                        <div class="ability-level">高级 · 表现卓越</div>
+                    </div>
+                    <div class="ability-score" id="creativityScore">0</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%" data-target="92"></div>
+                    </div>
+                </div>
+                <div class="ability-details">
+                    <div class="detail-item">
+                        <div class="detail-value">12</div>
+                        <div class="detail-label">创作作品</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">+18</div>
+                        <div class="detail-label">本月提升</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">95%</div>
+                        <div class="detail-label">创意指数</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">6.7h</div>
+                        <div class="detail-label">创作时长</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ability-card loading-animation" style="animation-delay: 1.0s">
+                <div class="ability-header">
+                    <div class="ability-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="ability-info">
+                        <div class="ability-name">沟通交流</div>
+                        <div class="ability-level">中级 · 持续进步</div>
+                    </div>
+                    <div class="ability-score" id="communicationScore">0</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%" data-target="78"></div>
+                    </div>
+                </div>
+                <div class="ability-details">
+                    <div class="detail-item">
+                        <div class="detail-value">25</div>
+                        <div class="detail-label">对话练习</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">+6</div>
+                        <div class="detail-label">本月提升</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">85%</div>
+                        <div class="detail-label">交流效果</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">4.2h</div>
+                        <div class="detail-label">交流时长</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成长趋势图 -->
+        <div class="growth-chart loading-animation" style="animation-delay: 1.2s">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <div class="chart-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <span>7天成长趋势</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-bars">
+                    <div class="chart-bar" style="--height: 60%" data-value="72"></div>
+                    <div class="chart-bar" style="--height: 70%" data-value="76"></div>
+                    <div class="chart-bar" style="--height: 65%" data-value="74"></div>
+                    <div class="chart-bar" style="--height: 80%" data-value="82"></div>
+                    <div class="chart-bar" style="--height: 85%" data-value="85"></div>
+                    <div class="chart-bar" style="--height: 90%" data-value="88"></div>
+                    <div class="chart-bar" style="--height: 95%" data-value="90"></div>
+                </div>
+                <div class="chart-labels">
+                    <div class="chart-label">周一</div>
+                    <div class="chart-label">周二</div>
+                    <div class="chart-label">周三</div>
+                    <div class="chart-label">周四</div>
+                    <div class="chart-label">周五</div>
+                    <div class="chart-label">周六</div>
+                    <div class="chart-label">周日</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个性化建议 -->
+        <div class="recommendations loading-animation" style="animation-delay: 1.4s">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <span>个性化建议</span>
+            </div>
+
+            <div class="recommendation-card">
+                <div class="recommendation-header">
+                    <div class="recommendation-icon">
+                        <i class="fas fa-target"></i>
+                    </div>
+                    <div class="recommendation-title">重点提升：沟通交流</div>
+                </div>
+                <div class="recommendation-content">
+                    建议多参与AI对话练习，通过日常情景模拟来提升沟通表达能力。可以尝试角色扮演游戏，增加语言表达的多样性。
+                </div>
+                <button class="recommendation-action" onclick="navigateToPage('ai-assistant')">
+                    开始练习
+                </button>
+            </div>
+
+            <div class="recommendation-card">
+                <div class="recommendation-header">
+                    <div class="recommendation-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="recommendation-title">强化优势：创意思维</div>
+                </div>
+                <div class="recommendation-content">
+                    你的创意思维表现出色！建议挑战更高难度的创作任务，尝试不同题材的写作，进一步发挥你的想象力。
+                </div>
+                <button class="recommendation-action" onclick="navigateToPage('learning-path')">
+                    查看任务
+                </button>
+            </div>
+
+            <div class="recommendation-card">
+                <div class="recommendation-header">
+                    <div class="recommendation-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="recommendation-title">学习习惯：保持规律</div>
+                </div>
+                <div class="recommendation-content">
+                    你已经连续7天坚持学习，表现很棒！建议每天固定时间进行15-20分钟的练习，养成良好的学习习惯。
+                </div>
+                <button class="recommendation-action" onclick="setReminder()">
+                    设置提醒
+                </button>
+            </div>
+        </div>
+
+        <!-- 近期成就 -->
+        <div class="achievements-section loading-animation" style="animation-delay: 1.6s">
+            <div class="achievements-header">
+                <div class="achievements-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="achievements-title">近期成就</div>
+            </div>
+            <div class="achievements-grid">
+                <div class="achievement-item">
+                    <div class="achievement-emoji">🎨</div>
+                    <div class="achievement-name">创意大师</div>
+                    <div class="achievement-desc">完成10个创意任务</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-emoji">📚</div>
+                    <div class="achievement-name">阅读之星</div>
+                    <div class="achievement-desc">阅读20篇文章</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-emoji">⚡</div>
+                    <div class="achievement-name">坚持之王</div>
+                    <div class="achievement-desc">连续7天学习</div>
+                </div>
+                <div class="achievement-item">
+                    <div class="achievement-emoji">🌟</div>
+                    <div class="achievement-name">表达专家</div>
+                    <div class="achievement-desc">获得高分评价</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动操作按钮 -->
+    <div class="floating-actions">
+        <div class="fab-button fab-secondary" onclick="navigateToPage('badge-center')" title="查看勋章">
+            <i class="fas fa-award"></i>
+        </div>
+        <div class="fab-button fab-primary" onclick="startNewEvaluation()" title="开始新评估">
+            <i class="fas fa-plus"></i>
+        </div>
+    </div>
+
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                initializeEvaluation();
+                animateScores();
+                animateProgressBars();
+                animateChartBars();
+                enhanceChartInteraction();
+            }, 500);
+        });
+
+        // 初始化评估页面
+        function initializeEvaluation() {
+            // 动画加载各个组件
+            const elements = document.querySelectorAll('.loading-animation');
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.style.animationDelay = `${index * 0.2}s`;
+                    element.classList.add('loaded');
+                }, index * 100);
+            });
+        }
+
+        // 分数动画
+        function animateScores() {
+            const scores = [
+                { element: 'overallScore', target: 85, duration: 2000 },
+                { element: 'expressionScore', target: 88, duration: 1500 },
+                { element: 'readingScore', target: 82, duration: 1500 },
+                { element: 'creativityScore', target: 92, duration: 1500 },
+                { element: 'communicationScore', target: 78, duration: 1500 }
+            ];
+
+            scores.forEach((score, index) => {
+                setTimeout(() => {
+                    animateNumber(score.element, score.target, score.duration);
+                }, index * 200);
+            });
+        }
+
+        // 数字动画函数
+        function animateNumber(elementId, target, duration) {
+            const element = document.getElementById(elementId);
+            let current = 0;
+            const increment = target / (duration / 50);
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 50);
+        }
+
+        // 进度条动画
+        function animateProgressBars() {
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach((bar, index) => {
+                    setTimeout(() => {
+                        const target = bar.getAttribute('data-target') + '%';
+                        bar.style.width = target;
+                    }, index * 300);
+                });
+            }, 1000);
+        }
+
+        // 图表柱状图动画
+        function animateChartBars() {
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.chart-bar');
+                bars.forEach((bar, index) => {
+                    // 设置动画延迟
+                    bar.style.setProperty('--index', index);
+                    
+                    setTimeout(() => {
+                        const height = bar.style.getPropertyValue('--height');
+                        bar.style.height = height;
+                        
+                        // 添加数值显示动画
+                        const value = bar.getAttribute('data-value');
+                        let currentValue = 0;
+                        const targetValue = parseInt(value);
+                        const increment = targetValue / 20;
+                        
+                        const valueTimer = setInterval(() => {
+                            currentValue += increment;
+                            if (currentValue >= targetValue) {
+                                currentValue = targetValue;
+                                clearInterval(valueTimer);
+                            }
+                            bar.setAttribute('data-value', Math.floor(currentValue));
+                        }, 50);
+                        
+                    }, index * 150);
+                });
+            }, 1500);
+        }
+
+        // 增强图表交互
+        function enhanceChartInteraction() {
+            const bars = document.querySelectorAll('.chart-bar');
+            const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            
+            bars.forEach((bar, index) => {
+                bar.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const day = labels[index];
+                    showNotification(`${day}的学习成绩：${value}分`, 'info');
+                    
+                    // 添加点击动画
+                    this.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+                
+                bar.addEventListener('mouseenter', function() {
+                    // 高亮显示对应的标签
+                    const correspondingLabel = document.querySelectorAll('.chart-label')[index];
+                    if (correspondingLabel) {
+                        correspondingLabel.style.color = '#8B5CF6';
+                        correspondingLabel.style.fontWeight = '600';
+                    }
+                });
+                
+                bar.addEventListener('mouseleave', function() {
+                    // 恢复标签样式
+                    const correspondingLabel = document.querySelectorAll('.chart-label')[index];
+                    if (correspondingLabel) {
+                        correspondingLabel.style.color = '#6b7280';
+                        correspondingLabel.style.fontWeight = '500';
+                    }
+                });
+            });
+        }
+
+        // 分享报告
+        function shareReport() {
+            const shareData = {
+                title: '萌芽AI - 学习成果报告',
+                text: '我在萌芽AI的表达能力训练中取得了很好的成绩！',
+                url: window.location.href
+            };
+
+            if (navigator.share) {
+                navigator.share(shareData)
+                    .then(() => showNotification('分享成功！', 'success'))
+                    .catch(() => showNotification('分享取消', 'info'));
+            } else {
+                // 降级处理：复制链接
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => showNotification('链接已复制到剪贴板', 'success'))
+                    .catch(() => showNotification('分享功能暂不可用', 'error'));
+            }
+        }
+
+        // 下载报告
+        function downloadReport() {
+            showNotification('正在生成PDF报告...', 'info');
+            
+            // 模拟下载过程
+            setTimeout(() => {
+                showNotification('报告下载完成！', 'success');
+                // 这里可以实现真实的PDF生成和下载
+            }, 2000);
+        }
+
+        // 设置提醒
+        function setReminder() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        showNotification('学习提醒已设置，我们会在每天固定时间提醒你！', 'success');
+                    } else {
+                        showNotification('请在设置中允许通知权限', 'info');
+                    }
+                });
+            } else {
+                showNotification('你的浏览器不支持通知功能', 'error');
+            }
+        }
+
+        // 开始新评估
+        function startNewEvaluation() {
+            MengyaUtils.Notification.info('正在准备新的能力评估...');
+            
+            setTimeout(() => {
+                MengyaUtils.Navigation.navigateTo('learning-path');
+            }, 1500);
+        }
+
+        // 添加涟漪效果
+        function createRippleEffect(event, element) {
+            const ripple = document.createElement('div');
+            ripple.classList.add('ripple-effect');
+            
+            const rect = element.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (event.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (event.clientY - rect.top - size / 2) + 'px';
+            
+            element.appendChild(ripple);
+            
+            setTimeout(() => {
+                element.removeChild(ripple);
+            }, 600);
+        }
+
+        // 页面初始化
+        MengyaUtils.Lifecycle.onInit(() => {
+            loadEvaluationData();
+            setupEvaluationAnimations();
+            // 从全局数据加载家长报告标识
+            checkIfParentReport();
+            // 初始化深度分析
+            initializeDeepAnalysis();
+        });
+        
+        // 检查是否为家长报告页面
+        async function checkIfParentReport() {
+            const reportData = await MengyaUtils.Data.getData('parent.currentReport');
+            if (reportData && reportData.type === 'parent_report') {
+                // 这是家长查看的整体报告，调整返回逻辑
+                document.querySelector('.back-button').onclick = () => {
+                    MengyaUtils.Navigation.navigateTo('parent-panel');
+                };
+            }
+        }
+        
+        // 加载评估数据
+        async function loadEvaluationData() {
+            const savedData = await MengyaUtils.Data.getData('child.evaluation');
+            if (savedData) {
+                // 更新页面数据
+                updateEvaluationDisplay(savedData);
+            }
+        }
+        
+        // 更新评估显示
+        function updateEvaluationDisplay(data) {
+            // 更新分数和能力数据
+            if (data.overallScore) {
+                document.getElementById('overallScore').textContent = data.overallScore;
+            }
+            // 可以继续添加更多数据更新逻辑
+        }
+
+        // 🔥 初始化深度分析功能
+        async function initializeDeepAnalysis() {
+            try {
+                // 检查是否有分析引擎
+                if (typeof LearningAnalyticsEngine === 'undefined') {
+                    // 深度分析引擎未加载，使用基础评估模式
+                    return;
+                }
+
+                // 创建分析引擎实例
+                const analyticsEngine = new LearningAnalyticsEngine();
+                
+                // 获取最新学习数据
+                const sessionData = await getEvaluationSessionData();
+                
+                if (sessionData && sessionData.interactions && sessionData.interactions.length > 0) {
+                    // 执行深度分析
+                    const analysis = await analyticsEngine.analyzeComprehensively(sessionData);
+                    
+                    // 保存分析结果
+                    await MengyaUtils.Data.setData('evaluation.deepAnalysis', analysis);
+                    
+                    // 更新评估页面显示
+                    updateEvaluationWithAnalysis(analysis);
+                    
+                    // 添加深度洞察卡片
+                    addDeepInsightCards(analysis);
+                    
+                    // 深度分析完成
+                } else {
+                    // 暂无足够数据进行深度分析
+                    showBasicEvaluationMode();
+                }
+            } catch (error) {
+                console.error('深度分析初始化失败:', error);
+                showBasicEvaluationMode();
+            }
+        }
+
+        // 获取评估会话数据
+        async function getEvaluationSessionData() {
+            try {
+                // 尝试从全局数据获取
+                const sessionData = await MengyaUtils.Data.getData('child.currentSession');
+                if (sessionData) {
+                    return sessionData;
+                }
+
+                // 生成演示数据用于测试
+                return generateEvaluationDemoData();
+            } catch (error) {
+                console.error('获取会话数据失败:', error);
+                return generateEvaluationDemoData();
+            }
+        }
+
+        // 生成评估演示数据
+        function generateEvaluationDemoData() {
+            return {
+                sessionId: 'eval_' + Date.now(),
+                childName: '小明',
+                startTime: Date.now() - 1800000, // 30分钟前
+                endTime: Date.now(),
+                interactions: [
+                    {
+                        type: 'creativity_task',
+                        timestamp: Date.now() - 1500000,
+                        content: '今天我看到天空中的云朵像一只大象，它在和小鸟们一起玩耍，还有彩虹桥连接着远山。',
+                        duration: 180,
+                        score: 85,
+                        metadata: { taskType: '想象描述', difficulty: 'medium' }
+                    },
+                    {
+                        type: 'expression_task',
+                        timestamp: Date.now() - 1200000,
+                        content: '我最喜欢的动物是熊猫，因为它们很可爱，黑白相间的毛色很特别，而且吃竹子的样子很萌。',
+                        duration: 150,
+                        score: 78,
+                        metadata: { taskType: '动物描述', difficulty: 'easy' }
+                    },
+                    {
+                        type: 'logic_task',
+                        timestamp: Date.now() - 900000,
+                        content: '如果所有的猫都有四条腿，而小咪是一只猫，那么小咪也有四条腿。',
+                        duration: 120,
+                        score: 72,
+                        metadata: { taskType: '逻辑推理', difficulty: 'medium' }
+                    },
+                    {
+                        type: 'focus_task',
+                        timestamp: Date.now() - 600000,
+                        content: '专注任务：在3分钟内找出图片中的所有红色物品',
+                        duration: 180,
+                        score: 82,
+                        metadata: { taskType: '专注力训练', difficulty: 'hard' }
+                    }
+                ],
+                assessmentResults: {
+                    overallScore: 79,
+                    abilityScores: {
+                        creativity: 85,
+                        expression: 78,
+                        logic: 72,
+                        focus: 82
+                    }
+                }
+            };
+        }
+
+        // 使用分析结果更新评估页面
+        function updateEvaluationWithAnalysis(analysis) {
+            // 更新能力评分
+            const abilities = analysis.abilityAnalysis;
+            
+            // 更新创意思维分数
+            const creativityElement = document.getElementById('creativityScore');
+            if (creativityElement && abilities.creativity) {
+                creativityElement.textContent = Math.round(abilities.creativity.score);
+                updateProgressBar('creativityProgress', abilities.creativity.score);
+            }
+
+            // 更新表达能力分数
+            const expressionElement = document.getElementById('expressionScore');
+            if (expressionElement && abilities.expression) {
+                expressionElement.textContent = Math.round(abilities.expression.score);
+                updateProgressBar('expressionProgress', abilities.expression.score);
+            }
+
+            // 更新逻辑思维分数
+            const logicElement = document.getElementById('readingScore');
+            if (logicElement && abilities.logic) {
+                logicElement.textContent = Math.round(abilities.logic.score);
+                updateProgressBar('readingProgress', abilities.logic.score);
+            }
+
+            // 更新专注力分数
+            const focusElement = document.getElementById('communicationScore');
+            if (focusElement && abilities.focus) {
+                focusElement.textContent = Math.round(abilities.focus.score);
+                updateProgressBar('communicationProgress', abilities.focus.score);
+            }
+
+            // 更新综合评分
+            const overallScore = Math.round(
+                (abilities.creativity.score + abilities.expression.score + 
+                 abilities.logic.score + abilities.focus.score) / 4
+            );
+            
+            const overallElement = document.getElementById('overallScore');
+            if (overallElement) {
+                overallElement.textContent = overallScore;
+                updateScoreCircle(overallScore);
+            }
+        }
+
+        // 更新进度条
+        function updateProgressBar(progressId, score) {
+            const progressElement = document.getElementById(progressId);
+            if (progressElement) {
+                const percentage = Math.min(score, 100);
+                progressElement.style.width = percentage + '%';
+                
+                // 添加动画效果
+                setTimeout(() => {
+                    progressElement.style.transition = 'width 1s ease-in-out';
+                }, 100);
+            }
+        }
+
+        // 更新分数圆环
+        function updateScoreCircle(score) {
+            const circle = document.querySelector('.score-circle-bg');
+            if (circle) {
+                const degree = (score / 100) * 360;
+                circle.style.setProperty('--progress', degree + 'deg');
+            }
+        }
+
+        // 添加深度洞察卡片
+        function addDeepInsightCards(analysis) {
+            const container = document.querySelector('.abilities-grid');
+            if (!container) return;
+
+            // 创建深度洞察容器
+            const insightContainer = document.createElement('div');
+            insightContainer.className = 'deep-insights-container mt-6';
+            insightContainer.innerHTML = generateDeepInsightHTML(analysis);
+            
+            // 插入到能力卡片后面
+            container.appendChild(insightContainer);
+            
+            // 添加动画效果
+            setTimeout(() => {
+                insightContainer.style.opacity = '1';
+                insightContainer.style.transform = 'translateY(0)';
+            }, 500);
+        }
+
+        // 生成深度洞察HTML
+        function generateDeepInsightHTML(analysis) {
+            const patterns = analysis.behaviorPatterns;
+            const recommendations = analysis.personalizedRecommendations;
+            const emotional = analysis.emotionalState;
+
+            return `
+                <div class="deep-insight-header mb-4">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-brain text-purple-600 mr-3"></i>
+                        AI深度分析洞察
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">基于学习行为模式的智能分析</p>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4">
+                    ${generateLearningPatternCard(patterns)}
+                    ${generatePersonalityInsightCard(analysis)}
+                    ${generateEmotionalStateCard(emotional)}
+                    ${generateRecommendationCard(recommendations)}
+                </div>
+
+                <div class="predictive-analysis mt-6">
+                    ${generatePredictiveAnalysisCard(analysis.predictions)}
+                </div>
+            `;
+        }
+
+        // 生成学习模式卡片
+        function generateLearningPatternCard(patterns) {
+            return `
+                <div class="ability-card bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500">
+                    <div class="ability-header">
+                        <div class="ability-icon bg-blue-500 text-white flex items-center justify-center">
+                            <i class="fas fa-chart-line text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-blue-800">学习模式分析</h4>
+                            <p class="text-sm text-blue-600">个性化学习特征识别</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">时间偏好</span>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs">
+                                ${getTimePreferenceText(patterns.timePreferences)}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">学习策略</span>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs">
+                                创意导向型
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-blue-700">注意力模式</span>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded text-xs">
+                                兴趣驱动
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 生成个性洞察卡片
+        function generatePersonalityInsightCard(analysis) {
+            const creativity = analysis.abilityAnalysis.creativity.score;
+            const logic = analysis.abilityAnalysis.logic.score;
+            
+            let personalityType = '';
+            let description = '';
+            
+            if (creativity > logic + 10) {
+                personalityType = '创意探索者';
+                description = '富有想象力，善于创新思考，在艺术和创意任务中表现突出';
+            } else if (logic > creativity + 10) {
+                personalityType = '逻辑分析师';
+                description = '思维清晰，善于分析问题，在逻辑推理方面表现优秀';
+            } else {
+                personalityType = '全面发展者';
+                description = '创意和逻辑并重，具备均衡的认知能力发展潜力';
+            }
+
+            return `
+                <div class="ability-card bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500">
+                    <div class="ability-header">
+                        <div class="ability-icon bg-green-500 text-white flex items-center justify-center">
+                            <i class="fas fa-user-check text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-800">个性特质分析</h4>
+                            <p class="text-sm text-green-600">AI识别的学习个性</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="text-center py-3">
+                            <div class="text-lg font-bold text-green-800">${personalityType}</div>
+                            <p class="text-sm text-green-700 mt-2 leading-relaxed">${description}</p>
+                        </div>
+                        <div class="flex items-center justify-center space-x-4 text-xs">
+                            <span class="bg-green-200 text-green-800 px-2 py-1 rounded">想象力丰富</span>
+                            <span class="bg-blue-200 text-blue-800 px-2 py-1 rounded">表达生动</span>
+                            <span class="bg-purple-200 text-purple-800 px-2 py-1 rounded">思维活跃</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 生成情感状态卡片
+        function generateEmotionalStateCard(emotional) {
+            return `
+                <div class="ability-card bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500">
+                    <div class="ability-header">
+                        <div class="ability-icon bg-purple-500 text-white flex items-center justify-center">
+                            <i class="fas fa-heart text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-purple-800">情感状态分析</h4>
+                            <p class="text-sm text-purple-600">学习过程中的情绪表现</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="text-center py-3">
+                            <div class="text-lg font-bold text-purple-800">积极乐观</div>
+                            <p class="text-sm text-purple-700 mt-2">学习态度积极，对新知识充满好奇心和探索欲</p>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-xs text-center">
+                            <div class="bg-purple-200 text-purple-800 py-2 rounded">
+                                <div class="font-semibold">情绪稳定</div>
+                                <div>85%</div>
+                            </div>
+                            <div class="bg-pink-200 text-pink-800 py-2 rounded">
+                                <div class="font-semibold">学习兴趣</div>
+                                <div>92%</div>
+                            </div>
+                            <div class="bg-indigo-200 text-indigo-800 py-2 rounded">
+                                <div class="font-semibold">自信心</div>
+                                <div>78%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 生成建议卡片
+        function generateRecommendationCard(recommendations) {
+            const allRecs = [
+                ...recommendations.immediate,
+                ...recommendations.shortTerm
+            ].slice(0, 4);
+
+            return `
+                <div class="ability-card bg-gradient-to-br from-amber-50 to-amber-100 border-l-4 border-amber-500">
+                    <div class="ability-header">
+                        <div class="ability-icon bg-amber-500 text-white flex items-center justify-center">
+                            <i class="fas fa-lightbulb text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-amber-800">个性化建议</h4>
+                            <p class="text-sm text-amber-600">AI生成的学习优化建议</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        ${allRecs.map(rec => `
+                            <div class="flex items-start space-x-3 p-3 bg-white bg-opacity-60 rounded-lg">
+                                <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
+                                <div class="text-sm text-amber-800 leading-relaxed">
+                                    ${rec.description || rec.title}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // 生成预测分析卡片
+        function generatePredictiveAnalysisCard(predictions) {
+            if (!predictions) return '';
+
+            return `
+                <div class="ability-card bg-gradient-to-br from-indigo-50 to-indigo-100 border-l-4 border-indigo-500">
+                    <div class="ability-header">
+                        <div class="ability-icon bg-indigo-500 text-white flex items-center justify-center">
+                            <i class="fas fa-crystal-ball text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-indigo-800">发展趋势预测</h4>
+                            <p class="text-sm text-indigo-600">基于AI模型的能力发展预测</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-white bg-opacity-60 p-3 rounded-lg">
+                            <div class="font-semibold text-indigo-800 mb-1">创意发展</div>
+                            <div class="text-indigo-700">持续上升趋势，建议加强创意表达训练</div>
+                        </div>
+                        <div class="bg-white bg-opacity-60 p-3 rounded-lg">
+                            <div class="font-semibold text-indigo-800 mb-1">逻辑思维</div>
+                            <div class="text-indigo-700">稳定增长，可适当增加逻辑游戏</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 获取时间偏好文本
+        function getTimePreferenceText(timePreferences) {
+            if (!timePreferences || timePreferences.pattern === 'insufficient_data') {
+                return '数据积累中';
+            }
+            
+            const patterns = {
+                'morning': '上午学习型',
+                'afternoon': '下午学习型', 
+                'evening': '晚间学习型'
+            };
+            
+            return patterns[timePreferences.pattern] || '均衡分布';
+        }
+
+        // 显示基础评估模式
+        function showBasicEvaluationMode() {
+                            // 使用基础评估模式
+            // 这里可以添加基础模式的UI调整
+        }
+
+        // 手势支持
+        let startX, startY;
+        
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            // 右滑返回
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX < 0) {
+                    navigateBack();
+                }
+            }
+        });
+
+        // 为所有卡片添加点击动画和涟漪效果
+        document.querySelectorAll('.ability-card, .recommendation-card, .achievement-item, .fab-button').forEach(element => {
+            element.addEventListener('click', function(e) {
+                createRippleEffect(e, this);
+                vibrateDevice();
+            });
+        });
+
+        // 震动反馈
+        function vibrateDevice(pattern = [50]) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // 页面可见性处理
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // 页面重新激活时刷新数据
+                updateRealTimeData();
+            }
+        });
+
+        // 更新实时数据
+        function updateRealTimeData() {
+            // 模拟实时数据更新
+            const timeElements = document.querySelectorAll('[data-realtime]');
+            timeElements.forEach(element => {
+                // 这里可以添加实时数据更新逻辑
+            });
+        }
+
+        // 键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        downloadReport();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        location.reload();
+                        break;
+                    case 'h':
+                        e.preventDefault();
+                        navigateToPage('home');
+                        break;
+                }
+            }
+        });
+
+        // 数据持久化
+        function saveEvaluationData() {
+            const evaluationData = {
+                overallScore: document.getElementById('overallScore').textContent,
+                expressionScore: document.getElementById('expressionScore').textContent,
+                readingScore: document.getElementById('readingScore').textContent,
+                creativityScore: document.getElementById('creativityScore').textContent,
+                communicationScore: document.getElementById('communicationScore').textContent,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('latestEvaluation', JSON.stringify(evaluationData));
+        }
+
+        // 加载历史数据
+        function loadHistoricalData() {
+            const savedData = localStorage.getItem('latestEvaluation');
+            if (savedData) {
+                try {
+                    const data = JSON.parse(savedData);
+                    // 这里可以添加历史数据对比逻辑
+                    // 历史评估数据加载完成
+                } catch (e) {
+                    console.error('数据解析错误:', e);
+                }
+            }
+        }
+
+        // 自适应主题
+        function detectColorScheme() {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                // 暗色主题逻辑
+                document.body.classList.add('dark-theme');
+            }
+        }
+
+        // 监听主题变化
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectColorScheme);
+        }
+
+        // 性能监控
+        function trackPerformance() {
+            if ('performance' in window) {
+                setTimeout(() => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    // 页面性能监控
+                }, 1000);
+            }
+        }
+
+        // 错误处理
+        window.addEventListener('error', function(e) {
+            console.error('页面错误:', e.error);
+            showNotification('页面出现异常，正在自动修复...', 'error');
+        });
+
+        // 页面卸载时保存数据
+        window.addEventListener('beforeunload', function() {
+            saveEvaluationData();
+        });
+
+        // 初始化附加功能
+        setTimeout(() => {
+            detectColorScheme();
+            loadHistoricalData();
+            trackPerformance();
+        }, 1000);
+
+        // 添加拖拽排序功能（移动端友好）
+        let draggedElement = null;
+        
+        document.querySelectorAll('.achievement-item').forEach(item => {
+            item.addEventListener('touchstart', function(e) {
+                draggedElement = this;
+                this.style.opacity = '0.7';
+            });
+            
+            item.addEventListener('touchend', function(e) {
+                this.style.opacity = '1';
+                draggedElement = null;
+            });
+        });
+
+        // 智能提醒系统
+        function setupSmartReminders() {
+            const lastVisit = localStorage.getItem('lastEvaluationVisit');
+            const now = Date.now();
+            
+            if (lastVisit) {
+                const daysSinceVisit = Math.floor((now - parseInt(lastVisit)) / (1000 * 60 * 60 * 24));
+                
+                if (daysSinceVisit >= 7) {
+                    setTimeout(() => {
+                        showNotification('欢迎回来！距离上次查看报告已经一周了，来看看最新的学习成果吧！', 'info');
+                    }, 2000);
+                }
+            }
+            
+            localStorage.setItem('lastEvaluationVisit', now.toString());
+        }
+
+        // 社交分享增强
+        function enhancedShare() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 300;
+            
+            // 绘制成绩卡片
+            ctx.fillStyle = '#8B5CF6';
+            ctx.fillRect(0, 0, 400, 300);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('萌芽AI学习报告', 200, 50);
+            
+            ctx.font = '16px Arial';
+            ctx.fillText(`综合评分: ${document.getElementById('overallScore').textContent}分`, 200, 100);
+            ctx.fillText(`表达能力: ${document.getElementById('expressionScore').textContent}分`, 200, 130);
+            ctx.fillText(`创意思维: ${document.getElementById('creativityScore').textContent}分`, 200, 160);
+            
+            ctx.fillText('继续努力，成就更好的自己！', 200, 220);
+            
+            // 转换为图片
+            const imageDataUrl = canvas.toDataURL('image/png');
+            
+            // 创建下载链接
+            const link = document.createElement('a');
+            link.download = '萌芽AI学习报告.png';
+            link.href = imageDataUrl;
+            link.click();
+            
+            showNotification('学习报告图片已生成！', 'success');
+        }
+
+        // 语音播报功能
+        function speakResults() {
+            if ('speechSynthesis' in window) {
+                const text = `你的综合评分是${document.getElementById('overallScore').textContent}分，表达能力${document.getElementById('expressionScore').textContent}分，创意思维${document.getElementById('creativityScore').textContent}分。继续努力，你会越来越棒！`;
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.8;
+                utterance.pitch = 1.2;
+                
+                speechSynthesis.speak(utterance);
+            } else {
+                showNotification('你的浏览器不支持语音播报功能', 'info');
+            }
+        }
+
+        // 添加语音播报按钮功能
+        document.addEventListener('dblclick', function(e) {
+            if (e.target.closest('.score-circle')) {
+                speakResults();
+            }
+        });
+
+        // 初始化智能功能
+        setupSmartReminders();
+
+        // 添加页面完成加载的回调
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.body.classList.add('page-loaded');
+                showNotification('评估报告加载完成！', 'success');
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习路径 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .learning-container {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            min-height: calc(100vh - 120px);
+            position: relative;
+            overflow: hidden;
+        }
+        .learning-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899, #F59E0B, #10B981);
+            animation: progressFlow 3s ease-in-out infinite;
+        }
+        @keyframes progressFlow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        .level-progress {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .level-progress::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .level-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .level-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            border: 4px solid rgba(139, 92, 246, 0.2);
+            animation: levelPulse 3s ease-in-out infinite;
+        }
+        @keyframes levelPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+        }
+        .level-info {
+            flex: 1;
+        }
+        .level-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .level-subtitle {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 8px;
+        }
+        .level-progress-bar {
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .level-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+            border-radius: 10px;
+            transition: width 2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .level-progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            animation: progressShine 2s infinite;
+        }
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .level-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .stat-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            transition: all 0.3s ease;
+        }
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        }
+        .stat-number {
+            font-size: 16px;
+            font-weight: 700;
+            color: #8B5CF6;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 10px;
+            color: #6B7280;
+        }
+        .tasks-section {
+            padding: 20px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+        .section-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: #374151;
+        }
+        .view-all-btn {
+            background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+            color: #6B7280;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .view-all-btn:hover {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            transform: translateY(-1px);
+        }
+        .task-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .task-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.05), transparent);
+            transition: left 0.6s;
+        }
+        .task-card:hover::before {
+            left: 100%;
+        }
+        .task-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        .task-card.featured {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .task-card.featured .task-title,
+        .task-card.featured .task-description,
+        .task-card.featured .task-meta {
+            color: white;
+        }
+        .task-card.completed {
+            background: linear-gradient(135deg, #F0FDF4, #DCFCE7);
+            border-color: #22C55E;
+        }
+        .task-card.locked {
+            opacity: 0.6;
+            background: #F9FAFB;
+            cursor: not-allowed;
+        }
+        .task-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .task-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            animation: taskIconBreathe 4s ease-in-out infinite;
+        }
+        @keyframes taskIconBreathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .task-card:nth-child(1) .task-icon {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+        }
+        .task-card:nth-child(2) .task-icon {
+            background: linear-gradient(135deg, #4ECDC4, #44A08D);
+            color: white;
+        }
+        .task-card:nth-child(3) .task-icon {
+            background: linear-gradient(135deg, #45B7D1, #96C7F2);
+            color: white;
+        }
+        .task-card.featured .task-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .task-card.completed .task-icon {
+            background: #22C55E;
+            color: white;
+        }
+        .task-card.locked .task-icon {
+            background: #E5E7EB;
+            color: #9CA3AF;
+        }
+        .task-content {
+            flex: 1;
+        }
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        .task-description {
+            font-size: 13px;
+            color: #6B7280;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+        .task-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 11px;
+            color: #9CA3AF;
+        }
+        .task-card.featured .task-meta {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .task-progress {
+            margin-top: 12px;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+        .progress-bar {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 6px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .task-card.featured .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .task-card.completed .progress-bar {
+            background: rgba(34, 197, 94, 0.2);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+            border-radius: 6px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .task-card.featured .progress-fill {
+            background: white;
+        }
+        .task-card.completed .progress-fill {
+            background: #22C55E;
+        }
+        .task-status {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .task-status.new {
+            background: linear-gradient(135deg, #FF6B6B, #FF8E8E);
+            color: white;
+        }
+        .task-status.featured {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .task-status.completed {
+            background: #22C55E;
+            color: white;
+        }
+        .task-status.locked {
+            background: #E5E7EB;
+            color: #9CA3AF;
+        }
+        .floating-fab {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+            animation: fabFloat 4s ease-in-out infinite;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        @keyframes fabFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+        .floating-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.6);
+        }
+        .category-filter {
+            display: flex;
+            gap: 8px;
+            padding: 0 20px 20px 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid #E5E7EB;
+            background: white;
+            color: #6B7280;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .filter-btn.active {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 20px;
+            background: linear-gradient(135deg, #F8FAFC, #F1F5F9);
+            margin: 20px;
+            border-radius: 16px;
+            border: 1px solid #E2E8F0;
+        }
+        .quick-stat {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s ease;
+        }
+        .quick-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .quick-stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .quick-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .quick-stat-label {
+            font-size: 11px;
+            color: #6B7280;
+        }
+        .motivational-quote {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border: 1px solid #F59E0B;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 20px;
+            position: relative;
+            text-align: center;
+        }
+        .motivational-quote::before {
+            content: '💪';
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 20px;
+        }
+        .quote-text {
+            font-size: 14px;
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: 4px;
+        }
+        .quote-author {
+            font-size: 11px;
+            color: #A16207;
+        }
+        .achievement-notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 1001;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.4);
+        }
+        .achievement-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .learning-tips {
+            background: linear-gradient(135deg, #E0F2FE, #BAE6FD);
+            border: 1px solid #38BDF8;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 20px;
+            position: relative;
+        }
+        .learning-tips::before {
+            content: '🎯';
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 18px;
+        }
+        .tips-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0C4A6E;
+            margin-bottom: 8px;
+        }
+        .tips-content {
+            font-size: 11px;
+            color: #0369A1;
+            line-height: 1.4;
+        }
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateToPage('home')">
+                    <i class="fas fa-home text-sm"></i>
+                </button>
+                <div>
+                    <h1 class="text-xl font-bold">学习路径</h1>
+                    <p class="text-xs opacity-80">开启今天的学习之旅</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="showLearningStats()">
+                    <i class="fas fa-chart-bar text-sm"></i>
+                </button>
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateToPage('ai-assistant')">
+                    <i class="fas fa-robot text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成就通知 -->
+    <div class="achievement-notification" id="achievementNotification">
+        🎉 恭喜！你获得了新勋章
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="learning-container">
+        <!-- 等级进度 -->
+        <div class="level-progress">
+            <div class="level-header">
+                <div class="level-avatar">
+                    🌟
+                </div>
+                <div class="level-info">
+                    <div class="level-title">表达能力 - 中级探索者</div>
+                    <div class="level-subtitle">距离下一级别还差 150 经验值</div>
+                    <div class="level-progress-bar">
+                        <div class="level-progress-fill" style="width: 72%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="level-stats">
+                <div class="stat-item">
+                    <div class="stat-number">72%</div>
+                    <div class="stat-label">当前等级</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">已完成</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">850</div>
+                    <div class="stat-label">总经验</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快速统计 -->
+        <div class="quick-stats">
+            <div class="quick-stat">
+                <div class="quick-stat-icon">🔥</div>
+                <div class="quick-stat-value">7</div>
+                <div class="quick-stat-label">连续学习天数</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-icon">⚡</div>
+                <div class="quick-stat-value">3</div>
+                <div class="quick-stat-label">今日已完成</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-icon">🎯</div>
+                <div class="quick-stat-value">85%</div>
+                <div class="quick-stat-label">本周完成率</div>
+            </div>
+            <div class="quick-stat">
+                <div class="quick-stat-icon">🏆</div>
+                <div class="quick-stat-value">8</div>
+                <div class="quick-stat-label">获得勋章</div>
+            </div>
+        </div>
+
+        <!-- 分类筛选 -->
+        <div class="category-filter">
+            <button class="filter-btn active" onclick="filterTasks('all')">全部</button>
+            <button class="filter-btn" onclick="filterTasks('expression')">表达能力</button>
+            <button class="filter-btn" onclick="filterTasks('reading')">阅读理解</button>
+            <button class="filter-btn" onclick="filterTasks('creativity')">创意思维</button>
+            <button class="filter-btn" onclick="filterTasks('communication')">沟通交流</button>
+        </div>
+
+        <!-- 今日推荐 -->
+        <div class="tasks-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <div class="section-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <span class="section-text">今日推荐</span>
+                </div>
+                <button class="view-all-btn" onclick="showAllTasks()">查看全部</button>
+            </div>
+
+            <div class="task-grid">
+                <!-- 特色任务 -->
+                <div class="task-card featured" onclick="startTask('creative-world')" data-category="creativity">
+                    <div class="task-status featured">今日特色</div>
+                    <div class="task-header">
+                        <div class="task-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">创意表达挑战</div>
+                            <div class="task-description">用你的想象力描述一个神奇的世界，展现你的创意思维</div>
+                            <div class="task-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>25分钟</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>+50经验</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>中等难度</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 普通任务 -->
+                <div class="task-card" onclick="startTask('story-reading')" data-category="reading">
+                    <div class="task-status new">新任务</div>
+                    <div class="task-header">
+                        <div class="task-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">故事阅读理解</div>
+                            <div class="task-description">阅读有趣的故事，回答相关问题，提升理解能力</div>
+                            <div class="task-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>15分钟</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>+30经验</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>简单</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已完成任务 -->
+                <div class="task-card completed" onclick="viewTaskResult('vocabulary-game')" data-category="expression">
+                    <div class="task-status completed">已完成</div>
+                    <div class="task-header">
+                        <div class="task-icon">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">词汇拼图游戏</div>
+                            <div class="task-description">通过拼图游戏学习新词汇，寓教于乐</div>
+                            <div class="task-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-check"></i>
+                                    <span>已获得35经验</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>评分: 90分</span>
+                                </div>
+                            </div>
+                            <div class="task-progress">
+                                <div class="progress-label">
+                                    <span>完成进度</span>
+                                    <span>100%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 进行中任务 -->
+                <div class="task-card" onclick="continueTask('conversation-practice')" data-category="communication">
+                    <div class="task-header">
+                        <div class="task-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">日常对话练习</div>
+                            <div class="task-description">与AI助教进行对话练习，提升沟通交流能力</div>
+                            <div class="task-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>20分钟</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>+40经验</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-trophy"></i>
+                                    <span>中等难度</span>
+                                </div>
+                            </div>
+                            <div class="task-progress">
+                                <div class="progress-label">
+                                    <span>完成进度</span>
+                                    <span>60%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 60%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 锁定任务 -->
+                <div class="task-card locked" data-category="expression">
+                    <div class="task-status locked">需解锁</div>
+                    <div class="task-header">
+                        <div class="task-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="task-content">
+                            <div class="task-title">高级演讲训练</div>
+                            <div class="task-description">完成前置任务后解锁，提升演讲表达技巧</div>
+                            <div class="task-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-unlock"></i>
+                                    <span>需要完成5个表达任务</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习贴士 -->
+        <div class="learning-tips">
+            <div class="tips-title">💡 学习小贴士</div>
+            <div class="tips-content">
+                每天坚持完成至少一个任务，保持学习连续性。记住，表达能力需要通过不断练习来提升哦！
+            </div>
+        </div>
+
+        <!-- 激励语录 -->
+        <div class="motivational-quote">
+            <div class="quote-text">"每一次表达都是成长的机会"</div>
+            <div class="quote-author">— 萌芽AI</div>
+        </div>
+    </div>
+
+    <!-- 浮动操作按钮 -->
+    <div class="floating-fab" onclick="quickStart()" title="快速开始">
+        <i class="fas fa-play"></i>
+    </div>
+
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeLearningPath();
+            animateElements();
+            loadUserProgress();
+        });
+
+        // 初始化学习路径
+        function initializeLearningPath() {
+            updateProgressBars();
+            setupTaskInteractions();
+            checkAchievements();
+        }
+
+        // 更新进度条动画
+        function updateProgressBars() {
+            setTimeout(() => {
+                const progressBars = document.querySelectorAll('.progress-fill, .level-progress-fill');
+                progressBars.forEach((bar, index) => {
+                    setTimeout(() => {
+                        const width = bar.style.width || '0%';
+                        bar.style.width = '0%';
+                        setTimeout(() => {
+                            bar.style.width = width;
+                        }, 100);
+                    }, index * 200);
+                });
+            }, 500);
+        }
+
+        // 元素入场动画
+        function animateElements() {
+            const cards = document.querySelectorAll('.task-card, .quick-stat, .level-progress');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // 设置任务交互
+        function setupTaskInteractions() {
+            const taskCards = document.querySelectorAll('.task-card:not(.locked)');
+            taskCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-6px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.transform = '';
+                    }
+                });
+            });
+        }
+
+        // 开始任务
+        function startTask(taskId) {
+            showLoadingFeedback();
+            
+            // 添加点击动画
+            event.currentTarget.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                event.currentTarget.style.transform = '';
+            }, 150);
+
+            // 震动反馈
+            vibrateDevice([50]);
+
+            setTimeout(() => {
+                if (taskId === 'creative-world') {
+                    navigateToPage('task-detail');
+                } else {
+                    // 只在任务无法开始时才显示通知
+                    showNotification('此任务暂未开放', 'warning');
+                }
+            }, 800);
+        }
+
+        // 继续任务
+        function continueTask(taskId) {
+            navigateToPage('task-detail');
+        }
+
+        // 查看任务结果
+        function viewTaskResult(taskId) {
+            navigateToPage('report-detail');
+        }
+
+        // 筛选任务
+        function filterTasks(category) {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const taskCards = document.querySelectorAll('.task-card');
+            
+            // 更新按钮状态
+            filterBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 筛选任务卡片
+            taskCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const shouldShow = category === 'all' || cardCategory === category;
+                
+                if (shouldShow) {
+                    card.style.display = 'block';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'all': '全部',
+                'expression': '表达能力',
+                'reading': '阅读理解',
+                'creativity': '创意思维',
+                'communication': '沟通交流'
+            };
+            return names[category] || '全部';
+        }
+
+        // 快速开始
+        function quickStart() {
+            const availableTasks = document.querySelectorAll('.task-card:not(.completed):not(.locked)');
+            if (availableTasks.length > 0) {
+                const randomTask = availableTasks[Math.floor(Math.random() * availableTasks.length)];
+                randomTask.click();
+            } else {
+                showNotification('暂无可开始的任务', 'info');
+            }
+        }
+
+        // 显示学习统计
+        function showLearningStats() {
+            // 创建现代化的统计弹窗
+            const modal = document.createElement('div');
+            modal.className = 'stats-modal-overlay';
+            modal.innerHTML = `
+                <div class="stats-modal">
+                    <div class="stats-modal-header">
+                        <div class="stats-header-content">
+                            <div class="stats-icon">📊</div>
+                            <div class="stats-title">
+                                <h3>学习统计</h3>
+                                <p>本周学习成果一览</p>
+                            </div>
+                        </div>
+                        <button class="stats-close-btn" onclick="closeStatsModal()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="stats-modal-body">
+                        <!-- 本周表现 -->
+                        <div class="stats-section">
+                            <div class="stats-section-title">
+                                <i class="fas fa-target"></i>
+                                <span>本周表现</span>
+                            </div>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value">12<span class="stat-unit">/15</span></div>
+                                    <div class="stat-label">完成任务</div>
+                                    <div class="stat-progress">
+                                        <div class="stat-progress-fill" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">3<span class="stat-unit">h</span>45<span class="stat-unit">m</span></div>
+                                    <div class="stat-label">学习时长</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">520<span class="stat-unit">点</span></div>
+                                    <div class="stat-label">获得经验</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">2<span class="stat-unit">个</span></div>
+                                    <div class="stat-label">新增勋章</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 能力提升 -->
+                        <div class="stats-section">
+                            <div class="stats-section-title">
+                                <i class="fas fa-chart-line"></i>
+                                <span>能力提升</span>
+                            </div>
+                            <div class="ability-improvements">
+                                <div class="ability-item">
+                                    <div class="ability-info">
+                                        <div class="ability-icon">💬</div>
+                                        <span>表达能力</span>
+                                    </div>
+                                    <div class="ability-change positive">+15分</div>
+                                </div>
+                                <div class="ability-item">
+                                    <div class="ability-info">
+                                        <div class="ability-icon">📚</div>
+                                        <span>阅读理解</span>
+                                    </div>
+                                    <div class="ability-change positive">+12分</div>
+                                </div>
+                                <div class="ability-item">
+                                    <div class="ability-info">
+                                        <div class="ability-icon">💡</div>
+                                        <span>创意思维</span>
+                                    </div>
+                                    <div class="ability-change positive">+18分</div>
+                                </div>
+                                <div class="ability-item">
+                                    <div class="ability-info">
+                                        <div class="ability-icon">🤝</div>
+                                        <span>沟通交流</span>
+                                    </div>
+                                    <div class="ability-change positive">+10分</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 成就解锁 -->
+                        <div class="stats-section">
+                            <div class="stats-section-title">
+                                <i class="fas fa-trophy"></i>
+                                <span>成就解锁</span>
+                            </div>
+                            <div class="achievements-list">
+                                <div class="achievement-item">
+                                    <div class="achievement-badge">⚡</div>
+                                    <div class="achievement-info">
+                                        <div class="achievement-name">坚持之星</div>
+                                        <div class="achievement-desc">连续7天学习</div>
+                                    </div>
+                                    <div class="achievement-new">NEW</div>
+                                </div>
+                                <div class="achievement-item">
+                                    <div class="achievement-badge">🎨</div>
+                                    <div class="achievement-info">
+                                        <div class="achievement-name">创意大师</div>
+                                        <div class="achievement-desc">完成10个创意任务</div>
+                                    </div>
+                                    <div class="achievement-new">NEW</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-modal-footer">
+                        <button class="stats-btn secondary" onclick="navigateToPage('evaluation')">
+                            <i class="fas fa-chart-bar"></i>
+                            详细报告
+                        </button>
+                        <button class="stats-btn primary" onclick="navigateToPage('badge-center')">
+                            <i class="fas fa-award"></i>
+                            查看勋章
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                .stats-modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    backdrop-filter: blur(8px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    padding: 20px;
+                    opacity: 0;
+                    animation: fadeIn 0.3s ease forwards;
+                }
+                
+                @keyframes fadeIn {
+                    to { opacity: 1; }
+                }
+                
+                .stats-modal {
+                    background: white;
+                    border-radius: 24px;
+                    max-width: 400px;
+                    width: 100%;
+                    max-height: 80vh;
+                    overflow: hidden;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                    transform: scale(0.9) translateY(20px);
+                    animation: modalIn 0.3s ease forwards;
+                }
+                
+                @keyframes modalIn {
+                    to {
+                        transform: scale(1) translateY(0);
+                    }
+                }
+                
+                .stats-modal-header {
+                    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+                    color: white;
+                    padding: 24px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                }
+                
+                .stats-header-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 16px;
+                }
+                
+                .stats-icon {
+                    font-size: 32px;
+                    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+                }
+                
+                .stats-title h3 {
+                    margin: 0;
+                    font-size: 20px;
+                    font-weight: 700;
+                }
+                
+                .stats-title p {
+                    margin: 4px 0 0 0;
+                    font-size: 13px;
+                    opacity: 0.9;
+                }
+                
+                .stats-close-btn {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.2);
+                    border: none;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                .stats-close-btn:hover {
+                    background: rgba(255, 255, 255, 0.3);
+                    transform: scale(1.1);
+                }
+                
+                .stats-modal-body {
+                    padding: 0;
+                    max-height: 50vh;
+                    overflow-y: auto;
+                }
+                
+                .stats-modal-body::-webkit-scrollbar {
+                    width: 4px;
+                }
+                
+                .stats-modal-body::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                .stats-modal-body::-webkit-scrollbar-thumb {
+                    background: rgba(139, 92, 246, 0.3);
+                    border-radius: 2px;
+                }
+                
+                .stats-section {
+                    padding: 24px 20px;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+                
+                .stats-section:last-child {
+                    border-bottom: none;
+                }
+                
+                .stats-section-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #374151;
+                    margin-bottom: 16px;
+                }
+                
+                .stats-section-title i {
+                    color: #8B5CF6;
+                }
+                
+                .stats-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 16px;
+                }
+                
+                .stat-item {
+                    background: #f8fafc;
+                    border-radius: 12px;
+                    padding: 16px;
+                    text-align: center;
+                }
+                
+                .stat-value {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #8B5CF6;
+                    margin-bottom: 4px;
+                }
+                
+                .stat-unit {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #6b7280;
+                }
+                
+                .stat-label {
+                    font-size: 12px;
+                    color: #6b7280;
+                    margin-bottom: 8px;
+                }
+                
+                .stat-progress {
+                    height: 4px;
+                    background: #e5e7eb;
+                    border-radius: 2px;
+                    overflow: hidden;
+                }
+                
+                .stat-progress-fill {
+                    height: 100%;
+                    background: linear-gradient(90deg, #8B5CF6, #EC4899);
+                    border-radius: 2px;
+                    transition: width 1s ease;
+                }
+                
+                .ability-improvements {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+                
+                .ability-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 12px 16px;
+                    background: #f8fafc;
+                    border-radius: 12px;
+                }
+                
+                .ability-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                
+                .ability-icon {
+                    font-size: 18px;
+                }
+                
+                .ability-change {
+                    font-size: 14px;
+                    font-weight: 600;
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                }
+                
+                .ability-change.positive {
+                    color: #059669;
+                    background: #dcfce7;
+                }
+                
+                .achievements-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                }
+                
+                .achievement-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    padding: 12px 16px;
+                    background: #f8fafc;
+                    border-radius: 12px;
+                    position: relative;
+                }
+                
+                .achievement-badge {
+                    width: 40px;
+                    height: 40px;
+                    background: linear-gradient(135deg, #F59E0B, #D97706);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    color: white;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+                }
+                
+                .achievement-info {
+                    flex: 1;
+                }
+                
+                .achievement-name {
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #374151;
+                    margin-bottom: 2px;
+                }
+                
+                .achievement-desc {
+                    font-size: 12px;
+                    color: #6b7280;
+                }
+                
+                .achievement-new {
+                    background: linear-gradient(135deg, #EF4444, #DC2626);
+                    color: white;
+                    font-size: 10px;
+                    font-weight: 600;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                
+                .stats-modal-footer {
+                    padding: 20px;
+                    background: #f8fafc;
+                    display: flex;
+                    gap: 12px;
+                }
+                
+                .stats-btn {
+                    flex: 1;
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    border: none;
+                    font-size: 14px;
+                    font-weight: 600;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                .stats-btn.secondary {
+                    background: white;
+                    color: #6b7280;
+                    border: 1px solid #e5e7eb;
+                }
+                
+                .stats-btn.secondary:hover {
+                    background: #f3f4f6;
+                    border-color: #8B5CF6;
+                    color: #8B5CF6;
+                }
+                
+                .stats-btn.primary {
+                    background: linear-gradient(135deg, #8B5CF6, #EC4899);
+                    color: white;
+                    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+                }
+                
+                .stats-btn.primary:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+                }
+                
+                /* 移动端适配 */
+                @media (max-width: 480px) {
+                    .stats-modal-overlay {
+                        padding: 10px;
+                    }
+                    
+                    .stats-modal {
+                        border-radius: 20px;
+                        max-height: 85vh;
+                    }
+                    
+                    .stats-modal-header {
+                        padding: 20px 16px;
+                    }
+                    
+                    .stats-section {
+                        padding: 20px 16px;
+                    }
+                    
+                    .stats-grid {
+                        grid-template-columns: 1fr;
+                        gap: 12px;
+                    }
+                    
+                    .stats-modal-footer {
+                        padding: 16px;
+                        flex-direction: column;
+                    }
+                    
+                    .stats-btn {
+                        padding: 14px 16px;
+                    }
+                }
+            `;
+
+            document.head.appendChild(style);
+            document.body.appendChild(modal);
+
+            // 点击背景关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeStatsModal();
+                }
+            });
+
+            // 添加进度条动画
+            setTimeout(() => {
+                const progressBars = modal.querySelectorAll('.stat-progress-fill');
+                progressBars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 300);
+        }
+
+        // 关闭统计弹窗
+        function closeStatsModal() {
+            const modal = document.querySelector('.stats-modal-overlay');
+            if (modal) {
+                modal.style.opacity = '0';
+                modal.querySelector('.stats-modal').style.transform = 'scale(0.9) translateY(20px)';
+                setTimeout(() => {
+                    document.body.removeChild(modal);
+                    // 清理样式
+                    const style = document.querySelector('style');
+                    if (style && style.textContent.includes('.stats-modal-overlay')) {
+                        document.head.removeChild(style);
+                    }
+                }, 300);
+            }
+        }
+
+        // 显示所有任务
+        function showAllTasks() {
+            showNotification('加载更多任务中...', 'info');
+            // 这里可以加载更多任务或跳转到任务列表页面
+        }
+
+        // 检查成就
+        function checkAchievements() {
+            // 模拟成就检查
+            setTimeout(() => {
+                if (Math.random() > 0.7) {
+                    showAchievementNotification('🎨 恭喜获得"创意大师"勋章！');
+                }
+            }, 3000);
+        }
+
+        // 显示成就通知
+        function showAchievementNotification(message) {
+            const notification = document.getElementById('achievementNotification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // 加载用户进度
+        function loadUserProgress() {
+            // 模拟数据加载
+            animateNumber('.stat-number', 0);
+            updateLevelProgress();
+        }
+
+        // 数字动画
+        function animateNumber(selector, delay = 0) {
+            setTimeout(() => {
+                const numbers = document.querySelectorAll(selector);
+                numbers.forEach(number => {
+                    const target = parseInt(number.textContent);
+                    let current = 0;
+                    const increment = target / 30;
+                    
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= target) {
+                            current = target;
+                            clearInterval(timer);
+                        }
+                        number.textContent = Math.floor(current) + (number.textContent.includes('%') ? '%' : '');
+                    }, 50);
+                });
+            }, delay);
+        }
+
+        // 更新等级进度
+        function updateLevelProgress() {
+            const levelFill = document.querySelector('.level-progress-fill');
+            const currentWidth = levelFill.style.width;
+            levelFill.style.width = '0%';
+            
+            setTimeout(() => {
+                levelFill.style.width = currentWidth;
+            }, 1000);
+        }
+
+        // 显示加载反馈
+        function showLoadingFeedback() {
+            // 创建临时加载元素
+            const loader = document.createElement('div');
+            loader.className = 'loading-skeleton';
+            loader.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 200px;
+                height: 100px;
+                z-index: 9999;
+                border-radius: 12px;
+            `;
+            
+            document.body.appendChild(loader);
+            
+            setTimeout(() => {
+                document.body.removeChild(loader);
+            }, 800);
+        }
+
+        // 震动反馈
+        function vibrateDevice(pattern = [50]) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // 导航到页面
+        function navigateToPage(page) {
+            document.body.style.opacity = '0.8';
+            document.body.style.transform = 'scale(0.98)';
+            
+            setTimeout(() => {
+                parent.postMessage({
+                    type: 'navigate',
+                    page: page
+                }, '*');
+            }, 200);
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+
+        // 手势支持
+        let startX, startY;
+        
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            // 右滑返回首页
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX < 0) {
+                    navigateToPage('home');
+                }
+            }
+            
+            // 下拉刷新
+            if (diffY < -100 && Math.abs(diffX) < 50) {
+                location.reload();
+            }
+        });
+
+        // 为所有可点击元素添加震动反馈
+        document.querySelectorAll('button, .task-card, .quick-stat').forEach(element => {
+            element.addEventListener('click', () => vibrateDevice());
+        });
+
+        // 自动保存进度
+        setInterval(() => {
+            // 这里可以实现自动保存用户学习进度
+        }, 30000); // 每30秒保存一次
+    </script>
+</body>
+</html>

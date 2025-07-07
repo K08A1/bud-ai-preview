@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勋章中心 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .badge-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+            overflow: hidden;
+            margin: 16px;
+        }
+        .badge-header {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .badge-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: headerShine 4s ease-in-out infinite;
+        }
+        @keyframes headerShine {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .trophy-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: trophyBounce 2s ease-in-out infinite;
+        }
+        @keyframes trophyBounce {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-6px) scale(1.05); }
+        }
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin: 20px 20px 16px 20px;
+        }
+        .section-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .badge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding: 0 20px 20px 20px;
+        }
+        .badge-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .badge-card.earned {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+        .badge-card.locked {
+            opacity: 0.6;
+            background: #f9fafb;
+        }
+        .badge-card:hover:not(.locked) {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .badge-card.earned::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        .badge-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .badge-card.earned .badge-icon {
+            animation: badgeGlow 2s ease-in-out infinite;
+        }
+        @keyframes badgeGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .badge-card.locked .badge-icon {
+            filter: grayscale(1);
+        }
+        .badge-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .badge-card.locked .badge-name {
+            color: #9ca3af;
+        }
+        .badge-description {
+            font-size: 11px;
+            color: #6b7280;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .badge-progress {
+            font-size: 10px;
+            color: #8B5CF6;
+            font-weight: 500;
+        }
+        .badge-card.earned .badge-progress {
+            color: #10b981;
+        }
+        .badge-card.locked .badge-progress {
+            color: #9ca3af;
+        }
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 4px;
+            margin: 8px 0 4px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .badge-card.earned .progress-fill {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        .floating-filter {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            animation: filterFloat 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+        @keyframes filterFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .filter-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .filter-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .filter-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 20px;
+            max-width: 300px;
+            width: 100%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        .filter-modal.show .filter-content {
+            transform: scale(1);
+        }
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            cursor: pointer;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .filter-option:last-child {
+            border-bottom: none;
+        }
+        .filter-option:hover {
+            background: #f3f4f6;
+            margin: 0 -12px;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .achievement-timeline {
+            padding: 20px;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+        .timeline-time {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .badge-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .badge-detail-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .badge-detail-content {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            margin: 20px;
+            max-width: 350px;
+            width: 100%;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            text-align: center;
+        }
+        .badge-detail-modal.show .badge-detail-content {
+            transform: scale(1);
+        }
+        .detail-badge-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: detailIconGlow 2s ease-in-out infinite;
+        }
+        @keyframes detailIconGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .detail-badge-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .detail-badge-type {
+            font-size: 12px;
+            color: #8B5CF6;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+        .detail-badge-description {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .detail-requirements {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 16px 0;
+            text-align: left;
+        }
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .requirement-item:last-child {
+            margin-bottom: 0;
+        }
+        .requirement-icon {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            flex-shrink: 0;
+        }
+        .requirement-icon.completed {
+            background: #10b981;
+            color: white;
+        }
+        .requirement-icon.pending {
+            background: #e5e7eb;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="text-xl font-bold">我的勋章</h1>
+            </div>
+            <div class="text-sm opacity-90">
+                <i class="fas fa-award mr-1"></i>
+                <span id="totalBadges">8/15</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="pb-32">
+        <div class="badge-container">
+            <!-- 勋章头部 -->
+            <div class="badge-header">
+                <div class="trophy-icon">🏆</div>
+                <h2 class="text-2xl font-bold mb-2">勋章收藏室</h2>
+                <p class="text-amber-100">收集勋章，见证成长每一步</p>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number text-amber-600">8</div>
+                    <div class="stat-label">已获得</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number text-purple-600">7</div>
+                    <div class="stat-label">进行中</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number text-blue-600">95%</div>
+                    <div class="stat-label">完成度</div>
+                </div>
+            </div>
+
+            <!-- 已获得勋章 -->
+            <div class="section-title">
+                <div class="section-icon"><i class="fas fa-star"></i></div>
+                <span>已获得勋章</span>
+            </div>
+
+            <div class="badge-grid">
+                <div class="badge-card earned" onclick="showBadgeDetail('creative-master')">
+                    <div class="badge-icon">🎨</div>
+                    <div class="badge-name">创意大师</div>
+                    <div class="badge-description">完成10次创意表达任务</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('story-teller')">
+                    <div class="badge-icon">📚</div>
+                    <div class="badge-name">故事达人</div>
+                    <div class="badge-description">分享5个原创故事</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('early-bird')">
+                    <div class="badge-icon">🌅</div>
+                    <div class="badge-name">早起鸟儿</div>
+                    <div class="badge-description">连续7天早上完成任务</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('word-wizard')">
+                    <div class="badge-icon">🔤</div>
+                    <div class="badge-name">词汇法师</div>
+                    <div class="badge-description">学会100个新词汇</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('persistent-learner')">
+                    <div class="badge-icon">⚡</div>
+                    <div class="badge-name">坚持之星</div>
+                    <div class="badge-description">连续30天学习打卡</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('communication-expert')">
+                    <div class="badge-icon">💬</div>
+                    <div class="badge-name">表达专家</div>
+                    <div class="badge-description">完成20次语言表达练习</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('imagination-king')">
+                    <div class="badge-icon">🌟</div>
+                    <div class="badge-name">想象之王</div>
+                    <div class="badge-description">创作5个奇幻世界</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+
+                <div class="badge-card earned" onclick="showBadgeDetail('social-butterfly')">
+                    <div class="badge-icon">🦋</div>
+                    <div class="badge-name">社交达人</div>
+                    <div class="badge-description">与AI助手对话100次</div>
+                    <div class="badge-progress">已获得</div>
+                </div>
+            </div>
+
+            <!-- 进行中勋章 -->
+            <div class="section-title">
+                <div class="section-icon"><i class="fas fa-hourglass-half"></i></div>
+                <span>努力获得中</span>
+            </div>
+
+            <div class="badge-grid">
+                <div class="badge-card" onclick="showBadgeDetail('reading-champion')">
+                    <div class="badge-icon">📖</div>
+                    <div class="badge-name">阅读冠军</div>
+                    <div class="badge-description">完成50篇文章阅读</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 76%"></div>
+                    </div>
+                    <div class="badge-progress">38/50 完成</div>
+                </div>
+
+                <div class="badge-card" onclick="showBadgeDetail('grammar-master')">
+                    <div class="badge-icon">📝</div>
+                    <div class="badge-name">语法大师</div>
+                    <div class="badge-description">掌握50个语法知识点</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 64%"></div>
+                    </div>
+                    <div class="badge-progress">32/50 完成</div>
+                </div>
+
+                <div class="badge-card" onclick="showBadgeDetail('pronunciation-pro')">
+                    <div class="badge-icon">🎤</div>
+                    <div class="badge-name">发音专家</div>
+                    <div class="badge-description">完成100次发音练习</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 85%"></div>
+                    </div>
+                    <div class="badge-progress">85/100 完成</div>
+                </div>
+
+                <div class="badge-card" onclick="showBadgeDetail('culture-explorer')">
+                    <div class="badge-icon">🌍</div>
+                    <div class="badge-name">文化探索者</div>
+                    <div class="badge-description">学习10种文化知识</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%"></div>
+                    </div>
+                    <div class="badge-progress">7/10 完成</div>
+                </div>
+
+                <div class="badge-card" onclick="showBadgeDetail('poet-laureate')">
+                    <div class="badge-icon">🌺</div>
+                    <div class="badge-name">小诗人</div>
+                    <div class="badge-description">创作10首原创诗歌</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 40%"></div>
+                    </div>
+                    <div class="badge-progress">4/10 完成</div>
+                </div>
+
+                <div class="badge-card" onclick="showBadgeDetail('friendship-builder')">
+                    <div class="badge-icon">🤝</div>
+                    <div class="badge-name">友谊建造者</div>
+                    <div class="badge-description">帮助5位同学解答问题</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%"></div>
+                    </div>
+                    <div class="badge-progress">3/5 完成</div>
+                </div>
+
+                <div class="badge-card" onclick="showBadgeDetail('speed-learner')">
+                    <div class="badge-icon">🚀</div>
+                    <div class="badge-name">学习火箭</div>
+                    <div class="badge-description">单日完成10个任务</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 80%"></div>
+                    </div>
+                    <div class="badge-progress">8/10 完成</div>
+                </div>
+            </div>
+
+            <!-- 未解锁勋章 -->
+            <div class="section-title">
+                <div class="section-icon"><i class="fas fa-lock"></i></div>
+                <span>神秘勋章</span>
+            </div>
+
+            <div class="badge-grid">
+                <div class="badge-card locked" onclick="showBadgeDetail('mystery-1')">
+                    <div class="badge-icon">❓</div>
+                    <div class="badge-name">？？？</div>
+                    <div class="badge-description">完成特殊挑战后解锁</div>
+                    <div class="badge-progress">未解锁</div>
+                </div>
+
+                <div class="badge-card locked" onclick="showBadgeDetail('mystery-2')">
+                    <div class="badge-icon">❓</div>
+                    <div class="badge-name">？？？</div>
+                    <div class="badge-description">达成隐藏成就后解锁</div>
+                    <div class="badge-progress">未解锁</div>
+                </div>
+            </div>
+
+            <!-- 最近获得 -->
+            <div class="section-title">
+                <div class="section-icon"><i class="fas fa-history"></i></div>
+                <span>最近获得</span>
+            </div>
+
+            <div class="achievement-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background: linear-gradient(135deg, #10b981, #059669); color: white;">🎨</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">获得"创意大师"勋章</div>
+                        <div class="timeline-time">刚刚</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white;">💬</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">获得"表达专家"勋章</div>
+                        <div class="timeline-time">2天前</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background: linear-gradient(135deg, #F59E0B, #D97706); color: white;">⚡</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">获得"坚持之星"勋章</div>
+                        <div class="timeline-time">1周前</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选浮动按钮 -->
+    <div class="floating-filter" onclick="showFilterModal()" title="筛选">
+        <i class="fas fa-filter"></i>
+    </div>
+
+    <!-- 筛选模态框 -->
+    <div class="filter-modal" id="filterModal">
+        <div class="filter-content">
+            <h3 class="text-lg font-bold mb-4">筛选勋章</h3>
+            <div class="filter-option" onclick="filterBadges('all')">
+                <i class="fas fa-list text-gray-500"></i>
+                <span>全部勋章</span>
+            </div>
+            <div class="filter-option" onclick="filterBadges('earned')">
+                <i class="fas fa-star text-green-500"></i>
+                <span>已获得</span>
+            </div>
+            <div class="filter-option" onclick="filterBadges('progress')">
+                <i class="fas fa-hourglass-half text-purple-500"></i>
+                <span>进行中</span>
+            </div>
+            <div class="filter-option" onclick="filterBadges('locked')">
+                <i class="fas fa-lock text-gray-400"></i>
+                <span>未解锁</span>
+            </div>
+            <div class="filter-option" onclick="closeFilterModal()">
+                <i class="fas fa-times text-red-500"></i>
+                <span>关闭</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 勋章详情模态框 -->
+    <div class="badge-detail-modal" id="badgeDetailModal">
+        <div class="badge-detail-content">
+            <div class="detail-badge-icon" id="detailBadgeIcon">🎨</div>
+            <div class="detail-badge-name" id="detailBadgeName">创意大师</div>
+            <div class="detail-badge-type" id="detailBadgeType">表达能力类</div>
+            <div class="detail-badge-description" id="detailBadgeDescription">
+                恭喜你成为创意大师！你已经完成了10次创意表达任务，展现出了非凡的想象力和表达能力。
+            </div>
+            
+            <div class="detail-requirements" id="detailRequirements">
+                <div class="font-semibold text-gray-700 mb-3">获得条件：</div>
+                <div class="requirement-item">
+                    <div class="requirement-icon completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>完成10次创意表达任务</span>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-icon completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>平均分数达到85分以上</span>
+                </div>
+                <div class="requirement-item">
+                    <div class="requirement-icon completed">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span>创作至少3个原创故事</span>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button class="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg transition-all" onclick="closeBadgeDetail()">
+                    关闭
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 勋章数据
+        const badgeData = {
+            'creative-master': {
+                icon: '🎨',
+                name: '创意大师',
+                type: '表达能力类',
+                description: '恭喜你成为创意大师！你已经完成了10次创意表达任务，展现出了非凡的想象力和表达能力。',
+                requirements: [
+                    { text: '完成10次创意表达任务', completed: true },
+                    { text: '平均分数达到85分以上', completed: true },
+                    { text: '创作至少3个原创故事', completed: true }
+                ],
+                earned: true
+            },
+            'story-teller': {
+                icon: '📚',
+                name: '故事达人',
+                type: '创作能力类',
+                description: '你是天生的故事家！通过分享5个原创故事，你展现了出色的叙事能力和丰富的想象力。',
+                requirements: [
+                    { text: '分享5个原创故事', completed: true },
+                    { text: '故事获得点赞超过50次', completed: true },
+                    { text: '使用丰富的修辞手法', completed: true }
+                ],
+                earned: true
+            },
+            'reading-champion': {
+                icon: '📖',
+                name: '阅读冠军',
+                type: '学习能力类',
+                description: '通过大量阅读提升语言能力，完成50篇文章阅读后可获得此勋章。',
+                requirements: [
+                    { text: '完成50篇文章阅读', completed: false },
+                    { text: '阅读理解正确率达到90%', completed: true },
+                    { text: '总阅读时长超过20小时', completed: true }
+                ],
+                earned: false,
+                progress: 38,
+                total: 50
+            }
+        };
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateBadgeStats();
+            animateBadges();
+        });
+
+        // 更新勋章统计
+        function updateBadgeStats() {
+            const earnedCount = document.querySelectorAll('.badge-card.earned').length;
+            const progressCount = document.querySelectorAll('.badge-card:not(.earned):not(.locked)').length;
+            const totalCount = document.querySelectorAll('.badge-card').length;
+            
+            document.getElementById('totalBadges').textContent = `${earnedCount}/${totalCount}`;
+        }
+
+        // 勋章动画
+        function animateBadges() {
+            const badges = document.querySelectorAll('.badge-card');
+            badges.forEach((badge, index) => {
+                setTimeout(() => {
+                    badge.style.opacity = '0';
+                    badge.style.transform = 'translateY(20px)';
+                    badge.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        badge.style.opacity = '1';
+                        badge.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 100);
+            });
+        }
+
+        // 显示勋章详情
+        function showBadgeDetail(badgeId) {
+            const badge = badgeData[badgeId];
+            if (!badge) return;
+
+            document.getElementById('detailBadgeIcon').textContent = badge.icon;
+            document.getElementById('detailBadgeName').textContent = badge.name;
+            document.getElementById('detailBadgeType').textContent = badge.type;
+            document.getElementById('detailBadgeDescription').textContent = badge.description;
+
+            // 更新要求列表
+            const requirementsContainer = document.getElementById('detailRequirements');
+            let requirementsHTML = '<div class="font-semibold text-gray-700 mb-3">获得条件：</div>';
+            
+            badge.requirements.forEach(req => {
+                const iconClass = req.completed ? 'completed' : 'pending';
+                const iconSymbol = req.completed ? 'fas fa-check' : 'fas fa-clock';
+                requirementsHTML += `
+                    <div class="requirement-item">
+                        <div class="requirement-icon ${iconClass}">
+                            <i class="${iconSymbol}"></i>
+                        </div>
+                        <span>${req.text}</span>
+                    </div>
+                `;
+            });
+            
+            requirementsContainer.innerHTML = requirementsHTML;
+
+            document.getElementById('badgeDetailModal').classList.add('show');
+        }
+
+        // 关闭勋章详情
+        function closeBadgeDetail() {
+            document.getElementById('badgeDetailModal').classList.remove('show');
+        }
+
+        // 显示筛选模态框
+        function showFilterModal() {
+            document.getElementById('filterModal').classList.add('show');
+        }
+
+        // 关闭筛选模态框
+        function closeFilterModal() {
+            document.getElementById('filterModal').classList.remove('show');
+        }
+
+        // 筛选勋章
+        function filterBadges(type) {
+            const badges = document.querySelectorAll('.badge-card');
+            
+            badges.forEach(badge => {
+                let show = false;
+                
+                switch(type) {
+                    case 'all':
+                        show = true;
+                        break;
+                    case 'earned':
+                        show = badge.classList.contains('earned');
+                        break;
+                    case 'progress':
+                        show = !badge.classList.contains('earned') && !badge.classList.contains('locked');
+                        break;
+                    case 'locked':
+                        show = badge.classList.contains('locked');
+                        break;
+                }
+                
+                badge.style.display = show ? 'block' : 'none';
+            });
+            
+            closeFilterModal();
+            showNotification(`已筛选${type === 'all' ? '全部' : type === 'earned' ? '已获得' : type === 'progress' ? '进行中' : '未解锁'}勋章`, 'info');
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            parent.postMessage({
+                type: 'navigate',
+                page: 'profile'
+            }, '*');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('filterModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFilterModal();
+            }
+        });
+
+        document.getElementById('badgeDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBadgeDetail();
+            }
+        });
+    </script>
+</body>
+</html>

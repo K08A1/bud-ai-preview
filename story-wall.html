@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事墙 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .story-app {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+        }
+        
+        /* 顶部导航 - 固定高度 */
+        .story-header {
+            height: 70px;
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .back-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .header-info p {
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 2px 0 0 0;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .create-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .create-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        /* 筛选标签栏 - 固定高度 */
+        .filter-tabs {
+            height: 50px;
+            background: white;
+            padding: 8px 20px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .filter-tabs::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .filter-tab {
+            padding: 6px 16px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .filter-tab.active {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            border-color: #F59E0B;
+        }
+        
+        .filter-tab:hover:not(.active) {
+            background: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        
+        /* 故事列表区域 - 可滚动 */
+        .story-list {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 0;
+        }
+        
+        .story-list::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .story-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .story-list::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.3);
+            border-radius: 2px;
+        }
+        
+        /* 故事卡片样式 */
+        .story-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            animation: slideIn 0.4s ease;
+            position: relative;
+        }
+        
+        .story-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.15);
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .story-header-card {
+            padding: 16px 20px 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .story-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .author-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+        }
+        
+        .author-info {
+            flex: 1;
+        }
+        
+        .author-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+        
+        .story-time {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        
+        .story-type {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .story-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .story-content {
+            padding: 0 20px 16px 20px;
+        }
+        
+        .story-excerpt {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            max-height: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .story-excerpt::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(transparent, white);
+        }
+        
+        .story-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        
+        .story-tag {
+            background: #f8fafc;
+            color: #6b7280;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .story-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .action-group {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        
+        .action-btn:hover {
+            color: #F59E0B;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .action-btn.liked {
+            color: #EF4444;
+        }
+        
+        .read-more-btn {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .read-more-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* 创作模态框 */
+        .create-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .create-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .create-modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: translateY(-30px) scale(0.95);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .create-modal.show .create-modal-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        .create-header {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        
+        .create-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .create-close {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .create-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .create-form {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-input {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #374151;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+        
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 8px 12px;
+            min-height: 44px;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .tag-input-container:focus-within {
+            border-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        
+        .tag-item {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .tag-remove {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .tag-remove:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tag-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            min-width: 100px;
+        }
+        
+        .create-footer {
+            padding: 20px 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        
+        .footer-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-btn.secondary {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .footer-btn.secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+        
+        .footer-btn.primary {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+        }
+        
+        .footer-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .empty-desc {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        
+        .empty-action {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .empty-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* 故事详情模态框 */
+        .story-detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            z-index: 2001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+            padding-top: 40px;
+            overflow-y: auto;
+        }
+        
+        .story-detail-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .story-detail-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: translateY(-30px) scale(0.95);
+            transition: transform 0.3s ease;
+            margin-bottom: 40px;
+        }
+        
+        .story-detail-modal.show .story-detail-content {
+            transform: translateY(0) scale(1);
+        }
+        
+        .detail-header {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            padding: 24px 24px 20px 24px;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .detail-close {
+            float: right;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+        
+        .detail-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            clear: both;
+        }
+        
+        .detail-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        
+        .detail-body {
+            padding: 24px;
+        }
+        
+        .detail-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #374151;
+            margin-bottom: 24px;
+        }
+        
+        .detail-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .detail-tag {
+            background: #f8fafc;
+            color: #6b7280;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .detail-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .detail-action-group {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .detail-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px 12px;
+            border-radius: 12px;
+        }
+        
+        .detail-action-btn:hover {
+            color: #F59E0B;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .detail-action-btn.liked {
+            color: #EF4444;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 480px) {
+            .story-header {
+                padding: 12px 16px;
+                height: 60px;
+            }
+            
+            .header-info h3 {
+                font-size: 16px;
+            }
+            
+            .filter-tabs {
+                padding: 6px 16px;
+                height: 44px;
+            }
+            
+            .story-list {
+                padding: 16px;
+                gap: 16px;
+            }
+            
+            .story-card {
+                border-radius: 16px;
+            }
+            
+            .story-header-card {
+                padding: 14px 16px 10px 16px;
+            }
+            
+            .story-content {
+                padding: 0 16px 14px 16px;
+            }
+            
+            .story-actions {
+                padding: 10px 16px;
+            }
+            
+            .create-modal {
+                padding: 16px;
+            }
+            
+            .story-detail-modal {
+                padding: 16px;
+                padding-top: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="story-app">
+        <!-- 顶部导航 -->
+        <div class="story-header">
+            <div class="header-left">
+                <button class="back-btn" onclick="navigateToPage('home')">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="header-info">
+                    <h3>故事墙</h3>
+                    <p>分享你的精彩故事</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="create-btn" onclick="openCreateModal()">
+                    <i class="fas fa-plus mr-1"></i>
+                    创作故事
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛选标签 -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterStories('all')">全部</button>
+            <button class="filter-tab" onclick="filterStories('adventure')">冒险</button>
+            <button class="filter-tab" onclick="filterStories('fantasy')">奇幻</button>
+            <button class="filter-tab" onclick="filterStories('friendship')">友谊</button>
+            <button class="filter-tab" onclick="filterStories('animal')">动物</button>
+            <button class="filter-tab" onclick="filterStories('science')">科学</button>
+            <button class="filter-tab" onclick="filterStories('daily')">日常</button>
+        </div>
+
+        <!-- 故事列表 -->
+        <div class="story-list" id="storyList">
+            <!-- 故事会通过JavaScript动态加载 -->
+        </div>
+    </div>
+
+    <!-- 创作故事模态框 -->
+    <div class="create-modal" id="createModal">
+        <div class="create-modal-content">
+            <div class="create-header">
+                <div class="create-title">创作新故事</div>
+                <button class="create-close" onclick="closeCreateModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form class="create-form" id="createForm">
+                <div class="form-group">
+                    <label class="form-label">故事标题</label>
+                    <input type="text" class="form-input" id="storyTitle" placeholder="给你的故事起个有趣的名字..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">故事类型</label>
+                    <select class="form-input form-select" id="storyType" required>
+                        <option value="">选择故事类型</option>
+                        <option value="adventure">冒险故事</option>
+                        <option value="fantasy">奇幻故事</option>
+                        <option value="friendship">友谊故事</option>
+                        <option value="animal">动物故事</option>
+                        <option value="science">科学故事</option>
+                        <option value="daily">日常故事</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">故事内容</label>
+                    <textarea class="form-input form-textarea" id="storyContent" placeholder="在这里写下你的精彩故事...
+
+提示：
+• 用生动的语言描述故事情节
+• 可以加入对话让故事更有趣
+• 描述人物的感受和心情
+• 让故事有一个好的结局" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">故事标签</label>
+                    <div class="tag-input-container" id="tagContainer">
+                        <input type="text" class="tag-input" id="tagInput" placeholder="输入标签后按回车添加...">
+                    </div>
+                </div>
+            </form>
+            
+            <div class="create-footer">
+                <button type="button" class="footer-btn secondary" onclick="closeCreateModal()">
+                    取消
+                </button>
+                <button type="button" class="footer-btn primary" onclick="submitStory()">
+                    发布故事
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 故事详情模态框 -->
+    <div class="story-detail-modal" id="storyDetailModal">
+        <div class="story-detail-content">
+            <div class="detail-header">
+                <button class="detail-close" onclick="closeStoryDetail()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="detail-title" id="detailTitle">故事标题</div>
+                <div class="detail-meta" id="detailMeta">
+                    <span>作者：小明</span>
+                    <span>•</span>
+                    <span>2天前</span>
+                    <span>•</span>
+                    <span>冒险故事</span>
+                </div>
+            </div>
+            
+            <div class="detail-body">
+                <div class="detail-content" id="detailContent">
+                    故事内容将在这里显示...
+                </div>
+                
+                <div class="detail-tags" id="detailTags">
+                    <!-- 标签将动态加载 -->
+                </div>
+            </div>
+            
+            <div class="detail-actions">
+                <div class="detail-action-group">
+                    <button class="detail-action-btn" id="detailLikeBtn" onclick="toggleLike(this)">
+                        <i class="fas fa-heart"></i>
+                        <span id="detailLikeCount">12</span>
+                    </button>
+                    <button class="detail-action-btn" onclick="shareStory()">
+                        <i class="fas fa-share"></i>
+                        分享
+                    </button>
+                    <button class="detail-action-btn" onclick="reportStory()">
+                        <i class="fas fa-flag"></i>
+                        举报
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 故事数据
+        let stories = [
+            {
+                id: 1,
+                title: "勇敢的小兔子冒险记",
+                author: "小明",
+                avatar: "🐰",
+                time: "2小时前",
+                type: "adventure",
+                typeName: "冒险故事",
+                content: `从前有一只勇敢的小兔子叫做跳跳，它住在森林深处的一个小洞里。有一天，跳跳听说森林的另一边有一座神奇的彩虹桥，据说走过彩虹桥的动物都能实现一个愿望。
+
+跳跳的愿望是让森林里所有的小动物都能快乐地生活在一起。于是，它决定踏上寻找彩虹桥的冒险之旅。
+
+路上，跳跳遇到了许多困难：险峻的山峰、湍急的河流、茂密的荆棘丛。但是每当遇到困难时，跳跳都会想起自己的愿望，然后勇敢地继续前进。
+
+在路上，跳跳还结识了很多朋友：聪明的小狐狸、强壮的小熊、机灵的小松鼠。大家一起互相帮助，共同克服困难。
+
+经过七天七夜的跋涉，他们终于找到了传说中的彩虹桥。桥的那边有一位慈祥的仙女，她对跳跳说："孩子，你已经实现了自己的愿望。你看，你的勇敢和善良已经让这么多朋友聚集在你身边，大家快乐地生活在一起，这不就是你想要的吗？"
+
+跳跳这才明白，真正的魔法不在彩虹桥，而在于勇敢、善良和友谊。从此，森林里的小动物们都过上了幸福快乐的生活。`,
+                excerpt: "从前有一只勇敢的小兔子叫做跳跳，它住在森林深处的一个小洞里。有一天，跳跳听说森林的另一边有一座神奇的彩虹桥...",
+                tags: ["勇敢", "友谊", "成长", "冒险"],
+                likes: 24,
+                comments: 8,
+                shares: 3,
+                liked: false
+            },
+            {
+                id: 2,
+                title: "魔法森林的秘密",
+                author: "小红",
+                avatar: "🌸",
+                time: "1天前",
+                type: "fantasy",
+                typeName: "奇幻故事",
+                content: `在一个遥远的地方，有一片神秘的魔法森林。这片森林里住着各种会说话的植物和动物，还有善良的小精灵们。
+
+小女孩艾米在一个阳光明媚的下午，无意中发现了这片森林的入口。当她踏进森林的那一刻，眼前的景象让她惊呆了：树木会唱歌，花朵会跳舞，蝴蝶的翅膀闪闪发光像星星一样。
+
+"欢迎来到魔法森林！"一只小精灵飞到艾米面前说道。"我是露娜，这里的向导精灵。"
+
+露娜告诉艾米，这片森林正面临着一个大危机：邪恶的黑暗法师想要夺走森林的魔法之源——生命之树的力量。如果生命之树失去力量，整个森林都会枯萎。
+
+艾米决定帮助森林的朋友们保护生命之树。在露娜的指引下，她开始了一段奇妙的冒险之旅。她学会了和动植物交流，掌握了一些简单的魔法，还结识了许多勇敢的伙伴。
+
+最终，在大家的共同努力下，他们成功击败了黑暗法师，保护了生命之树。作为感谢，森林的魔法让艾米拥有了永远与自然交流的能力。
+
+从那以后，艾米成为了森林的守护者，每当有人需要帮助时，她就会出现。`,
+                excerpt: "在一个遥远的地方，有一片神秘的魔法森林。这片森林里住着各种会说话的植物和动物，还有善良的小精灵们...",
+                tags: ["魔法", "精灵", "勇气", "自然"],
+                likes: 18,
+                comments: 5,
+                shares: 2,
+                liked: true
+            },
+            {
+                id: 3,
+                title: "小猫咪的新朋友",
+                author: "小李",
+                avatar: "🐱",
+                time: "3天前",
+                type: "friendship",
+                typeName: "友谊故事",
+                content: `小猫咪咪咪是一只很害羞的猫咪，它住在城市里的一个小公园附近。虽然公园里有很多小动物，但咪咪一直没有真正的朋友。
+
+有一天，咪咪在公园里发现了一只受伤的小鸟。小鸟的翅膀受了伤，不能飞了。咪咪虽然害羞，但是它有一颗善良的心，于是决定帮助这只小鸟。
+
+咪咪小心翼翼地把小鸟带回了家，给它包扎伤口，喂它吃东西，还为它搭建了一个舒适的小窝。在照顾小鸟的过程中，咪咪和小鸟慢慢成了好朋友。
+
+小鸟告诉咪咪，它叫啾啾，来自很远的地方。啾啾很感谢咪咪的帮助，也很喜欢和咪咪聊天。他们一起讲故事，一起玩游戏，咪咪发现有朋友陪伴的日子是多么快乐。
+
+几个星期后，啾啾的伤好了，可以飞了。虽然有些不舍，但咪咪知道啾啾应该回到属于它的地方。
+
+在送别的那天，啾啾对咪咪说："谢谢你，咪咪。虽然我要走了，但我们永远都是好朋友。而且，我会告诉其他的朋友，你是一只善良又可爱的猫咪。"
+
+果然，从那以后，公园里的小动物们都愿意和咪咪做朋友。咪咪不再孤单，它明白了友谊的真谛：真正的朋友会让你变得更勇敢，更快乐。`,
+                excerpt: "小猫咪咪咪是一只很害羞的猫咪，它住在城市里的一个小公园附近。虽然公园里有很多小动物，但咪咪一直没有真正的朋友...",
+                tags: ["友谊", "善良", "成长", "动物"],
+                likes: 15,
+                comments: 12,
+                shares: 1,
+                liked: false
+            }
+        ];
+
+        let currentFilter = 'all';
+        let storyTags = [];
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStories();
+            setupTagInput();
+        });
+
+        // 加载故事列表
+        function loadStories() {
+            const storyList = document.getElementById('storyList');
+            const filteredStories = currentFilter === 'all' 
+                ? stories 
+                : stories.filter(story => story.type === currentFilter);
+
+            if (filteredStories.length === 0) {
+                storyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <div class="empty-title">暂无故事</div>
+                        <div class="empty-desc">这个分类还没有故事呢<br>快来创作第一个故事吧！</div>
+                        <button class="empty-action" onclick="openCreateModal()">
+                            开始创作
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const storiesHTML = filteredStories.map(story => `
+                <div class="story-card" data-type="${story.type}">
+                    <div class="story-header-card">
+                        <div class="story-author">
+                            <div class="author-avatar">${story.avatar}</div>
+                            <div class="author-info">
+                                <div class="author-name">${story.author}</div>
+                                <div class="story-time">${story.time}</div>
+                            </div>
+                            <div class="story-type">${story.typeName}</div>
+                        </div>
+                        <div class="story-title">${story.title}</div>
+                    </div>
+                    
+                    <div class="story-content">
+                        <div class="story-excerpt">${story.excerpt}</div>
+                        <div class="story-tags">
+                            ${story.tags.map(tag => `<span class="story-tag">#${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="story-actions">
+                        <div class="action-group">
+                            <button class="action-btn ${story.liked ? 'liked' : ''}" onclick="toggleLike(this, ${story.id})">
+                                <i class="fas fa-heart"></i>
+                                <span>${story.likes}</span>
+                            </button>
+                            <button class="action-btn" onclick="showStoryDetail(${story.id})">
+                                <i class="fas fa-comment"></i>
+                                <span>${story.comments}</span>
+                            </button>
+                            <button class="action-btn" onclick="shareStory(${story.id})">
+                                <i class="fas fa-share"></i>
+                                <span>${story.shares}</span>
+                            </button>
+                        </div>
+                        <button class="read-more-btn" onclick="showStoryDetail(${story.id})">
+                            阅读全文
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            storyList.innerHTML = storiesHTML;
+
+            // 添加加载动画延迟
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.story-card');
+                cards.forEach((card, index) => {
+                    card.style.animationDelay = `${index * 0.1}s`;
+                });
+            }, 100);
+        }
+
+        // 筛选故事
+        function filterStories(type) {
+            currentFilter = type;
+            
+            // 更新标签状态
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 重新加载故事
+            loadStories();
+            
+            // 滚动到顶部
+            document.getElementById('storyList').scrollTop = 0;
+            
+            const typeNames = {
+                'all': '全部',
+                'adventure': '冒险',
+                'fantasy': '奇幻',
+                'friendship': '友谊',
+                'animal': '动物',
+                'science': '科学',
+                'daily': '日常'
+            };
+            
+            if (type !== 'all') {
+                showNotification(`已筛选${typeNames[type]}故事`, 'info');
+            }
+        }
+
+        // 切换点赞状态
+        function toggleLike(button, storyId) {
+            const story = stories.find(s => s.id === storyId);
+            const span = button.querySelector('span');
+            const currentLikes = parseInt(span.textContent);
+            
+            if (button.classList.contains('liked')) {
+                button.classList.remove('liked');
+                story.liked = false;
+                story.likes = currentLikes - 1;
+                span.textContent = story.likes;
+                showNotification('已取消点赞', 'info');
+            } else {
+                button.classList.add('liked');
+                story.liked = true;
+                story.likes = currentLikes + 1;
+                span.textContent = story.likes;
+                showNotification('点赞成功！', 'success');
+                
+                // 添加震动反馈
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }
+
+        // 显示故事详情
+        function showStoryDetail(storyId) {
+            const story = stories.find(s => s.id === storyId);
+            if (!story) return;
+
+            document.getElementById('detailTitle').textContent = story.title;
+            document.getElementById('detailMeta').innerHTML = `
+                <span>作者：${story.author}</span>
+                <span>•</span>
+                <span>${story.time}</span>
+                <span>•</span>
+                <span>${story.typeName}</span>
+            `;
+            document.getElementById('detailContent').innerHTML = story.content.replace(/\n/g, '<br><br>');
+            
+            // 更新标签
+            const tagsHTML = story.tags.map(tag => `<span class="detail-tag">#${tag}</span>`).join('');
+            document.getElementById('detailTags').innerHTML = tagsHTML;
+            
+            // 更新点赞按钮
+            const likeBtn = document.getElementById('detailLikeBtn');
+            const likeCount = document.getElementById('detailLikeCount');
+            likeBtn.className = `detail-action-btn ${story.liked ? 'liked' : ''}`;
+            likeCount.textContent = story.likes;
+            
+            // 设置点赞按钮的数据属性
+            likeBtn.setAttribute('data-story-id', storyId);
+            
+            document.getElementById('storyDetailModal').classList.add('show');
+            
+            // 增加阅读统计
+            showNotification('正在加载故事详情...', 'info');
+        }
+
+        // 关闭故事详情
+        function closeStoryDetail() {
+            document.getElementById('storyDetailModal').classList.remove('show');
+        }
+
+        // 打开创作模态框
+        function openCreateModal() {
+            document.getElementById('createModal').classList.add('show');
+            document.getElementById('storyTitle').focus();
+            resetCreateForm();
+        }
+
+        // 关闭创作模态框
+        function closeCreateModal() {
+            document.getElementById('createModal').classList.remove('show');
+            resetCreateForm();
+        }
+
+        // 重置创作表单
+        function resetCreateForm() {
+            document.getElementById('createForm').reset();
+            storyTags = [];
+            updateTagDisplay();
+        }
+
+        // 设置标签输入
+        function setupTagInput() {
+            const tagInput = document.getElementById('tagInput');
+            
+            tagInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag();
+                }
+            });
+            
+            tagInput.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    addTag();
+                }
+            });
+        }
+
+        // 添加标签
+        function addTag() {
+            const tagInput = document.getElementById('tagInput');
+            const tagText = tagInput.value.trim();
+            
+            if (tagText && !storyTags.includes(tagText) && storyTags.length < 6) {
+                storyTags.push(tagText);
+                updateTagDisplay();
+                tagInput.value = '';
+            } else if (storyTags.length >= 6) {
+                showNotification('最多只能添加6个标签', 'warning');
+            }
+        }
+
+        // 更新标签显示
+        function updateTagDisplay() {
+            const container = document.getElementById('tagContainer');
+            const tagInput = document.getElementById('tagInput');
+            
+            // 移除现有的标签元素
+            const existingTags = container.querySelectorAll('.tag-item');
+            existingTags.forEach(tag => tag.remove());
+            
+            // 添加新标签
+            storyTags.forEach((tag, index) => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag-item';
+                tagElement.innerHTML = `
+                    <span>${tag}</span>
+                    <button type="button" class="tag-remove" onclick="removeTag(${index})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.insertBefore(tagElement, tagInput);
+            });
+        }
+
+        // 移除标签
+        function removeTag(index) {
+            storyTags.splice(index, 1);
+            updateTagDisplay();
+        }
+
+        // 提交故事
+        function submitStory() {
+            const title = document.getElementById('storyTitle').value.trim();
+            const type = document.getElementById('storyType').value;
+            const content = document.getElementById('storyContent').value.trim();
+            
+            if (!title || !type || !content) {
+                showNotification('请填写完整的故事信息', 'warning');
+                return;
+            }
+            
+            if (content.length < 50) {
+                showNotification('故事内容至少需要50个字符', 'warning');
+                return;
+            }
+            
+            // 创建新故事
+            const newStory = {
+                id: stories.length + 1,
+                title: title,
+                author: '小明同学',
+                avatar: '😊',
+                time: '刚刚',
+                type: type,
+                typeName: getTypeName(type),
+                content: content,
+                excerpt: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+                tags: [...storyTags],
+                likes: 0,
+                comments: 0,
+                shares: 0,
+                liked: false
+            };
+            
+            // 添加到故事列表开头
+            stories.unshift(newStory);
+            
+            // 关闭模态框
+            closeCreateModal();
+            
+            // 重新加载故事列表
+            loadStories();
+            
+            showNotification('故事发布成功！', 'success');
+            
+            // 震动反馈
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100]);
+            }
+        }
+
+        // 获取类型名称
+        function getTypeName(type) {
+            const typeMap = {
+                'adventure': '冒险故事',
+                'fantasy': '奇幻故事',
+                'friendship': '友谊故事',
+                'animal': '动物故事',
+                'science': '科学故事',
+                'daily': '日常故事'
+            };
+            return typeMap[type] || '未知类型';
+        }
+
+        // 分享故事
+        function shareStory(storyId) {
+            const story = storyId ? stories.find(s => s.id === storyId) : null;
+            const shareText = story 
+                ? `我在萌芽AI分享了一个故事《${story.title}》，快来看看吧！`
+                : '我在萌芽AI故事墙发现了很多精彩故事，快来看看吧！';
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '萌芽AI - 故事墙',
+                    text: shareText,
+                    url: window.location.href
+                }).then(() => {
+                    showNotification('分享成功！', 'success');
+                    if (story) {
+                        story.shares++;
+                        loadStories();
+                    }
+                }).catch(() => {
+                    showNotification('分享取消', 'info');
+                });
+            } else {
+                // 降级处理：复制链接
+                navigator.clipboard.writeText(shareText + ' ' + window.location.href)
+                    .then(() => {
+                        showNotification('分享链接已复制到剪贴板', 'success');
+                        if (story) {
+                            story.shares++;
+                            loadStories();
+                        }
+                    })
+                    .catch(() => showNotification('分享功能暂不可用', 'error'));
+            }
+        }
+
+        // 举报故事
+        function reportStory() {
+            showNotification('已提交举报，我们会尽快处理', 'info');
+            closeStoryDetail();
+        }
+
+        // 导航到页面
+        function navigateToPage(page) {
+            const pageMap = {
+                'home': 'home.html',
+                'learning-path': 'learning-path.html',
+                'ai-assistant': 'ai-assistant.html',
+                'profile': 'profile.html'
+            };
+            
+            if (pageMap[page]) {
+                parent.postMessage({
+                    type: 'openPage',
+                    url: pageMap[page]
+                }, '*');
+            } else {
+                parent.postMessage({
+                    type: 'navigate',
+                    page: page
+                }, '*');
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('createModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateModal();
+            }
+        });
+
+        document.getElementById('storyDetailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeStoryDetail();
+            }
+        });
+
+        // 处理详情模态框中的点赞
+        document.getElementById('detailLikeBtn').addEventListener('click', function() {
+            const storyId = parseInt(this.getAttribute('data-story-id'));
+            toggleLike(this, storyId);
+            
+            // 同步更新详情页面的点赞数
+            const story = stories.find(s => s.id === storyId);
+            if (story) {
+                document.getElementById('detailLikeCount').textContent = story.likes;
+            }
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            // ESC键关闭模态框
+            if (e.key === 'Escape') {
+                if (document.getElementById('createModal').classList.contains('show')) {
+                    closeCreateModal();
+                } else if (document.getElementById('storyDetailModal').classList.contains('show')) {
+                    closeStoryDetail();
+                }
+            }
+            
+            // Ctrl/Cmd + N 新建故事
+            if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                e.preventDefault();
+                openCreateModal();
+            }
+        });
+
+        // 手势支持
+        let startX, startY;
+        
+        document.addEventListener('touchstart', function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+            
+            const diffX = startX - endX;
+            const diffY = startY - endY;
+            
+            // 右滑返回
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                if (diffX < 0) {
+                    navigateToPage('home');
+                }
+            }
+        });
+
+        // 无限滚动加载更多故事
+        let isLoading = false;
+        
+        document.getElementById('storyList').addEventListener('scroll', function() {
+            if (isLoading) return;
+            
+            const { scrollTop, scrollHeight, clientHeight } = this;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                loadMoreStories();
+            }
+        });
+
+        // 加载更多故事
+        function loadMoreStories() {
+            if (isLoading || stories.length >= 20) return; // 限制最大故事数
+            
+            isLoading = true;
+            showNotification('正在加载更多故事...', 'info');
+            
+            setTimeout(() => {
+                // 模拟生成更多故事
+                const moreStories = generateRandomStories(3);
+                stories.push(...moreStories);
+                loadStories();
+                isLoading = false;
+                showNotification('加载完成！', 'success');
+            }, 1500);
+        }
+
+        // 生成随机故事
+        function generateRandomStories(count) {
+            const templates = [
+                {
+                    title: "小熊的蜂蜜冒险",
+                    type: "adventure",
+                    avatar: "🐻",
+                    tags: ["冒险", "友谊", "食物"]
+                },
+                {
+                    title: "神奇的时光机器",
+                    type: "science",
+                    avatar: "⚡",
+                    tags: ["科技", "时间", "探索"]
+                },
+                {
+                    title: "花园里的小精灵",
+                    type: "fantasy",
+                    avatar: "🧚",
+                    tags: ["魔法", "花园", "帮助"]
+                },
+                {
+                    title: "两只小鸟的故事",
+                    type: "friendship",
+                    avatar: "🐦",
+                    tags: ["友谊", "飞翔", "家庭"]
+                }
+            ];
+            
+            const authors = ["小王", "小张", "小刘", "小陈", "小赵"];
+            const times = ["5小时前", "1天前", "2天前", "3天前", "1周前"];
+            
+            return Array.from({ length: count }, (_, index) => {
+                const template = templates[Math.floor(Math.random() * templates.length)];
+                const author = authors[Math.floor(Math.random() * authors.length)];
+                const time = times[Math.floor(Math.random() * times.length)];
+                
+                return {
+                    id: stories.length + index + 1,
+                    title: template.title,
+                    author: author,
+                    avatar: template.avatar,
+                    time: time,
+                    type: template.type,
+                    typeName: getTypeName(template.type),
+                    content: `这是一个关于${template.title}的精彩故事。故事讲述了主人公经历的各种冒险和成长，充满了想象力和教育意义。通过生动的情节和有趣的对话，让读者能够深深地被吸引，同时学到宝贵的人生道理。`,
+                    excerpt: `这是一个关于${template.title}的精彩故事。故事讲述了主人公经历的各种冒险和成长...`,
+                    tags: template.tags,
+                    likes: Math.floor(Math.random() * 20) + 1,
+                    comments: Math.floor(Math.random() * 10) + 1,
+                    shares: Math.floor(Math.random() * 5),
+                    liked: Math.random() > 0.7
+                };
+            });
+        }
+
+        // 页面可见性处理
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // 页面重新激活时可以刷新数据
+                // 故事墙页面重新激活
+            }
+        });
+
+        // 表单验证增强
+        function validateStoryForm() {
+            const title = document.getElementById('storyTitle').value.trim();
+            const content = document.getElementById('storyContent').value.trim();
+            
+            let isValid = true;
+            let errors = [];
+            
+            if (title.length < 2) {
+                errors.push('标题至少需要2个字符');
+                isValid = false;
+            }
+            
+            if (title.length > 50) {
+                errors.push('标题不能超过50个字符');
+                isValid = false;
+            }
+            
+            if (content.length < 50) {
+                errors.push('故事内容至少需要50个字符');
+                isValid = false;
+            }
+            
+            if (content.length > 2000) {
+                errors.push('故事内容不能超过2000个字符');
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                showNotification(errors.join('\n'), 'warning');
+            }
+            
+            return isValid;
+        }
+
+        // 修改提交故事函数以包含验证
+        function submitStory() {
+            if (!validateStoryForm()) {
+                return;
+            }
+            
+            const title = document.getElementById('storyTitle').value.trim();
+            const type = document.getElementById('storyType').value;
+            const content = document.getElementById('storyContent').value.trim();
+            
+            if (!type) {
+                showNotification('请选择故事类型', 'warning');
+                return;
+            }
+            
+            // 显示提交中状态
+            const submitBtn = document.querySelector('.footer-btn.primary');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = '发布中...';
+            submitBtn.disabled = true;
+            
+            setTimeout(() => {
+                // 创建新故事
+                const newStory = {
+                    id: stories.length + 1,
+                    title: title,
+                    author: '小明同学',
+                    avatar: '😊',
+                    time: '刚刚',
+                    type: type,
+                    typeName: getTypeName(type),
+                    content: content,
+                    excerpt: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+                    tags: [...storyTags],
+                    likes: 0,
+                    comments: 0,
+                    shares: 0,
+                    liked: false
+                };
+                
+                // 添加到故事列表开头
+                stories.unshift(newStory);
+                
+                // 恢复按钮状态
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                
+                // 关闭模态框
+                closeCreateModal();
+                
+                // 重新加载故事列表
+                loadStories();
+                
+                showNotification('故事发布成功！🎉', 'success');
+                
+                // 震动反馈
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }, 1000);
+        }
+
+        // 添加字符计数功能
+        document.getElementById('storyContent').addEventListener('input', function() {
+            const maxLength = 2000;
+            const currentLength = this.value.length;
+            const remaining = maxLength - currentLength;
+            
+            // 可以在这里显示字符计数（如果需要的话）
+            if (remaining < 100 && remaining >= 0) {
+                // 接近限制时的提示
+                // 字符统计更新
+            } else if (remaining < 0) {
+                // 超出限制
+                this.value = this.value.substring(0, maxLength);
+                showNotification('字符数已达到上限', 'warning');
+            }
+        });
+
+        // 初始化完成提示
+        setTimeout(() => {
+            // 故事墙功能加载完成
+        }, 1000);
+    </script>
+</body>
+</html>

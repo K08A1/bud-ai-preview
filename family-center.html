@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家庭互动中心 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="mengya-common.js"></script>
+    <script src="learning-analytics.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 50%, #45B7D1 100%);
+        }
+        .family-container {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            min-height: calc(100vh - 120px);
+            position: relative;
+            overflow: hidden;
+        }
+        .family-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4);
+            animation: familyFlow 4s ease-in-out infinite;
+        }
+        @keyframes familyFlow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        .hero-section {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.05), transparent);
+            animation: heroShine 3s infinite;
+        }
+        @keyframes heroShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .activity-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .activity-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.05), transparent);
+            transition: left 0.6s;
+        }
+        .activity-card:hover::before {
+            left: 100%;
+        }
+        .activity-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(255, 107, 107, 0.15);
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+        .challenge-badge {
+            background: linear-gradient(135deg, #FFD93D, #FF6B6B);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        .member-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ECDC4, #45B7D1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 12px;
+            border: 3px solid white;
+            box-shadow: 0 4px 20px rgba(78, 205, 196, 0.3);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ECDC4, #45B7D1);
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+        }
+        .floating-hearts {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            animation: floatingHearts 3s ease-in-out infinite;
+        }
+        @keyframes floatingHearts {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        .activity-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+        .family-stats {
+            background: linear-gradient(135deg, rgba(150, 206, 180, 0.1), rgba(69, 183, 209, 0.1));
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .interaction-bubble {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(78, 205, 196, 0.1));
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            border-radius: 20px;
+            padding: 16px;
+            margin: 12px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .interaction-bubble::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 107, 0.1), transparent);
+            animation: bubbleShimmer 3s infinite;
+        }
+        @keyframes bubbleShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .celebration-mode {
+            animation: celebration 2s ease-in-out;
+        }
+        @keyframes celebration {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* 新增样式 */
+        .real-time-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+            display: inline-block;
+            margin-left: 8px;
+        }
+        
+        .weather-widget {
+            background: linear-gradient(135deg, #87CEEB, #ADD8E6);
+            border-radius: 16px;
+            padding: 16px;
+            color: white;
+            text-align: center;
+        }
+        
+        .family-mood {
+            background: linear-gradient(135deg, #FFE4E1, #FFF0F5);
+            border-radius: 16px;
+            padding: 16px;
+            border: 2px solid rgba(255, 182, 193, 0.3);
+        }
+        
+        .schedule-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 8px 0;
+            border-left: 4px solid #4ECDC4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .notification-badge {
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .tab-container {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            margin-top: 16px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 16px 8px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #6b7280;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            color: #4ECDC4;
+            border-bottom: 2px solid #4ECDC4;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .voice-message {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin: 8px 0;
+            position: relative;
+        }
+        
+        .smart-suggestion {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+        
+        .mini-game-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .mini-game-card:hover {
+            transform: translateY(-4px);
+        }
+
+        /* 计划功能增强样式 */
+        .schedule-view-btn {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .schedule-view-btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .schedule-stats {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .stat-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .quick-add-section {
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .quick-plan-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .quick-plan-btn:hover {
+            border-color: #10b981;
+            color: #10b981;
+            transform: translateY(-1px);
+        }
+
+        .schedule-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+
+        .participant-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .participant-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .participant-checkbox:hover {
+            border-color: #10b981;
+        }
+
+        .participant-checkbox input:checked + span {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .activity-type-selection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .activity-type-btn {
+            padding: 10px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            color: #6b7280;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .activity-type-btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .activity-type-btn:hover {
+            border-color: #10b981;
+        }
+
+        /* 按钮样式 */
+        .btn-primary {
+            background: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        /* 计划项增强样式 */
+        .schedule-item-enhanced {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .schedule-item-enhanced.completed {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .schedule-item-enhanced.current {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+
+        .schedule-item-enhanced.pending {
+            border-left-color: #6b7280;
+        }
+
+        .schedule-item-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .plan-title {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 16px;
+        }
+
+        .plan-time {
+            background: #f3f4f6;
+            color: #6b7280;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .plan-participants {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .plan-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            color: #6b7280;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .action-btn.primary {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .action-btn.primary:hover {
+            background: #059669;
+        }
+
+        /* 通知弹窗样式 */
+        .notification-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .notification-modal.show {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 80px;
+        }
+
+        .notification-panel {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 70vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .notification-body {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transition: background 0.2s;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item.unread {
+            background: #f0f9ff;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .notification-icon.info {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .notification-icon.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .notification-message {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+
+        .notification-time {
+            color: #9ca3af;
+            font-size: 11px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .notification-btn {
+            padding: 4px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            background: white;
+            color: #6b7280;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .notification-btn:hover {
+            background: #f9fafb;
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .notification-btn.primary {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .notification-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .notification-footer {
+            padding: 16px 20px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .notification-footer button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mark-all-read {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
+        .mark-all-read:hover {
+            background: #e2e8f0;
+        }
+
+        .view-all {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .view-all:hover {
+            background: #2563eb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="gradient-bg px-6 py-4">
+        <div class="flex items-center justify-between">
+            <button onclick="navigateBack()" class="text-white text-xl">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="text-center flex-1">
+                <h1 class="text-white text-lg font-bold">家庭互动中心</h1>
+                <p class="text-white text-sm opacity-90">一起学习，一起成长</p>
+            </div>
+            <div class="relative">
+                <button onclick="showNotifications()" class="text-white text-xl relative">
+                    <i class="fas fa-bell"></i>
+                    <div class="notification-badge" id="notificationBadge">3</div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="family-container">
+        <!-- 英雄区域 - 增强版 -->
+        <div class="hero-section">
+            <div class="floating-hearts">
+                <i class="fas fa-heart text-red-400 text-lg"></i>
+            </div>
+            <div class="text-6xl mb-4">👨‍👩‍👧‍👦</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2" id="familyGreeting">欢迎来到家庭学习乐园</h2>
+            <p class="text-gray-600 text-sm" id="familyMotivation">今天又是充满爱与学习的美好一天！</p>
+            
+            <!-- 今日天气和心情 -->
+            <div class="grid grid-cols-2 gap-4 mt-6">
+                <div class="weather-widget">
+                    <div class="text-2xl mb-2">☀️</div>
+                    <div class="text-sm">
+                        <div class="font-semibold">今日天气</div>
+                        <div id="weatherInfo">晴天 22°C</div>
+                    </div>
+                </div>
+                <div class="family-mood">
+                    <div class="text-2xl mb-2">😊</div>
+                    <div class="text-sm text-gray-700">
+                        <div class="font-semibold">家庭心情</div>
+                        <div id="familyMoodText">快乐愉悦</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页容器 -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('overview')">
+                    <i class="fas fa-home mr-1"></i>总览
+                </button>
+                <button class="tab-button" onclick="switchTab('schedule')">
+                    <i class="fas fa-calendar mr-1"></i>计划
+                </button>
+                <button class="tab-button" onclick="switchTab('communication')">
+                    <i class="fas fa-comments mr-1"></i>沟通
+                </button>
+                <button class="tab-button" onclick="switchTab('games')">
+                    <i class="fas fa-gamepad mr-1"></i>游戏
+                </button>
+            </div>
+
+            <!-- 总览标签页 -->
+            <div class="tab-content active" id="overviewTab">
+                <!-- 家庭统计概览 - 增强版 -->
+                <div class="family-stats">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-blue-600"></i>
+                        今日家庭学习概况
+                        <div class="real-time-indicator"></div>
+                    </h3>
+                    <div class="grid grid-cols-4 gap-2 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600" id="todayActivities">3</div>
+                            <div class="text-xs text-gray-600">共同活动</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600" id="familyScore">150</div>
+                            <div class="text-xs text-gray-600">家庭积分</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600" id="interactionTime">45min</div>
+                            <div class="text-xs text-gray-600">互动时长</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-orange-600" id="completionRate">92%</div>
+                            <div class="text-xs text-gray-600">完成率</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 智能推荐活动 -->
+                <div class="px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-brain mr-2 text-purple-500"></i>
+                        AI智能推荐
+                    </h3>
+                    <div class="smart-suggestion">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800 mb-2">今日推荐：创意故事时光</h4>
+                                <p class="text-sm text-gray-600 mb-3">根据小明的学习进度和兴趣偏好，建议进行创意故事创作，有助于提升语言表达和想象力。</p>
+                                <div class="flex space-x-2">
+                                    <button onclick="startRecommendedActivity('story')" class="px-4 py-2 bg-purple-500 text-white rounded-lg text-sm font-semibold hover:bg-purple-600">
+                                        立即开始
+                                    </button>
+                                    <button onclick="getMoreRecommendations()" class="px-4 py-2 border border-purple-500 text-purple-500 rounded-lg text-sm font-semibold hover:bg-purple-50">
+                                        更多推荐
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 家庭成员状态 - 增强版 -->
+                <div class="px-6 py-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-users mr-2 text-indigo-500"></i>
+                        家庭成员动态
+                    </h3>
+                    <div id="familyMembers" class="space-y-3">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计划标签页 -->
+            <div class="tab-content" id="scheduleTab">
+                <!-- 计划管理头部 -->
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-calendar-alt mr-2 text-green-500"></i>
+                        家庭学习计划
+                    </h3>
+                    <div class="flex space-x-2">
+                        <button onclick="switchScheduleView('today')" class="schedule-view-btn active" id="todayViewBtn">
+                            <i class="fas fa-calendar-day mr-1"></i>今日
+                        </button>
+                        <button onclick="switchScheduleView('week')" class="schedule-view-btn" id="weekViewBtn">
+                            <i class="fas fa-calendar-week mr-1"></i>本周
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 计划统计概览 -->
+                <div class="schedule-stats mb-4">
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div class="stat-item">
+                            <div class="text-lg font-bold text-blue-600" id="todayPlansCount">4</div>
+                            <div class="text-xs text-gray-600">今日计划</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="text-lg font-bold text-green-600" id="completedPlansCount">2</div>
+                            <div class="text-xs text-gray-600">已完成</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="text-lg font-bold text-orange-600" id="pendingPlansCount">2</div>
+                            <div class="text-xs text-gray-600">待执行</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速添加计划 -->
+                <div class="quick-add-section mb-4">
+                    <div class="flex space-x-2">
+                        <button onclick="addQuickPlan('学习')" class="quick-plan-btn">
+                            <i class="fas fa-book mr-1"></i>学习
+                        </button>
+                        <button onclick="addQuickPlan('游戏')" class="quick-plan-btn">
+                            <i class="fas fa-gamepad mr-1"></i>游戏
+                        </button>
+                        <button onclick="addQuickPlan('运动')" class="quick-plan-btn">
+                            <i class="fas fa-running mr-1"></i>运动
+                        </button>
+                        <button onclick="addQuickPlan('创作')" class="quick-plan-btn">
+                            <i class="fas fa-paint-brush mr-1"></i>创作
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 计划列表 -->
+                <div id="scheduleList" class="schedule-list">
+                    <!-- 动态生成 -->
+                </div>
+                
+                <!-- 添加计划按钮 -->
+                <button onclick="showAddScheduleModal()" class="w-full mt-4 py-3 border-2 border-dashed border-gray-300 text-gray-500 rounded-lg hover:border-green-400 hover:text-green-500 transition-colors">
+                    <i class="fas fa-plus mr-2"></i>创建详细计划
+                </button>
+            </div>
+
+            <!-- 沟通标签页 -->
+            <div class="tab-content" id="communicationTab">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-heart mr-2 text-red-500"></i>
+                    家庭留言板
+                </h3>
+                <div id="familyMessages" class="space-y-3 mb-4">
+                    <!-- 动态生成 -->
+                </div>
+                
+                <div class="flex space-x-2">
+                    <input type="text" id="messageInput" placeholder="给家人留言..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="sendVoiceMessage()" class="px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button onclick="sendMessage()" class="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 游戏标签页 -->
+            <div class="tab-content" id="gamesTab">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-gamepad mr-2 text-orange-500"></i>
+                    家庭小游戏
+                </h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="mini-game-card" onclick="startMiniGame('word')">
+                        <div class="text-3xl mb-2">🔤</div>
+                        <div class="font-semibold text-gray-800">词汇接龙</div>
+                        <div class="text-xs text-gray-600 mt-1">锻炼词汇量</div>
+                    </div>
+                    <div class="mini-game-card" onclick="startMiniGame('math')">
+                        <div class="text-3xl mb-2">🧮</div>
+                        <div class="font-semibold text-gray-800">快速计算</div>
+                        <div class="text-xs text-gray-600 mt-1">提升计算力</div>
+                    </div>
+                    <div class="mini-game-card" onclick="startMiniGame('memory')">
+                        <div class="text-3xl mb-2">🧠</div>
+                        <div class="font-semibold text-gray-800">记忆训练</div>
+                        <div class="text-xs text-gray-600 mt-1">增强记忆</div>
+                    </div>
+                    <div class="mini-game-card" onclick="startMiniGame('draw')">
+                        <div class="text-3xl mb-2">🎨</div>
+                        <div class="font-semibold text-gray-800">你画我猜</div>
+                        <div class="text-xs text-gray-600 mt-1">发挥创意</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动操作按钮 -->
+    <div class="fixed bottom-6 right-6 flex flex-col space-y-3">
+        <button onclick="quickStartActivity()" class="w-14 h-14 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full shadow-lg flex items-center justify-center text-xl">
+            <i class="fas fa-play"></i>
+        </button>
+        <button onclick="emergencyCall()" class="w-14 h-14 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full shadow-lg flex items-center justify-center text-xl">
+            <i class="fas fa-heart"></i>
+        </button>
+    </div>
+
+    <!-- 添加计划模态框 -->
+    <div id="addScheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="text-lg font-semibold text-gray-800">创建新计划</h4>
+                <button onclick="closeAddScheduleModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleForm">
+                    <!-- 基本信息 -->
+                    <div class="form-group">
+                        <label class="form-label">活动名称</label>
+                        <input type="text" id="activityName" class="form-input" placeholder="例如：数学练习、创意绘画">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label">开始时间</label>
+                            <input type="time" id="startTime" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">持续时间（分钟）</label>
+                            <select id="duration" class="form-input">
+                                <option value="15">15分钟</option>
+                                <option value="30" selected>30分钟</option>
+                                <option value="45">45分钟</option>
+                                <option value="60">1小时</option>
+                                <option value="90">1.5小时</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 参与者选择 -->
+                    <div class="form-group">
+                        <label class="form-label">参与成员</label>
+                        <div class="participant-selection">
+                            <label class="participant-checkbox">
+                                <input type="checkbox" value="parent1" checked> 
+                                <span>👨 爸爸</span>
+                            </label>
+                            <label class="participant-checkbox">
+                                <input type="checkbox" value="parent2" checked> 
+                                <span>👩 妈妈</span>
+                            </label>
+                            <label class="participant-checkbox">
+                                <input type="checkbox" value="child1" checked> 
+                                <span>👦 小明</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 计划类型 -->
+                    <div class="form-group">
+                        <label class="form-label">活动类型</label>
+                        <div class="activity-type-selection">
+                            <button type="button" class="activity-type-btn active" data-type="学习">
+                                <i class="fas fa-book mr-1"></i>学习
+                            </button>
+                            <button type="button" class="activity-type-btn" data-type="游戏">
+                                <i class="fas fa-gamepad mr-1"></i>游戏
+                            </button>
+                            <button type="button" class="activity-type-btn" data-type="运动">
+                                <i class="fas fa-running mr-1"></i>运动
+                            </button>
+                            <button type="button" class="activity-type-btn" data-type="创作">
+                                <i class="fas fa-paint-brush mr-1"></i>创作
+                            </button>
+                            <button type="button" class="activity-type-btn" data-type="其他">
+                                <i class="fas fa-star mr-1"></i>其他
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 重复设置 -->
+                    <div class="form-group">
+                        <label class="form-label">重复设置</label>
+                        <select id="repeatType" class="form-input">
+                            <option value="none">不重复</option>
+                            <option value="daily">每天</option>
+                            <option value="weekly">每周</option>
+                            <option value="weekdays">工作日</option>
+                            <option value="weekends">周末</option>
+                        </select>
+                    </div>
+
+                    <!-- 提醒设置 -->
+                    <div class="form-group">
+                        <label class="form-label">提醒时间</label>
+                        <select id="reminderTime" class="form-input">
+                            <option value="0">开始时提醒</option>
+                            <option value="5" selected>提前5分钟</option>
+                            <option value="10">提前10分钟</option>
+                            <option value="15">提前15分钟</option>
+                            <option value="30">提前30分钟</option>
+                        </select>
+                    </div>
+
+                    <!-- 描述 -->
+                    <div class="form-group">
+                        <label class="form-label">活动描述（可选）</label>
+                        <textarea id="activityDescription" class="form-input" rows="3" placeholder="描述活动内容、目标或注意事项..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeAddScheduleModal()" class="btn-secondary">取消</button>
+                <button onclick="createSchedulePlan()" class="btn-primary">创建计划</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑计划模态框 -->
+    <div id="editScheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="text-lg font-semibold text-gray-800">编辑计划</h4>
+                <button onclick="closeEditScheduleModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="editScheduleContent">
+                    <!-- 动态生成编辑表单 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="deleteSchedulePlan()" class="btn-danger">删除计划</button>
+                <button onclick="closeEditScheduleModal()" class="btn-secondary">取消</button>
+                <button onclick="updateSchedulePlan()" class="btn-primary">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知弹窗 -->
+    <div id="notificationModal" class="notification-modal">
+        <div class="notification-panel">
+            <div class="notification-header">
+                <h3>📢 家庭通知</h3>
+                <button class="notification-close" onclick="closeNotificationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="notification-body" id="notificationList">
+                <!-- 动态生成通知列表 -->
+            </div>
+            <div class="notification-footer">
+                <button class="mark-all-read" onclick="markAllNotificationsRead()">
+                    全部标记已读
+                </button>
+                <button class="view-all" onclick="viewAllNotifications()">
+                    查看全部
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let familyData = {
+            members: [
+                { id: 'parent1', name: '爸爸', avatar: '👨', role: 'parent', status: 'online', score: 320, todayActivities: 2 },
+                { id: 'parent2', name: '妈妈', avatar: '👩', role: 'parent', status: 'online', score: 280, todayActivities: 3 },
+                { id: 'child1', name: '小明', avatar: '👦', role: 'child', status: 'learning', score: 150, todayActivities: 1 }
+            ],
+            todayStats: {
+                activities: 3,
+                score: 150,
+                interactionTime: 45,
+                completionRate: 92
+            },
+            schedule: [
+                { 
+                    id: 'plan1',
+                    time: '09:00', 
+                    duration: 30,
+                    activity: '晨读时光', 
+                    type: '学习',
+                    participants: ['parent2', 'child1'], 
+                    status: 'completed',
+                    description: '一起享受美好的阅读时光，培养阅读习惯',
+                    repeatType: 'daily',
+                    reminderTime: 5,
+                    completedAt: '2024-01-15 09:30'
+                },
+                { 
+                    id: 'plan2',
+                    time: '14:00', 
+                    duration: 45,
+                    activity: '数学练习', 
+                    type: '学习',
+                    participants: ['parent1', 'child1'], 
+                    status: 'current',
+                    description: '巩固今日学习的数学知识点',
+                    repeatType: 'weekdays',
+                    reminderTime: 10
+                },
+                { 
+                    id: 'plan3',
+                    time: '16:00', 
+                    duration: 60,
+                    activity: '创意画画', 
+                    type: '创作',
+                    participants: ['parent1', 'parent2', 'child1'], 
+                    status: 'pending',
+                    description: '发挥想象力，创作属于自己的艺术作品',
+                    repeatType: 'weekly',
+                    reminderTime: 15
+                },
+                { 
+                    id: 'plan4',
+                    time: '19:00', 
+                    duration: 30,
+                    activity: '故事分享', 
+                    type: '游戏',
+                    participants: ['parent1', 'parent2', 'child1'], 
+                    status: 'pending',
+                    description: '分享今天的有趣经历和感受',
+                    repeatType: 'daily',
+                    reminderTime: 5
+                }
+            ],
+            weekSchedule: [],
+            currentView: 'today',
+            selectedPlan: null,
+            messages: [
+                { sender: '妈妈', message: '小明今天表现很棒！', time: '10分钟前', type: 'text' },
+                { sender: '爸爸', message: '下午我们一起做数学题吧', time: '30分钟前', type: 'text' },
+                { sender: '小明', message: '我想画一幅全家福', time: '1小时前', type: 'voice' }
+            ],
+            notifications: [
+                {
+                    id: 'notif1',
+                    type: 'success',
+                    title: '学习任务完成',
+                    message: '小明完成了今日数学练习，表现优秀！获得20积分奖励。',
+                    time: '5分钟前',
+                    isRead: false,
+                    actions: [
+                        { text: '查看详情', action: 'viewTaskDetail', primary: true },
+                        { text: '点赞', action: 'likeTask' }
+                    ]
+                },
+                {
+                    id: 'notif2',
+                    type: 'info',
+                    title: '新挑战开启',
+                    message: '本周家庭挑战"创意绘画周"现已开启，邀请全家人一起参与！',
+                    time: '15分钟前',
+                    isRead: false,
+                    actions: [
+                        { text: '立即参与', action: 'joinChallenge', primary: true }
+                    ]
+                },
+                {
+                    id: 'notif3',
+                    type: 'info',
+                    title: '学习心得分享',
+                    message: '爸爸分享了关于"如何培养孩子阅读习惯"的心得体会。',
+                    time: '30分钟前',
+                    isRead: true,
+                    actions: [
+                        { text: '阅读全文', action: 'readArticle' }
+                    ]
+                },
+                {
+                    id: 'notif4',
+                    type: 'warning',
+                    title: '计划提醒',
+                    message: '距离"创意画画"活动开始还有5分钟，请做好准备！',
+                    time: '1小时前',
+                    isRead: true
+                }
+            ]
+        };
+
+        // 页面初始化
+        MengyaUtils.Lifecycle.onInit(() => {
+            updateFamilyGreeting();
+            updateWeatherInfo();
+            updateFamilyStats();
+            loadFamilyMembers();
+            loadSchedule();
+            loadFamilyMessages();
+            updateNotificationBadge();
+            startRealTimeUpdates();
+        });
+
+        // 更新家庭问候语
+        function updateFamilyGreeting() {
+            const hour = new Date().getHours();
+            let greeting, motivation;
+            
+            if (hour < 12) {
+                greeting = "早安！美好的一天从学习开始";
+                motivation = "今天要一起完成什么有趣的活动呢？";
+            } else if (hour < 18) {
+                greeting = "下午好！继续我们的学习之旅";
+                motivation = "午后时光最适合亲子互动了";
+            } else {
+                greeting = "晚上好！温馨的家庭时光";
+                motivation = "今天的学习成果让我们一起回顾吧";
+            }
+            
+            document.getElementById('familyGreeting').textContent = greeting;
+            document.getElementById('familyMotivation').textContent = motivation;
+        }
+
+        // 更新天气信息
+        function updateWeatherInfo() {
+            // 模拟天气数据
+            const weathers = ['☀️ 晴天 22°C', '⛅ 多云 20°C', '🌧️ 小雨 18°C', '❄️ 雪天 5°C'];
+            const moods = ['快乐愉悦', '轻松惬意', '温馨舒适', '充满期待'];
+            
+            document.getElementById('weatherInfo').textContent = weathers[Math.floor(Math.random() * weathers.length)];
+            document.getElementById('familyMoodText').textContent = moods[Math.floor(Math.random() * moods.length)];
+        }
+
+        // 更新家庭统计
+        function updateFamilyStats() {
+            const stats = familyData.todayStats;
+            document.getElementById('todayActivities').textContent = stats.activities;
+            document.getElementById('familyScore').textContent = stats.score;
+            document.getElementById('interactionTime').textContent = stats.interactionTime + 'min';
+            document.getElementById('completionRate').textContent = stats.completionRate + '%';
+        }
+
+        // 加载家庭成员
+        function loadFamilyMembers() {
+            const container = document.getElementById('familyMembers');
+            container.innerHTML = familyData.members.map(member => {
+                const statusColors = {
+                    online: 'bg-green-100 text-green-600',
+                    learning: 'bg-blue-100 text-blue-600',
+                    busy: 'bg-yellow-100 text-yellow-600',
+                    offline: 'bg-gray-100 text-gray-600'
+                };
+                
+                const statusTexts = {
+                    online: '在线',
+                    learning: '学习中',
+                    busy: '忙碌',
+                    offline: '离线'
+                };
+
+                return `
+                    <div class="interaction-bubble">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 text-2xl flex items-center justify-center">
+                                ${member.avatar}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-semibold text-gray-800">${member.name}</h4>
+                                    <span class="text-xs px-2 py-1 rounded-full ${statusColors[member.status]}">
+                                        ${statusTexts[member.status]}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600">${member.role === 'parent' ? '家长' : '孩子'}</p>
+                                <div class="flex items-center space-x-4 mt-2">
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-trophy mr-1"></i>
+                                        积分: ${member.score}
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        今日活动: ${member.todayActivities}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <button onclick="inviteMember('${member.id}')" class="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                                    <i class="fas fa-plus text-xs"></i>
+                                </button>
+                                <button onclick="chatWithMember('${member.id}')" class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center hover:bg-green-600 transition-colors">
+                                    <i class="fas fa-comment text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 加载学习计划 - 增强版
+        function loadSchedule() {
+            const container = document.getElementById('scheduleList');
+            const currentSchedule = familyData.currentView === 'today' ? familyData.schedule : familyData.weekSchedule;
+            
+            container.innerHTML = currentSchedule.map(item => {
+                const statusIcons = {
+                    completed: '✅',
+                    current: '🔄',
+                    pending: '⏰'
+                };
+                
+                const typeIcons = {
+                    '学习': '📚',
+                    '游戏': '🎮',
+                    '运动': '🏃',
+                    '创作': '🎨',
+                    '其他': '⭐'
+                };
+                
+                const participantNames = item.participants.map(pid => {
+                    const member = familyData.members.find(m => m.id === pid);
+                    return member ? member.name : pid;
+                });
+                
+                const endTime = calculateEndTime(item.time, item.duration);
+                
+                return `
+                    <div class="schedule-item-enhanced ${item.status}" data-plan-id="${item.id}">
+                        <div class="plan-header">
+                            <div class="plan-title">
+                                ${typeIcons[item.type]} ${item.activity}
+                            </div>
+                            <div class="plan-time">${item.time} - ${endTime}</div>
+                        </div>
+                        
+                        <div class="plan-participants">
+                            ${participantNames.map(name => `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">${name}</span>`).join('')}
+                        </div>
+                        
+                        ${item.description ? `<div class="text-sm text-gray-600 mb-2">${item.description}</div>` : ''}
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                <span>${statusIcons[item.status]} ${getStatusText(item.status)}</span>
+                                ${item.repeatType !== 'none' ? `<span>• 🔄 ${getRepeatText(item.repeatType)}</span>` : ''}
+                                ${item.reminderTime > 0 ? `<span>• 🔔 提前${item.reminderTime}分钟</span>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="plan-actions">
+                            ${item.status === 'pending' ? `<button onclick="startPlan('${item.id}')" class="action-btn primary">开始执行</button>` : ''}
+                            ${item.status === 'current' ? `<button onclick="completePlan('${item.id}')" class="action-btn primary">完成</button>` : ''}
+                            <button onclick="editPlan('${item.id}')" class="action-btn">编辑</button>
+                            <button onclick="duplicatePlan('${item.id}')" class="action-btn">复制</button>
+                            ${item.status === 'completed' ? `<button onclick="restartPlan('${item.id}')" class="action-btn">重新开始</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateScheduleStats();
+        }
+
+        // 加载家庭留言
+        function loadFamilyMessages() {
+            const container = document.getElementById('familyMessages');
+            container.innerHTML = familyData.messages.map(msg => {
+                if (msg.type === 'voice') {
+                    return `
+                        <div class="voice-message">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-microphone"></i>
+                                <div class="flex-1">
+                                    <div class="font-semibold">${msg.sender}</div>
+                                    <div class="text-sm opacity-90">${msg.message}</div>
+                                </div>
+                                <div class="text-xs opacity-75">${msg.time}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="interaction-bubble">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white text-sm">
+                                    ${msg.sender[0]}
+                                </div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-gray-800">${msg.sender}</div>
+                                    <div class="text-sm text-gray-600">${msg.message}</div>
+                                </div>
+                                <div class="text-xs text-gray-500">${msg.time}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        // 标签页切换
+        function switchTab(tabName) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有按钮的激活状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的标签内容
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // 激活对应的按钮
+            event.target.classList.add('active');
+        }
+
+        // 启动推荐活动
+        function startRecommendedActivity(type) {
+            MengyaUtils.Notification.success('正在启动推荐活动...');
+            setTimeout(() => {
+                if (type === 'story') {
+                    parent.postMessage({ type: 'openPage', url: 'collaborative-learning.html?activity=story' }, '*');
+                }
+            }, 1000);
+        }
+
+        // 获取更多推荐
+        function getMoreRecommendations() {
+            const recommendations = [
+                '数学游戏：提升逻辑思维能力',
+                '绘画创作：培养艺术感知力',
+                '音乐律动：增强节奏感',
+                '科学实验：激发探索精神'
+            ];
+            
+            const randomRec = recommendations[Math.floor(Math.random() * recommendations.length)];
+            MengyaUtils.Notification.info(`新推荐：${randomRec}`);
+        }
+
+        // 邀请成员参与活动
+        function inviteMember(memberId) {
+            const member = familyData.members.find(m => m.id === memberId);
+            if (member) {
+                MengyaUtils.Notification.success(`已邀请${member.name}参与活动！`);
+            }
+        }
+
+        // 与成员聊天
+        function chatWithMember(memberId) {
+            const member = familyData.members.find(m => m.id === memberId);
+            if (member) {
+                MengyaUtils.Notification.info(`正在打开与${member.name}的聊天...`);
+            }
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                familyData.messages.unshift({
+                    sender: '我',
+                    message: message,
+                    time: '刚刚',
+                    type: 'text'
+                });
+                
+                input.value = '';
+                loadFamilyMessages();
+                MengyaUtils.Notification.success('消息已发送！');
+            }
+        }
+
+        // 发送语音消息
+        function sendVoiceMessage() {
+            MengyaUtils.Notification.info('语音消息功能开发中...');
+        }
+
+        // 辅助函数
+        function calculateEndTime(startTime, duration) {
+            const [hours, minutes] = startTime.split(':').map(Number);
+            const totalMinutes = hours * 60 + minutes + duration;
+            const endHours = Math.floor(totalMinutes / 60);
+            const endMinutes = totalMinutes % 60;
+            return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+        }
+        
+        function getStatusText(status) {
+            const texts = {
+                completed: '已完成',
+                current: '进行中',
+                pending: '待执行'
+            };
+            return texts[status];
+        }
+        
+        function getRepeatText(repeatType) {
+            const texts = {
+                daily: '每日',
+                weekly: '每周',
+                weekdays: '工作日',
+                weekends: '周末',
+                none: '不重复'
+            };
+            return texts[repeatType];
+        }
+        
+        // 更新计划统计
+        function updateScheduleStats() {
+            const schedule = familyData.currentView === 'today' ? familyData.schedule : familyData.weekSchedule;
+            const stats = {
+                total: schedule.length,
+                completed: schedule.filter(p => p.status === 'completed').length,
+                pending: schedule.filter(p => p.status === 'pending').length
+            };
+            
+            document.getElementById('todayPlansCount').textContent = stats.total;
+            document.getElementById('completedPlansCount').textContent = stats.completed;
+            document.getElementById('pendingPlansCount').textContent = stats.pending;
+        }
+
+        // 切换计划视图
+        function switchScheduleView(view) {
+            familyData.currentView = view;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.schedule-view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(view + 'ViewBtn').classList.add('active');
+            
+            // 如果是周视图且没有数据，生成周计划
+            if (view === 'week' && familyData.weekSchedule.length === 0) {
+                generateWeekSchedule();
+            }
+            
+            loadSchedule();
+        }
+
+        // 生成周计划
+        function generateWeekSchedule() {
+            familyData.weekSchedule = [];
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            
+            days.forEach((day, index) => {
+                familyData.weekSchedule.push({
+                    id: `week_plan_${index}`,
+                    time: '09:00',
+                    duration: 30,
+                    activity: `${day}晨读`,
+                    type: '学习',
+                    participants: ['parent2', 'child1'],
+                    status: index < 2 ? 'completed' : 'pending',
+                    description: `${day}的阅读时光`,
+                    repeatType: 'daily',
+                    reminderTime: 5
+                });
+            });
+        }
+
+        // 快速添加计划
+        function addQuickPlan(type) {
+            const templates = {
+                '学习': {
+                    activity: '学习时光',
+                    duration: 45,
+                    description: '专注学习，提升能力'
+                },
+                '游戏': {
+                    activity: '亲子游戏',
+                    duration: 30,
+                    description: '享受快乐的游戏时光'
+                },
+                '运动': {
+                    activity: '户外运动',
+                    duration: 60,
+                    description: '强身健体，增进感情'
+                },
+                '创作': {
+                    activity: '创意创作',
+                    duration: 45,
+                    description: '发挥创意，展现才华'
+                }
+            };
+            
+            const template = templates[type];
+            const now = new Date();
+            const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
+            const timeStr = `${nextHour.getHours().toString().padStart(2, '0')}:00`;
+            
+            const newPlan = {
+                id: `quick_plan_${Date.now()}`,
+                time: timeStr,
+                duration: template.duration,
+                activity: template.activity,
+                type: type,
+                participants: ['parent1', 'parent2', 'child1'],
+                status: 'pending',
+                description: template.description,
+                repeatType: 'none',
+                reminderTime: 5
+            };
+            
+            familyData.schedule.push(newPlan);
+            loadSchedule();
+            MengyaUtils.Notification.success(`${type}计划已添加！`);
+        }
+
+        // 显示添加计划模态框
+        function showAddScheduleModal() {
+            document.getElementById('addScheduleModal').classList.add('show');
+            
+            // 设置默认时间为下一个整点
+            const now = new Date();
+            const nextHour = new Date(now.getTime() + 60 * 60 * 1000);
+            const timeStr = `${nextHour.getHours().toString().padStart(2, '0')}:00`;
+            document.getElementById('startTime').value = timeStr;
+        }
+
+        // 关闭添加计划模态框
+        function closeAddScheduleModal() {
+            document.getElementById('addScheduleModal').classList.remove('show');
+            document.getElementById('scheduleForm').reset();
+        }
+
+        // 创建计划
+        function createSchedulePlan() {
+            const formData = {
+                activity: document.getElementById('activityName').value,
+                time: document.getElementById('startTime').value,
+                duration: parseInt(document.getElementById('duration').value),
+                description: document.getElementById('activityDescription').value,
+                repeatType: document.getElementById('repeatType').value,
+                reminderTime: parseInt(document.getElementById('reminderTime').value)
+            };
+            
+            // 获取选中的参与者
+            const participants = Array.from(document.querySelectorAll('.participant-checkbox input:checked'))
+                .map(input => input.value);
+            
+            // 获取选中的活动类型
+            const activeTypeBtn = document.querySelector('.activity-type-btn.active');
+            const activityType = activeTypeBtn ? activeTypeBtn.dataset.type : '其他';
+            
+            if (!formData.activity || !formData.time || participants.length === 0) {
+                MengyaUtils.Notification.error('请填写完整的计划信息！');
+                return;
+            }
+            
+            const newPlan = {
+                id: `plan_${Date.now()}`,
+                time: formData.time,
+                duration: formData.duration,
+                activity: formData.activity,
+                type: activityType,
+                participants: participants,
+                status: 'pending',
+                description: formData.description,
+                repeatType: formData.repeatType,
+                reminderTime: formData.reminderTime
+            };
+            
+            familyData.schedule.push(newPlan);
+            familyData.schedule.sort((a, b) => a.time.localeCompare(b.time));
+            
+            loadSchedule();
+            closeAddScheduleModal();
+            MengyaUtils.Notification.success('新计划创建成功！');
+        }
+
+        // 计划操作函数
+        function startPlan(planId) {
+            const plan = familyData.schedule.find(p => p.id === planId);
+            if (plan) {
+                plan.status = 'current';
+                plan.startedAt = new Date().toISOString();
+                loadSchedule();
+                MengyaUtils.Notification.success(`开始执行：${plan.activity}`);
+            }
+        }
+
+        function completePlan(planId) {
+            const plan = familyData.schedule.find(p => p.id === planId);
+            if (plan) {
+                plan.status = 'completed';
+                plan.completedAt = new Date().toISOString();
+                loadSchedule();
+                MengyaUtils.Notification.success(`完成了：${plan.activity}！`);
+                
+                // 增加家庭积分
+                familyData.todayStats.score += 20;
+                updateFamilyStats();
+                
+                // 添加完成通知
+                addNotification(
+                    'success',
+                    '计划完成',
+                    `太棒了！"${plan.activity}"已顺利完成，获得了20积分奖励！`,
+                    [
+                        { text: '查看详情', action: 'viewTaskDetail', primary: true },
+                        { text: '分享成果', action: 'shareResult' }
+                    ]
+                );
+            }
+        }
+
+        function editPlan(planId) {
+            familyData.selectedPlan = familyData.schedule.find(p => p.id === planId);
+            if (familyData.selectedPlan) {
+                showEditScheduleModal();
+            }
+        }
+
+        function duplicatePlan(planId) {
+            const originalPlan = familyData.schedule.find(p => p.id === planId);
+            if (originalPlan) {
+                const newPlan = {
+                    ...originalPlan,
+                    id: `plan_${Date.now()}`,
+                    status: 'pending'
+                };
+                delete newPlan.startedAt;
+                delete newPlan.completedAt;
+                
+                familyData.schedule.push(newPlan);
+                loadSchedule();
+                MengyaUtils.Notification.success('计划已复制！');
+            }
+        }
+
+        function restartPlan(planId) {
+            const plan = familyData.schedule.find(p => p.id === planId);
+            if (plan) {
+                plan.status = 'pending';
+                delete plan.startedAt;
+                delete plan.completedAt;
+                loadSchedule();
+                MengyaUtils.Notification.success('计划已重新开始！');
+            }
+        }
+
+        function showEditScheduleModal() {
+            // 实现编辑模态框显示逻辑
+            document.getElementById('editScheduleModal').classList.add('show');
+            MengyaUtils.Notification.info('编辑功能开发中...');
+        }
+
+        function closeEditScheduleModal() {
+            document.getElementById('editScheduleModal').classList.remove('show');
+            familyData.selectedPlan = null;
+        }
+
+        function updateSchedulePlan() {
+            MengyaUtils.Notification.info('更新功能开发中...');
+        }
+
+        function deleteSchedulePlan() {
+            if (familyData.selectedPlan) {
+                const index = familyData.schedule.findIndex(p => p.id === familyData.selectedPlan.id);
+                if (index > -1) {
+                    familyData.schedule.splice(index, 1);
+                    loadSchedule();
+                    closeEditScheduleModal();
+                    MengyaUtils.Notification.success('计划已删除！');
+                }
+            }
+        }
+
+        // 启动小游戏
+        function startMiniGame(gameType) {
+            const gameNames = {
+                word: '词汇接龙',
+                math: '快速计算',
+                memory: '记忆训练',
+                draw: '你画我猜'
+            };
+            
+            MengyaUtils.Notification.success(`正在启动${gameNames[gameType]}...`);
+            
+            setTimeout(() => {
+                parent.postMessage({ 
+                    type: 'openPage', 
+                    url: `collaborative-learning.html?activity=${gameType}` 
+                }, '*');
+            }, 1000);
+        }
+
+        // 显示通知弹窗
+        function showNotifications() {
+            loadNotifications();
+            document.getElementById('notificationModal').classList.add('show');
+        }
+
+        // 关闭通知弹窗
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('show');
+        }
+
+        // 加载通知列表
+        function loadNotifications() {
+            const container = document.getElementById('notificationList');
+            
+            if (familyData.notifications.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-bell-slash text-3xl mb-3"></i>
+                        <div>暂无新通知</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = familyData.notifications.map(notification => {
+                const iconMap = {
+                    success: 'fa-check-circle',
+                    info: 'fa-info-circle',
+                    warning: 'fa-exclamation-triangle'
+                };
+                
+                return `
+                    <div class="notification-item ${!notification.isRead ? 'unread' : ''}" data-id="${notification.id}">
+                        <div class="notification-icon ${notification.type}">
+                            <i class="fas ${iconMap[notification.type]}"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-title">${notification.title}</div>
+                            <div class="notification-message">${notification.message}</div>
+                            <div class="notification-time">${notification.time}</div>
+                            ${notification.actions ? `
+                                <div class="notification-actions">
+                                    ${notification.actions.map(action => `
+                                        <button class="notification-btn ${action.primary ? 'primary' : ''}" 
+                                                onclick="handleNotificationAction('${notification.id}', '${action.action}')">
+                                            ${action.text}
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            updateNotificationBadge();
+        }
+
+        // 更新通知红点
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            const unreadCount = familyData.notifications.filter(n => !n.isRead).length;
+            
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // 处理通知操作
+        function handleNotificationAction(notificationId, action) {
+            const notification = familyData.notifications.find(n => n.id === notificationId);
+            if (!notification) return;
+            
+            // 标记为已读
+            notification.isRead = true;
+            
+            switch (action) {
+                case 'viewTaskDetail':
+                    MengyaUtils.Notification.info('查看任务详情...');
+                    closeNotificationModal();
+                    break;
+                case 'likeTask':
+                    MengyaUtils.Notification.success('已点赞！');
+                    break;
+                case 'joinChallenge':
+                    MengyaUtils.Notification.success('已加入挑战！');
+                    closeNotificationModal();
+                    break;
+                case 'readArticle':
+                    MengyaUtils.Notification.info('打开文章...');
+                    closeNotificationModal();
+                    break;
+                default:
+                    break;
+            }
+            
+            loadNotifications();
+        }
+
+        // 标记所有通知为已读
+        function markAllNotificationsRead() {
+            familyData.notifications.forEach(notification => {
+                notification.isRead = true;
+            });
+            loadNotifications();
+            MengyaUtils.Notification.success('所有通知已标记为已读');
+        }
+
+        // 查看全部通知
+        function viewAllNotifications() {
+            closeNotificationModal();
+            MengyaUtils.Notification.info('跳转到通知中心...');
+        }
+
+        // 添加新通知
+        function addNotification(type, title, message, actions = null) {
+            const newNotification = {
+                id: `notif_${Date.now()}`,
+                type: type,
+                title: title,
+                message: message,
+                time: '刚刚',
+                isRead: false,
+                actions: actions
+            };
+            
+            familyData.notifications.unshift(newNotification);
+            updateNotificationBadge();
+            
+            // 如果通知弹窗是打开的，则刷新列表
+            if (document.getElementById('notificationModal').classList.contains('show')) {
+                loadNotifications();
+            }
+        }
+
+        // 快速启动活动
+        function quickStartActivity() {
+            const activities = ['story', 'math', 'art', 'music'];
+            const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+            
+            MengyaUtils.Notification.success('正在为您匹配最适合的活动...');
+            
+            setTimeout(() => {
+                startRecommendedActivity(randomActivity);
+            }, 1500);
+        }
+
+        // 紧急呼叫（家庭关爱功能）
+        function emergencyCall() {
+            if (confirm('确定要发送家庭关爱信号吗？\n这会通知所有家庭成员立即关注。')) {
+                MengyaUtils.Notification.success('❤️ 家庭关爱信号已发送');
+            }
+        }
+
+        // 实时更新
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                // 更新统计数据
+                familyData.todayStats.activities += Math.random() > 0.8 ? 1 : 0;
+                familyData.todayStats.score += Math.random() > 0.7 ? Math.floor(Math.random() * 10) : 0;
+                familyData.todayStats.interactionTime += Math.random() > 0.6 ? 1 : 0;
+                
+                updateFamilyStats();
+                
+                // 模拟成员状态变化
+                familyData.members.forEach(member => {
+                    if (Math.random() > 0.9) {
+                        const statuses = ['online', 'learning', 'busy'];
+                        member.status = statuses[Math.floor(Math.random() * statuses.length)];
+                    }
+                });
+                
+                loadFamilyMembers();
+            }, 30000); // 每30秒更新一次
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            MengyaUtils.Navigation.smartBack();
+        }
+
+        // 监听键盘事件
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // 模态框事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            // 活动类型按钮切换
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('activity-type-btn')) {
+                    document.querySelectorAll('.activity-type-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                }
+            });
+
+            // 模态框外部点击关闭
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('show');
+                }
+                // 通知弹窗外部点击关闭
+                if (e.target.classList.contains('notification-modal')) {
+                    e.target.classList.remove('show');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

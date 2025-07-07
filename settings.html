@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设置 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px;
+            background: white;
+            border-radius: 24px;
+            margin-top: -20px;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        .settings-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-info {
+            flex: 1;
+        }
+        .setting-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .setting-desc {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            background: #e5e7eb;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .toggle-switch.active {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+        }
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+        .select-input {
+            padding: 8px 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .select-input:focus {
+            outline: none;
+            border-color: #8B5CF6;
+        }
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .profile-level {
+            font-size: 14px;
+            color: #8B5CF6;
+            font-weight: 500;
+        }
+        .mode-switch {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: transparent;
+            color: #6b7280;
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-8 py-8 text-white">
+        <div class="nav-header">
+            <div class="nav-left">
+                <button class="nav-btn" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="nav-title">
+                    <h1>设置</h1>
+                    <p class="nav-subtitle">个性化你的学习体验</p>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="resetSettings()" title="重置设置">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button class="nav-btn" onclick="exportSettings()" title="导出设置">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设置内容 -->
+    <div class="settings-container">
+        <!-- 个人资料 -->
+        <div class="profile-section">
+            <div class="profile-avatar" onclick="changeAvatar()">
+                🌟
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">小明</div>
+                <div class="profile-level">表达能力 Lv.15 · 中级探索者</div>
+            </div>
+            <button class="nav-btn" onclick="editProfile()" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;">
+                <i class="fas fa-edit"></i>
+            </button>
+        </div>
+
+        <!-- 模式切换 -->
+        <div class="settings-section">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <span>使用模式</span>
+            </div>
+            <div class="mode-switch">
+                <button class="mode-btn active" onclick="switchMode('child')">
+                    <i class="fas fa-child mr-2"></i>
+                    儿童模式
+                </button>
+                <button class="mode-btn" onclick="switchMode('parent')">
+                    <i class="fas fa-user-tie mr-2"></i>
+                    家长模式
+                </button>
+            </div>
+        </div>
+
+        <!-- 学习设置 -->
+        <div class="settings-section">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <span>学习设置</span>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">自动保存进度</div>
+                    <div class="setting-desc">学习过程中自动保存进度</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">学习提醒</div>
+                    <div class="setting-desc">每日定时提醒学习</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">难度自适应</div>
+                    <div class="setting-desc">根据表现自动调整任务难度</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">每日学习时长</div>
+                    <div class="setting-desc">设置每日推荐学习时长</div>
+                </div>
+                <select class="select-input" onchange="updateStudyTime(this.value)">
+                    <option value="15">15分钟</option>
+                    <option value="30" selected>30分钟</option>
+                    <option value="45">45分钟</option>
+                    <option value="60">60分钟</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 界面设置 -->
+        <div class="settings-section">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <span>界面设置</span>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">深色模式</div>
+                    <div class="setting-desc">保护眼睛，适合夜间学习</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleDarkMode(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">动画效果</div>
+                    <div class="setting-desc">界面动画和过渡效果</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">震动反馈</div>
+                    <div class="setting-desc">操作时的触觉反馈</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 隐私安全 -->
+        <div class="settings-section">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span>隐私安全</span>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">数据同步</div>
+                    <div class="setting-desc">在多设备间同步学习数据</div>
+                </div>
+                <div class="toggle-switch active" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-name">学习报告分享</div>
+                    <div class="setting-desc">允许分享学习成果</div>
+                </div>
+                <div class="toggle-switch" onclick="toggleSetting(this)">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关于应用 -->
+        <div class="settings-section">
+            <div class="section-title">
+                <div class="section-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <span>关于应用</span>
+            </div>
+
+            <div class="setting-item" onclick="showAppInfo()">
+                <div class="setting-info">
+                    <div class="setting-name">应用版本</div>
+                    <div class="setting-desc">萌芽AI v1.0.0</div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+
+            <div class="setting-item" onclick="showHelp()">
+                <div class="setting-info">
+                    <div class="setting-name">帮助中心</div>
+                    <div class="setting-desc">使用指南和常见问题</div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+
+            <div class="setting-item" onclick="contactSupport()">
+                <div class="setting-info">
+                    <div class="setting-name">联系客服</div>
+                    <div class="setting-desc">遇到问题？我们来帮助你</div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            setupAnimations();
+        });
+
+        // 加载设置
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('mengya_settings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    applySettings(settings);
+                } catch (e) {
+                    console.error('设置加载失败:', e);
+                }
+            }
+        }
+
+        // 应用设置
+        function applySettings(settings) {
+            // 应用深色模式
+            if (settings.darkMode) {
+                document.body.classList.add('dark-theme');
+            }
+            
+            // 应用其他设置...
+        }
+
+        // 切换设置
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+            vibrateDevice();
+            saveSettings();
+        }
+
+        // 切换深色模式
+        function toggleDarkMode(element) {
+            element.classList.toggle('active');
+            document.body.classList.toggle('dark-theme');
+            vibrateDevice();
+            saveSettings();
+            showNotification('深色模式已' + (element.classList.contains('active') ? '开启' : '关闭'), 'success');
+        }
+
+        // 切换模式
+        function switchMode(mode) {
+            const buttons = document.querySelectorAll('.mode-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            vibrateDevice();
+            saveSettings();
+            
+            if (mode === 'parent') {
+                showNotification('即将切换到家长模式...', 'info');
+                setTimeout(() => {
+                    navigateToPage('parent-panel');
+                }, 1500);
+            } else {
+                showNotification('已切换到儿童模式', 'success');
+            }
+        }
+
+        // 更新学习时长
+        function updateStudyTime(minutes) {
+            showNotification(`每日学习时长已设置为${minutes}分钟`, 'success');
+            saveSettings();
+        }
+
+        // 保存设置
+        function saveSettings() {
+            const settings = {
+                darkMode: document.body.classList.contains('dark-theme'),
+                studyTime: document.querySelector('.select-input').value,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('mengya_settings', JSON.stringify(settings));
+        }
+
+        // 重置设置
+        function resetSettings() {
+            if (confirm('确定要重置所有设置吗？')) {
+                localStorage.removeItem('mengya_settings');
+                location.reload();
+            }
+        }
+
+        // 导出设置
+        function exportSettings() {
+            const settings = localStorage.getItem('mengya_settings') || '{}';
+            const blob = new Blob([settings], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mengya_settings.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            showNotification('设置已导出', 'success');
+        }
+
+        // 更换头像
+        function changeAvatar() {
+            const avatars = ['🌟', '🎨', '📚', '🚀', '🦄', '🌈', '⭐', '🎯', '🏆', '💎'];
+            const current = document.querySelector('.profile-avatar').textContent;
+            const currentIndex = avatars.indexOf(current);
+            const nextIndex = (currentIndex + 1) % avatars.length;
+            
+            document.querySelector('.profile-avatar').textContent = avatars[nextIndex];
+            vibrateDevice();
+            showNotification('头像已更换', 'success');
+        }
+
+        // 编辑个人资料
+        function editProfile() {
+            showNotification('个人资料编辑功能开发中...', 'info');
+        }
+
+        // 显示应用信息
+        function showAppInfo() {
+            const info = `
+🌟 萌芽AI - 儿童表达能力训练
+
+📱 版本：v1.0.0
+📅 发布日期：2024年3月
+👥 开发团队：萌芽AI团队
+🎯 专注于：儿童语言表达能力提升
+
+✨ 主要功能：
+• AI智能对话练习
+• 个性化学习路径
+• 创意表达训练
+• 学习成果评估
+• 家长监控面板
+
+💡 设计理念：
+让每个孩子都能自信表达，快乐学习！
+            `;
+            showNotification(info, 'info');
+        }
+
+        // 显示帮助
+        function showHelp() {
+            const help = `
+❓ 萌芽AI使用指南
+
+🎯 快速开始：
+1. 完成个人资料设置
+2. 选择适合的学习路径
+3. 开始第一个表达任务
+4. 与AI助教互动练习
+
+📚 主要功能：
+• 学习路径：选择和完成学习任务
+• AI助教：智能对话和指导
+• 故事墙：分享和浏览创作
+• 勋章中心：查看学习成就
+• 能力评估：了解学习进度
+
+👨‍👩‍👧‍👦 家长功能：
+• 切换到家长模式查看详细报告
+• 设置学习时间和内容控制
+• 查看孩子的学习进度和成果
+
+💡 学习建议：
+• 每天坚持15-30分钟练习
+• 积极与AI助教互动
+• 勇于表达自己的想法
+• 定期查看学习报告
+            `;
+            showNotification(help, 'info');
+        }
+
+        // 联系客服
+        function contactSupport() {
+            const contact = `
+📞 萌芽AI客服中心
+
+🕐 服务时间：
+周一至周五 9:00-18:00
+周末及节假日 10:00-16:00
+
+📱 联系方式：
+• 客服热线：400-123-4567
+• 客服邮箱：support@mengyaai.com
+• 微信客服：mengyaai_service
+• QQ群：123456789
+
+💬 常见问题：
+• 如何重置学习进度？
+• 如何切换家长模式？
+• 如何导出学习报告？
+• 如何设置学习提醒？
+
+🔧 技术支持：
+• 系统要求：iOS 12+ / Android 8+
+• 网络要求：建议WiFi环境
+• 存储要求：至少100MB可用空间
+            `;
+            showNotification(contact, 'info');
+        }
+
+        // 设置动画
+        function setupAnimations() {
+            const items = document.querySelectorAll('.setting-item, .profile-section');
+            items.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                item.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // 导航函数
+        function navigateBack() {
+            parent.postMessage({ type: 'navigate', page: 'profile' }, '*');
+        }
+
+        function navigateToPage(page) {
+            parent.postMessage({ type: 'navigate', page: page }, '*');
+        }
+
+        // 震动反馈
+        function vibrateDevice(pattern = [50]) {
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+    </script>
+</body>
+</html> 

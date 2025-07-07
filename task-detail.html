@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务详情 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="mengya-common.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .task-container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15);
+            overflow: hidden;
+            margin: 12px;
+        }
+        
+        .task-header {
+            background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+            color: white;
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .task-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+            animation: headerGlow 6s ease-in-out infinite;
+        }
+        
+        @keyframes headerGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        
+        .task-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: iconFloat 3s ease-in-out infinite;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+        
+        .task-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .task-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .difficulty-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .content-section {
+            padding: 24px;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+        
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+        }
+        
+        .task-description {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            line-height: 1.7;
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .task-description::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899);
+        }
+        
+        .task-requirements {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            position: relative;
+        }
+        
+        .requirements-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .requirements-title {
+            font-weight: 700;
+            color: #92400e;
+            font-size: 16px;
+        }
+        
+        .requirements-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .requirements-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #92400e;
+        }
+        
+        .requirement-check {
+            width: 20px;
+            height: 20px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            animation: checkPulse 2s infinite;
+        }
+        
+        @keyframes checkPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .hint-card {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #22c55e;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .hint-card::before {
+            content: '💡';
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 24px;
+            animation: bulbGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes bulbGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .hint-title {
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .hint-content {
+            color: #166534;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .ai-interaction-area {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .ai-assistant {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .ai-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            animation: avatarPulse 3s ease-in-out infinite;
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+        
+        @keyframes avatarPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        
+        .ai-message {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 16px rgba(14, 165, 233, 0.15);
+            font-size: 15px;
+            line-height: 1.6;
+            position: relative;
+        }
+        
+        .ai-message::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid white;
+        }
+        
+        .ai-help-btn {
+            width: 100%;
+            background: white;
+            border: 2px solid #0ea5e9;
+            color: #0ea5e9;
+            padding: 16px 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .ai-help-btn:hover {
+            background: #0ea5e9;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+        }
+        
+        .input-area {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            margin-bottom: 24px;
+        }
+        
+        .input-area:focus-within {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+        }
+        
+        .text-input {
+            width: 100%;
+            min-height: 140px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-size: 16px;
+            line-height: 1.6;
+            font-family: inherit;
+        }
+        
+        .text-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .input-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .tool-group {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .tool-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tool-btn:hover {
+            background: #f3f4f6;
+            border-color: #8B5CF6;
+            color: #8B5CF6;
+            transform: translateY(-1px);
+        }
+        
+        .word-count {
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .timer-display {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #92400e;
+            font-size: 16px;
+        }
+        
+        .timer-icon {
+            animation: timerTick 1s infinite;
+            font-size: 18px;
+        }
+        
+        @keyframes timerTick {
+            0%, 50% { transform: scale(1); }
+            25% { transform: scale(1.15); }
+        }
+        
+        .submit-area {
+            padding: 24px;
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            color: white;
+            border: none;
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .submit-hint {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        
+        .floating-help {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 6px 24px rgba(16, 185, 129, 0.4);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: helpFloat 4s ease-in-out infinite;
+        }
+        
+        @keyframes helpFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        
+        .floating-help:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.5);
+        }
+        
+        .example-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .example-content {
+            font-size: 14px;
+            color: #6b7280;
+            font-style: italic;
+            line-height: 1.6;
+        }
+        
+        /* 响应式优化 */
+        @media (max-width: 768px) {
+            .task-container {
+                margin: 8px;
+                border-radius: 20px;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+            
+            .task-icon {
+                font-size: 56px;
+            }
+            
+            .task-title {
+                font-size: 24px;
+            }
+            
+            .ai-assistant {
+                gap: 12px;
+            }
+            
+            .ai-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="text-xl font-bold">今日任务</h1>
+            </div>
+            <div class="text-sm opacity-90">
+                <i class="fas fa-clock mr-1"></i>
+                <span id="taskTimer">25:00</span>
+            </div>
+        </div>
+        
+        <!-- 任务进度 -->
+        <div class="bg-white bg-opacity-15 rounded-xl p-4 mt-4 backdrop-blur-sm border border-white border-opacity-20">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium">任务进度</span>
+                <span class="text-sm">30%</span>
+            </div>
+            <div class="w-full bg-white bg-opacity-20 rounded-full h-2">
+                <div class="bg-white h-2 rounded-full transition-all duration-1000" style="width: 30%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="pb-20">
+        <div class="task-container">
+            <!-- 任务头部 -->
+            <div class="task-header">
+                <div class="task-icon">🎨</div>
+                <h2 class="task-title">创意表达挑战</h2>
+                <p class="task-subtitle">用你的想象力描述一个神奇的世界</p>
+                <div class="difficulty-badge">
+                    <i class="fas fa-star"></i>
+                    <span>中等难度</span>
+                </div>
+            </div>
+
+            <!-- 任务描述 -->
+            <div class="content-section">
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-info"></i></div>
+                    <span>任务描述</span>
+                </div>
+                
+                <div class="task-description">
+                    <p class="mb-4">想象你发现了一个神奇的世界，这个世界里有什么奇妙的事物呢？</p>
+                    <p>请用生动的语言描述这个世界的景色、住在那里的生物，以及发生的有趣故事。让我们一起发挥想象力，创造一个属于你的奇幻世界吧！</p>
+                </div>
+
+                <!-- 任务要求 -->
+                <div class="task-requirements">
+                    <div class="requirements-header">
+                        <i class="fas fa-clipboard-check text-amber-600 text-lg"></i>
+                        <span class="requirements-title">完成要求</span>
+                    </div>
+                    <ul class="requirements-list">
+                        <li>
+                            <div class="requirement-check">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>描述至少3种不同的奇妙事物</span>
+                        </li>
+                        <li>
+                            <div class="requirement-check">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>使用丰富的形容词让描述更生动</span>
+                        </li>
+                        <li>
+                            <div class="requirement-check">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>回答字数不少于100字</span>
+                        </li>
+                        <li>
+                            <div class="requirement-check">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span>发挥想象力，创造独特的故事</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 提示卡片 -->
+                <div class="hint-card">
+                    <div class="hint-title">小提示</div>
+                    <div class="hint-content">你可以想象彩色的云朵、会说话的花朵、友善的神奇动物，或者任何你觉得有趣的事物！</div>
+                </div>
+
+                <!-- AI互动区域 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-robot"></i></div>
+                    <span>AI小助手</span>
+                </div>
+
+                <div class="ai-interaction-area">
+                    <div class="ai-assistant">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="ai-message">
+                            嗨！我是你的AI小助手。如果你在描述时遇到困难，可以告诉我，我会给你一些灵感提示哦！比如你可以从颜色、声音、气味这些感官出发来描述。
+                        </div>
+                    </div>
+                    
+                    <button class="ai-help-btn" onclick="getAIHelp()">
+                        <i class="fas fa-lightbulb"></i>
+                        向AI助手寻求帮助
+                    </button>
+                </div>
+
+                <!-- 示例展示 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-eye"></i></div>
+                    <span>参考示例</span>
+                </div>
+
+                <div class="example-card">
+                    <div class="example-title">优秀作品参考：</div>
+                    <div class="example-content">"在我发现的神奇世界里，天空是粉红色的，云朵像棉花糖一样柔软。树木会唱歌，每当微风吹过，就能听到美妙的旋律..."</div>
+                </div>
+
+                <!-- 输入区域 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-edit"></i></div>
+                    <span>我的回答</span>
+                </div>
+
+                <div class="timer-display">
+                    <i class="fas fa-hourglass-half timer-icon"></i>
+                    <span>剩余时间：<span id="remainingTime">24分32秒</span></span>
+                </div>
+
+                <div class="input-area">
+                    <textarea 
+                        class="text-input" 
+                        placeholder="在这里描述你的神奇世界吧！记得要生动有趣哦..."
+                        id="taskAnswer"
+                        oninput="updateWordCount()"
+                    ></textarea>
+                    
+                    <div class="input-tools">
+                        <div class="tool-group">
+                            <button class="tool-btn" onclick="insertEmoji()" title="插入表情">
+                                <i class="fas fa-smile"></i>
+                            </button>
+                            <button class="tool-btn" onclick="toggleVoiceInput()" title="语音输入">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="tool-btn" onclick="saveAsDraft()" title="保存草稿">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        <div class="word-count">
+                            <span id="wordCount">0</span>/100字
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交区域 -->
+            <div class="submit-area">
+                <button class="submit-btn" id="submitBtn" onclick="submitTask()" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                    <span>提交我的回答</span>
+                </button>
+                <p class="submit-hint">
+                    提交后将获得AI详细反馈和能力评分
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动帮助按钮 -->
+    <div class="floating-help" onclick="showHelp()" title="帮助">
+        <i class="fas fa-question"></i>
+    </div>
+
+    <script>
+        let timeRemaining = 25 * 60; // 25分钟
+        let timerInterval;
+        let wordCount = 0;
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            startTimer();
+            loadDraft();
+        });
+
+        // 开始计时器
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    autoSubmit();
+                }
+            }, 1000);
+        }
+
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('taskTimer').textContent = timeString;
+            
+            const remainingMinutes = Math.floor(timeRemaining / 60);
+            const remainingSeconds = timeRemaining % 60;
+            const remainingString = `${remainingMinutes}分${remainingSeconds}秒`;
+            document.getElementById('remainingTime').textContent = remainingString;
+        }
+
+        // 更新字数统计
+        function updateWordCount() {
+            const textarea = document.getElementById('taskAnswer');
+            const text = textarea.value.trim();
+            wordCount = text.length;
+            
+            document.getElementById('wordCount').textContent = wordCount;
+            
+            // 更新提交按钮状态
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = wordCount < 50; // 至少50字才能提交
+            
+            // 自动保存草稿
+            if (wordCount > 0) {
+                localStorage.setItem('taskDraft', text);
+            }
+        }
+
+        // 加载草稿
+        function loadDraft() {
+            const draft = localStorage.getItem('taskDraft');
+            if (draft) {
+                document.getElementById('taskAnswer').value = draft;
+                updateWordCount();
+            }
+        }
+
+        // 保存草稿
+        function saveAsDraft() {
+            const text = document.getElementById('taskAnswer').value;
+            localStorage.setItem('taskDraft', text);
+            showNotification('已保存', 'success');
+        }
+
+        // 获取AI帮助
+        function getAIHelp() {
+            const tips = [
+                "试试描述一下这个世界的天空是什么颜色的？",
+                "想象一下那里的动物有什么特殊能力？",
+                "这个世界里的植物和我们的有什么不同？",
+                "你在这个世界里遇到了什么有趣的朋友？"
+            ];
+            
+            const randomTip = tips[Math.floor(Math.random() * tips.length)];
+            showNotification(randomTip, 'info');
+        }
+
+        // 插入表情
+        function insertEmoji() {
+            const emojis = ['🌈', '🦄', '✨', '🌸', '🎈', '🎨', '🎭', '🎪', '🎡', '🌟'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            const textarea = document.getElementById('taskAnswer');
+            const cursorPos = textarea.selectionStart;
+            const textBefore = textarea.value.substring(0, cursorPos);
+            const textAfter = textarea.value.substring(cursorPos);
+            
+            textarea.value = textBefore + randomEmoji + textAfter;
+            textarea.setSelectionRange(cursorPos + 2, cursorPos + 2);
+            textarea.focus();
+            
+            updateWordCount();
+        }
+
+        // 语音输入
+        function toggleVoiceInput() {
+            showNotification('语音输入功能开发中...', 'info');
+        }
+
+        // 提交任务
+        function submitTask() {
+            const answer = document.getElementById('taskAnswer').value.trim();
+            
+            if (answer.length < 50) {
+                MengyaUtils.Notification.error('回答内容太少，请至少写50个字');
+                return;
+            }
+            
+            // 清除计时器
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            
+            // 保存任务完成数据到统一数据管理系统
+            const completionData = {
+                taskId: 'creative-world',
+                answer: answer,
+                wordCount: wordCount,
+                timeUsed: (25 * 60) - timeRemaining,
+                timestamp: Date.now(),
+                score: Math.floor(Math.random() * 30) + 70, // 70-100分
+                type: 'task_completion'
+            };
+            
+            // 使用统一数据管理
+            MengyaUtils.Data.setData('child.lastTaskCompletion', completionData);
+            MengyaUtils.Data.setData('child.progress.lastTaskCompleted', Date.now());
+            
+            // 清理草稿
+            localStorage.removeItem('taskDraft');
+            
+            MengyaUtils.Notification.success('提交成功！正在生成评价...');
+            
+            // 跳转到任务庆祝页面
+            setTimeout(() => {
+                parent.postMessage({
+                    type: 'openPage',
+                    url: 'report-detail.html'
+                }, '*');
+            }, 1500);
+        }
+
+        // 自动提交（时间到）
+        function autoSubmit() {
+            const answer = document.getElementById('taskAnswer').value.trim();
+            
+            if (answer.length > 0) {
+                showNotification('时间到！正在自动提交...', 'info');
+                submitTask();
+            } else {
+                showNotification('时间到了，但你还没有开始回答呢！', 'error');
+            }
+        }
+
+        // 显示帮助
+        function showHelp() {
+            const helpText = `
+📝 任务帮助
+
+🎯 如何完成任务：
+• 发挥想象力，描述一个神奇世界
+• 使用生动的词汇让描述更精彩
+• 确保内容积极正面，富有创意
+
+⏰ 时间管理：
+• 建议用5分钟构思，20分钟写作
+• 可以随时保存草稿
+• 时间到会自动提交
+
+💡 写作技巧：
+• 从视觉、听觉、触觉等感官描述
+• 可以创造有趣的角色和故事
+• 记得检查错别字哦
+
+🤖 AI助手可以帮你：
+• 提供创意灵感
+• 给出写作建议
+• 解答疑问
+            `;
+            
+            showNotification(helpText, 'info');
+        }
+
+        // 页面初始化
+        MengyaUtils.Lifecycle.onInit(() => {
+            loadTaskData();
+            setupTaskTimer();
+            // 同步任务进度数据
+            MengyaUtils.Data.syncData();
+        });
+        
+        // 加载任务数据
+        async function loadTaskData() {
+            const taskData = await MengyaUtils.Data.getData('child.currentTask');
+            if (taskData) {
+                updateTaskDisplay(taskData);
+            }
+        }
+        
+        // 更新任务显示
+        function updateTaskDisplay(taskData) {
+            // 更新任务信息
+            if (taskData.title) {
+                document.querySelector('h1').textContent = taskData.title;
+            }
+            if (taskData.progress) {
+                updateProgress(taskData.progress);
+            }
+        }
+        
+        // 保存任务进度
+        function saveTaskProgress(progress) {
+            MengyaUtils.Data.setData('child.currentTask.progress', progress);
+            MengyaUtils.Data.setData('child.progress.lastUpdated', Date.now());
+        }
+
+        // 页面卸载时清理
+        window.addEventListener('beforeunload', function() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        });
+    </script>
+</body>
+</html>

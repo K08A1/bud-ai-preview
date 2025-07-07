@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>任务反馈 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .report-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+            overflow: hidden;
+            margin: 16px;
+        }
+        .report-header {
+            background: linear-gradient(135deg, #10B981 0%, #059669 50%, #0891B2 100%);
+            color: white;
+            padding: 40px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: celebrationGlow 3s ease-in-out infinite;
+        }
+        @keyframes celebrationGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .celebration-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: celebrationBounce 2s ease-in-out infinite;
+        }
+        @keyframes celebrationBounce {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.1); }
+        }
+
+        /* 粒子动画 */
+        .particles-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            animation: float 3s infinite ease-in-out;
+        }
+
+        .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+        .particle:nth-child(2) { left: 80%; top: 30%; animation-delay: 0.5s; }
+        .particle:nth-child(3) { left: 30%; top: 70%; animation-delay: 1s; }
+        .particle:nth-child(4) { left: 70%; top: 80%; animation-delay: 1.5s; }
+        .particle:nth-child(5) { left: 90%; top: 10%; animation-delay: 2s; }
+        .particle:nth-child(6) { left: 20%; top: 90%; animation-delay: 2.5s; }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) scale(1);
+                opacity: 0.8;
+            }
+            50% { 
+                transform: translateY(-20px) scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* 庆祝内容 */
+        .celebration-content {
+            position: relative;
+            z-index: 2;
+            margin-bottom: 30px;
+        }
+
+        .celebration-icons {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .main-celebration-icon {
+            font-size: 80px;
+            animation: mainIconPulse 2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes mainIconPulse {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+            }
+            50% { 
+                transform: scale(1.1) rotate(5deg);
+            }
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 32px;
+            animation: floatAround 4s infinite ease-in-out;
+            animation-delay: var(--delay);
+        }
+
+        .floating-icon:nth-child(2) { left: -30px; top: -10px; }
+        .floating-icon:nth-child(3) { right: -30px; top: -10px; }
+        .floating-icon:nth-child(4) { left: -40px; bottom: -10px; }
+        .floating-icon:nth-child(5) { right: -40px; bottom: -10px; }
+
+        @keyframes floatAround {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg) scale(1);
+                opacity: 0.8;
+            }
+            25% { 
+                transform: translateY(-15px) rotate(90deg) scale(1.1);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-10px) rotate(180deg) scale(0.9);
+                opacity: 0.9;
+            }
+            75% { 
+                transform: translateY(-20px) rotate(270deg) scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        .celebration-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { 
+                text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            50% { 
+                text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        .celebration-subtitle {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .achievement-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-weight: 600;
+            animation: badgeShine 2s ease-in-out infinite;
+        }
+
+        @keyframes badgeShine {
+            0%, 100% { 
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1);
+            }
+            50% { 
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(1.05);
+            }
+        }
+
+        .badge-icon {
+            font-size: 20px;
+            animation: badgeIconSpin 3s linear infinite;
+        }
+
+        @keyframes badgeIconSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* 现代化分数显示 */
+        .modern-score-display {
+            position: relative;
+            z-index: 2;
+            margin: 30px 20px;
+        }
+
+        .score-background {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .score-ring {
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .score-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+        }
+
+        .score-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 42px;
+            font-weight: 900;
+            color: #FFD700;
+            line-height: 1;
+            animation: scoreCountUp 2s ease-out;
+            -webkit-text-stroke: 1px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes scoreCountUp {
+            0% { 
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #FFEB3B;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .score-grade {
+            font-size: 12px;
+            color: #FFEB3B;
+            font-weight: 600;
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.4);
+            border-radius: 12px;
+            padding: 4px 8px;
+            margin-top: 6px;
+            display: inline-block;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .score-details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            gap: 16px;
+        }
+
+        .score-detail-item {
+            flex: 1;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .score-detail-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .detail-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            animation: detailIconFloat 3s ease-in-out infinite;
+        }
+
+        .score-detail-item:nth-child(1) .detail-icon { animation-delay: 0s; }
+        .score-detail-item:nth-child(2) .detail-icon { animation-delay: 0.5s; }
+        .score-detail-item:nth-child(3) .detail-icon { animation-delay: 1s; }
+
+        @keyframes detailIconFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .detail-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 4px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: #FFD700;
+            font-weight: 700;
+            text-shadow: 
+                0 0 5px rgba(255, 215, 0, 0.6),
+                0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .score-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .score-circle circle {
+            fill: none;
+            stroke-width: 8;
+            r: 52;
+            cx: 60;
+            cy: 60;
+        }
+        .score-circle .bg {
+            stroke: #e5e7eb;
+        }
+        .score-circle .progress {
+            stroke-linecap: round;
+            stroke-dasharray: 326.73;
+            transition: stroke-dashoffset 2s ease;
+        }
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .score-number {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffee00, #ffaa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .score-label {
+            font-size: 12px;
+            color: #ffbf00;
+            font-weight: 500;
+        }
+        .feedback-section {
+            padding: 24px;
+        }
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+        }
+        .section-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .ability-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 12px 0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .ability-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        .ability-card:hover::before {
+            transform: scaleX(1);
+        }
+        .ability-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.1);
+        }
+        .ability-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .ability-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            margin-right: 12px;
+        }
+        .ability-info {
+            flex: 1;
+        }
+        .ability-name {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+        .ability-description {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .ability-score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10B981;
+        }
+        .score-bar {
+            background: #f3f4f6;
+            border-radius: 10px;
+            height: 8px;
+            position: relative;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .score-progress {
+            height: 100%;
+            border-radius: 10px;
+            position: relative;
+            transition: width 1.5s ease;
+            background: var(--gradient);
+        }
+        /* 现代化AI反馈卡片 */
+        .modern-feedback-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border-radius: 24px;
+            padding: 24px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-feedback-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8B5CF6, #06B6D4, #10B981);
+            animation: rainbowFlow 3s linear infinite;
+        }
+
+        @keyframes rainbowFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .ai-avatar-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+        }
+
+        .ai-avatar {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .ai-face {
+            font-size: 32px;
+            animation: aiThinking 3s ease-in-out infinite;
+        }
+
+        @keyframes aiThinking {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .ai-speech-bubble {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            background: #10B981;
+            border-radius: 50%;
+            animation: speechPulse 2s infinite;
+        }
+
+        @keyframes speechPulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: scale(1.3);
+                opacity: 0.7;
+            }
+        }
+
+        .ai-name {
+            flex: 1;
+        }
+
+        .ai-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .ai-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+            font-weight: 500;
+        }
+
+        .ai-feedback-content {
+            padding-top: 4px;
+        }
+
+        .feedback-highlight {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .highlight-icon {
+            font-size: 18px;
+            animation: iconGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes iconGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .highlight-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .feedback-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #4B5563;
+            margin-bottom: 16px;
+        }
+
+        .highlight-word {
+            background: linear-gradient(120deg, #fef3c7, #fde68a);
+            color: #92400e;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid #f59e0b;
+        }
+
+        .technique-word {
+            background: linear-gradient(120deg, #dbeafe, #bfdbfe);
+            color: #1e40af;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: 1px solid #3b82f6;
+        }
+
+        .feedback-divider {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+            margin: 20px 0;
+        }
+
+        .feedback-score-summary {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .score-summary-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .score-summary-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            min-width: 80px;
+        }
+
+        .summary-bar {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .summary-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #06B6D4);
+            border-radius: 4px;
+            transition: width 1.5s ease;
+            position: relative;
+        }
+
+        .summary-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: barShine 2s infinite;
+        }
+
+        @keyframes barShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .summary-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #8B5CF6;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .score-progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .feedback-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+        }
+        .feedback-card::before {
+            content: '🤖';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .suggestion-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 12px 0;
+            position: relative;
+        }
+        .suggestion-card::before {
+            content: '💡';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 20px;
+        }
+        .highlight-text {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .achievement-card {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            text-align: center;
+        }
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: achievementGlow 2s ease-in-out infinite;
+        }
+        @keyframes achievementGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 24px 0;
+        }
+        .action-btn {
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .primary-btn {
+            background: linear-gradient(45deg, #10B981, #059669);
+            color: white;
+        }
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        .secondary-btn {
+            background: white;
+            border: 2px solid #e5e7eb;
+            color: #374151;
+        }
+        .secondary-btn:hover {
+            background: #f9fafb;
+            border-color: #10B981;
+            transform: translateY(-1px);
+        }
+        .improvement-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0;
+        }
+        .improvement-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .improvement-icon {
+            width: 16px;
+            height: 16px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .floating-share {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #8B5CF6, #EC4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+            animation: shareFloat 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+        @keyframes shareFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 额外的动画效果 */
+        @keyframes aiEntrance {
+            0% { 
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            50% { 
+                transform: scale(1.2) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes floatUp {
+            0% { 
+                transform: translateY(0px);
+                opacity: 0;
+            }
+            10% { 
+                opacity: 1;
+            }
+            90% { 
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 640px) {
+            .score-details {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .celebration-title {
+                font-size: 28px;
+            }
+            
+            .floating-icon {
+                font-size: 24px;
+            }
+            
+            .modern-score-display {
+                margin: 20px 10px;
+            }
+            
+            .score-background {
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateToHome()">
+                    <i class="fas fa-home text-sm"></i>
+                </button>
+                <h1 class="text-xl font-bold">任务完成报告</h1>
+            </div>
+            <div class="text-sm opacity-90">
+                <i class="fas fa-trophy mr-1"></i>
+                <span>+15 积分</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="pb-20">
+        <div class="report-container">
+            <!-- 现代化庆祝头部 -->
+            <div class="report-header">
+                <!-- 粒子动画背景 -->
+                <div class="particles-container">
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                    <div class="particle"></div>
+                </div>
+                
+                <!-- 主要内容 -->
+                <div class="celebration-content">
+                    <div class="celebration-icons">
+                        <div class="main-celebration-icon">🎉</div>
+                        <div class="floating-icon" style="--delay: 0s;">✨</div>
+                        <div class="floating-icon" style="--delay: 0.5s;">🌟</div>
+                        <div class="floating-icon" style="--delay: 1s;">🎊</div>
+                        <div class="floating-icon" style="--delay: 1.5s;">💫</div>
+                    </div>
+                    
+                    <div class="celebration-text">
+                        <h2 class="celebration-title">太棒了！任务完成</h2>
+                        <p class="celebration-subtitle">你的创意表达让人印象深刻！</p>
+                        <div class="achievement-badge">
+                            <span class="badge-icon">🏆</span>
+                            <span class="badge-text">创意大师</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 现代化总分展示 -->
+                <div class="modern-score-display">
+                    <div class="score-background">
+                        <div class="score-ring">
+                            <svg viewBox="0 0 120 120" class="score-svg">
+                                <defs>
+                                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#FFD700"/>
+                                        <stop offset="50%" style="stop-color:#FF8C00"/>
+                                        <stop offset="100%" style="stop-color:#FF6B35"/>
+                                    </linearGradient>
+                                    <filter id="glow">
+                                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                        <feMerge> 
+                                            <feMergeNode in="coloredBlur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="url(#scoreGradient)" stroke-width="8" 
+                                        stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" 
+                                        id="scoreProgress" filter="url(#glow)" transform="rotate(-90 60 60)"/>
+                            </svg>
+                            <div class="score-content">
+                                <div class="score-number" id="totalScore">88</div>
+                                <div class="score-label">总分</div>
+                                <div class="score-grade">优秀</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 分数细节 -->
+                    <div class="score-details">
+                        <div class="score-detail-item">
+                            <div class="detail-icon">📝</div>
+                            <div class="detail-text">
+                                <span class="detail-label">完成时间</span>
+                                <span class="detail-value">18分钟</span>
+                            </div>
+                        </div>
+                        <div class="score-detail-item">
+                            <div class="detail-icon">📊</div>
+                            <div class="detail-text">
+                                <span class="detail-label">字数统计</span>
+                                <span class="detail-value">128字</span>
+                            </div>
+                        </div>
+                        <div class="score-detail-item">
+                            <div class="detail-icon">⭐</div>
+                            <div class="detail-text">
+                                <span class="detail-label">获得积分</span>
+                                <span class="detail-value">+15分</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI反馈分析 -->
+            <div class="feedback-section">
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-brain"></i></div>
+                    <span>AI智能分析</span>
+                </div>
+
+                <div class="modern-feedback-card">
+                    <div class="ai-avatar-section">
+                        <div class="ai-avatar">
+                            <div class="ai-face">🤖</div>
+                            <div class="ai-speech-bubble"></div>
+                        </div>
+                        <div class="ai-name">
+                            <h4 class="ai-title">AI智能分析</h4>
+                            <p class="ai-subtitle">专业学习指导</p>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-feedback-content">
+                        <div class="feedback-highlight">
+                            <span class="highlight-icon">✨</span>
+                            <span class="highlight-title">表现亮点</span>
+                        </div>
+                        <p class="feedback-text">
+                            哇！你的想象力真的很棒呢！你描述的<span class="highlight-word">彩色云朵王国</span>让我仿佛身临其境。
+                            特别是关于<span class="highlight-word">"会唱歌的花朵"</span>这个创意，既生动又有趣！
+                        </p>
+                        
+                        <div class="feedback-divider"></div>
+                        
+                        <div class="feedback-highlight">
+                            <span class="highlight-icon">🎯</span>
+                            <span class="highlight-title">专业建议</span>
+                        </div>
+                        <p class="feedback-text">
+                            你在描述时使用了很多感官词汇，比如<span class="technique-word">"柔软的"</span>、<span class="technique-word">"甜美的"</span>、<span class="technique-word">"闪闪发光的"</span>，
+                            这让你的文字变得更加生动有趣。继续保持这种细致的观察和丰富的想象力！
+                        </p>
+                        
+                        <div class="feedback-score-summary">
+                            <div class="score-summary-item">
+                                <span class="summary-label">创意指数</span>
+                                <div class="summary-bar">
+                                    <div class="summary-fill" style="width: 92%;"></div>
+                                </div>
+                                <span class="summary-value">92%</span>
+                            </div>
+                            <div class="score-summary-item">
+                                <span class="summary-label">表达力</span>
+                                <div class="summary-bar">
+                                    <div class="summary-fill" style="width: 88%;"></div>
+                                </div>
+                                <span class="summary-value">88%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 能力评分详情 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-chart-bar"></i></div>
+                    <span>能力分项评分</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="ability-card" style="--gradient: linear-gradient(90deg, #EC4899, #F97316);">
+                        <div class="ability-header">
+                            <div class="flex items-center">
+                                <div class="ability-icon" style="background: linear-gradient(135deg, #EC4899, #F97316);">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <div class="ability-name">语言表达</div>
+                                    <div class="ability-description">词汇丰富度、语句流畅度</div>
+                                </div>
+                            </div>
+                            <div class="ability-score">90分</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-progress" style="width: 90%; --gradient: linear-gradient(90deg, #EC4899, #F97316);"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">用词丰富生动，表达清晰流畅</p>
+                    </div>
+
+                    <div class="ability-card" style="--gradient: linear-gradient(90deg, #8B5CF6, #3B82F6);">
+                        <div class="ability-header">
+                            <div class="flex items-center">
+                                <div class="ability-icon" style="background: linear-gradient(135deg, #8B5CF6, #3B82F6);">
+                                    <i class="fas fa-lightbulb"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <div class="ability-name">创造力</div>
+                                    <div class="ability-description">想象力、原创性</div>
+                                </div>
+                            </div>
+                            <div class="ability-score">85分</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-progress" style="width: 85%; --gradient: linear-gradient(90deg, #8B5CF6, #3B82F6);"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">想象力丰富，创意独特有趣</p>
+                    </div>
+
+                    <div class="ability-card" style="--gradient: linear-gradient(90deg, #10B981, #059669);">
+                        <div class="ability-header">
+                            <div class="flex items-center">
+                                <div class="ability-icon" style="background: linear-gradient(135deg, #10B981, #059669);">
+                                    <i class="fas fa-puzzle-piece"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <div class="ability-name">逻辑结构</div>
+                                    <div class="ability-description">条理性、连贯性</div>
+                                </div>
+                            </div>
+                            <div class="ability-score">82分</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-progress" style="width: 82%; --gradient: linear-gradient(90deg, #10B981, #059669);"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">结构清晰，层次分明</p>
+                    </div>
+
+                    <div class="ability-card" style="--gradient: linear-gradient(90deg, #0EA5E9, #06B6D4);">
+                        <div class="ability-header">
+                            <div class="flex items-center">
+                                <div class="ability-icon" style="background: linear-gradient(135deg, #0EA5E9, #06B6D4);">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="ability-info">
+                                    <div class="ability-name">情感表达</div>
+                                    <div class="ability-description">感情色彩、情感共鸣</div>
+                                </div>
+                            </div>
+                            <div class="ability-score">87分</div>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-progress" style="width: 87%; --gradient: linear-gradient(90deg, #0EA5E9, #06B6D4);"></div>
+                        </div>
+                        <p class="text-sm text-gray-600">情感真挚，富有感染力</p>
+                    </div>
+                </div>
+
+                <!-- 获得成就 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-trophy"></i></div>
+                    <span>获得成就</span>
+                </div>
+
+                <div class="achievement-card">
+                    <div class="achievement-icon">🏆</div>
+                    <h4 class="font-semibold text-purple-800 mb-2">创意大师</h4>
+                    <p class="text-sm text-purple-700">恭喜你！完成了一次精彩的创意表达，获得"创意大师"勋章！</p>
+                    <div class="mt-3 text-xs text-purple-600">+15经验值 +3创意点数</div>
+                </div>
+
+                <!-- 改进建议 -->
+                <div class="section-title">
+                    <div class="section-icon"><i class="fas fa-arrow-up"></i></div>
+                    <span>成长建议</span>
+                </div>
+
+                <div class="suggestion-card">
+                    <h4 class="font-semibold text-amber-800 mb-2">💡 继续提升</h4>
+                    <ul class="improvement-list">
+                        <li>
+                            <div class="improvement-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <span>可以尝试加入更多的动作描写，让故事更生动</span>
+                        </li>
+                        <li>
+                            <div class="improvement-icon">
+                                <i class="fas fa-palette"></i>
+                            </div>
+                            <span>试着用比喻和拟人的手法，让描述更有趣</span>
+                        </li>
+                        <li>
+                            <div class="improvement-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <span>可以增加一些角色对话，增强故事的互动性</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 学习统计 -->
+                <div class="bg-gray-50 rounded-xl p-4 my-4">
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600">128</div>
+                            <div class="text-xs text-gray-600">总字数</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600">18</div>
+                            <div class="text-xs text-gray-600">用时(分钟)</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">15</div>
+                            <div class="text-xs text-gray-600">获得积分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="action-btn primary-btn" onclick="continueNext()">
+                        <i class="fas fa-arrow-right text-lg"></i>
+                        <span>继续下一个任务</span>
+                    </button>
+                    
+                    <button class="action-btn secondary-btn" onclick="viewBadges()">
+                        <i class="fas fa-medal text-lg"></i>
+                        <span>查看我的勋章</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-3">
+                    <button class="action-btn secondary-btn" onclick="shareResult()">
+                        <i class="fas fa-share-alt"></i>
+                        <span>分享给朋友</span>
+                    </button>
+                    
+                    <button class="action-btn secondary-btn" onclick="saveToStory()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>保存到故事墙</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动分享按钮 -->
+    <div class="floating-share" onclick="shareResult()" title="分享">
+        <i class="fas fa-share"></i>
+    </div>
+
+    <script>
+        let finalScore = 88;
+
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTaskResult();
+            animateScore();
+            createCelebrationEffect();
+            initializeModernAnimations();
+            playSuccessSound();
+        });
+
+        // 初始化现代化动画
+        function initializeModernAnimations() {
+            // 延迟显示各个元素
+            setTimeout(() => animateScoreDetails(), 1000);
+            setTimeout(() => animateFeedbackCard(), 1500);
+            setTimeout(() => animateAbilityCards(), 2000);
+            
+            // 粒子效果
+            createFloatingParticles();
+        }
+
+        // 播放成功音效
+        function playSuccessSound() {
+            // 使用Web Audio API创建简单的成功音效
+            if (typeof(AudioContext) !== "undefined" || typeof(webkitAudioContext) !== "undefined") {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 创建成功提示音
+                const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+                frequencies.forEach((freq, index) => {
+                    setTimeout(() => {
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        oscillator.frequency.value = freq;
+                        oscillator.type = 'sine';
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.3);
+                    }, index * 100);
+                });
+            }
+        }
+
+        // 动画分数详情
+        function animateScoreDetails() {
+            const detailItems = document.querySelectorAll('.score-detail-item');
+            detailItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.transform = 'translateY(20px)';
+                    item.style.opacity = '0';
+                    item.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    
+                    setTimeout(() => {
+                        item.style.transform = 'translateY(0)';
+                        item.style.opacity = '1';
+                    }, 50);
+                }, index * 200);
+            });
+        }
+
+        // 动画反馈卡片
+        function animateFeedbackCard() {
+            const feedbackCard = document.querySelector('.modern-feedback-card');
+            if (feedbackCard) {
+                feedbackCard.style.transform = 'scale(0.9)';
+                feedbackCard.style.opacity = '0';
+                feedbackCard.style.transition = 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                
+                setTimeout(() => {
+                    feedbackCard.style.transform = 'scale(1)';
+                    feedbackCard.style.opacity = '1';
+                }, 100);
+                
+                // 动画AI头像
+                setTimeout(() => {
+                    const aiAvatar = document.querySelector('.ai-avatar');
+                    if (aiAvatar) {
+                        aiAvatar.style.animation = 'aiEntrance 0.8s ease-out forwards';
+                    }
+                }, 300);
+            }
+        }
+
+        // 动画能力卡片
+        function animateAbilityCards() {
+            const abilityCards = document.querySelectorAll('.ability-card');
+            abilityCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.transform = 'translateX(-100px)';
+                    card.style.opacity = '0';
+                    card.style.transition = 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                    
+                    setTimeout(() => {
+                        card.style.transform = 'translateX(0)';
+                        card.style.opacity = '1';
+                        
+                        // 动画进度条
+                        setTimeout(() => {
+                            const progressBar = card.querySelector('.score-progress');
+                            if (progressBar) {
+                                progressBar.style.width = '0%';
+                                const targetWidth = progressBar.style.width || '85%';
+                                progressBar.style.transition = 'width 1.5s ease-out';
+                                setTimeout(() => {
+                                    progressBar.style.width = targetWidth;
+                                }, 100);
+                            }
+                        }, 200);
+                    }, 50);
+                }, index * 300);
+            });
+        }
+
+        // 创建浮动粒子
+        function createFloatingParticles() {
+            const particleContainer = document.querySelector('.particles-container');
+            if (!particleContainer) return;
+            
+            // 添加额外的装饰粒子
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'floating-particle';
+                    particle.style.cssText = `
+                        position: absolute;
+                        width: 4px;
+                        height: 4px;
+                        background: rgba(255, 255, 255, 0.6);
+                        border-radius: 50%;
+                        animation: floatUp 4s infinite ease-in-out;
+                        animation-delay: ${Math.random() * 2}s;
+                        left: ${Math.random() * 100}%;
+                        top: ${80 + Math.random() * 20}%;
+                    `;
+                    particleContainer.appendChild(particle);
+                }, i * 500);
+            }
+        }
+
+        // 加载任务结果
+        function loadTaskResult() {
+            const taskResult = localStorage.getItem('lastTaskResult');
+            if (taskResult) {
+                const data = JSON.parse(taskResult);
+                // 根据实际数据更新界面
+                updateScoreDisplay(data);
+            }
+        }
+
+        // 更新分数显示
+        function updateScoreDisplay(data) {
+            // 可以根据实际答案内容计算分数
+            if (data.wordCount > 150) finalScore += 5;
+            if (data.timeUsed < 15 * 60) finalScore += 3;
+            
+            document.getElementById('totalScore').textContent = finalScore;
+        }
+
+        // 分数动画
+        function animateScore() {
+            const circle = document.getElementById('scoreProgress');
+            const circumference = 326.73;
+            const offset = circumference - (finalScore / 100) * circumference;
+            
+            setTimeout(() => {
+                circle.style.strokeDashoffset = offset;
+            }, 500);
+
+            // 分数数字动画
+            let currentScore = 0;
+            const scoreElement = document.getElementById('totalScore');
+            const scoreInterval = setInterval(() => {
+                currentScore += 2;
+                if (currentScore >= finalScore) {
+                    currentScore = finalScore;
+                    clearInterval(scoreInterval);
+                }
+                scoreElement.textContent = currentScore;
+            }, 50);
+        }
+
+        // 创建庆祝效果
+        function createCelebrationEffect() {
+            const colors = ['#10B981', '#8B5CF6', '#EC4899', '#F59E0B', '#3B82F6'];
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    createConfettiPiece(colors[Math.floor(Math.random() * colors.length)]);
+                }, i * 100);
+            }
+        }
+
+        // 创建彩屑
+        function createConfettiPiece(color) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = '8px';
+            confetti.style.height = '8px';
+            confetti.style.backgroundColor = color;
+            confetti.style.left = Math.random() * window.innerWidth + 'px';
+            confetti.style.top = '-10px';
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            confetti.style.pointerEvents = 'none';
+            confetti.style.zIndex = '1000';
+            
+            document.body.appendChild(confetti);
+            
+            const animation = confetti.animate([
+                { transform: 'translateY(-10px) rotate(0deg)', opacity: 1 },
+                { transform: `translateY(${window.innerHeight + 10}px) rotate(720deg)`, opacity: 0 }
+            ], {
+                duration: 3000 + Math.random() * 1000,
+                easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+            });
+            
+            animation.onfinish = () => {
+                confetti.remove();
+            };
+        }
+
+        // 继续下一个任务
+        function continueNext() {
+            showNotification('正在为你准备下一个精彩任务...', 'info');
+            setTimeout(() => {
+                navigateToPage('learning-path');
+            }, 1500);
+        }
+
+        // 查看勋章
+        function viewBadges() {
+            navigateToPage('badge-center');
+        }
+
+        // 分享结果
+        function shareResult() {
+            const shareText = `我刚在萌芽AI完成了创意表达挑战，获得了${finalScore}分！🎉 特别获得了"创意大师"勋章，快来一起提升表达能力吧！`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '萌芽AI - 我的学习成果',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                // 复制到剪贴板
+                navigator.clipboard.writeText(shareText).then(() => {
+                    showNotification('分享内容已复制到剪贴板', 'success');
+                });
+            }
+        }
+
+        // 保存到故事墙
+        function saveToStory() {
+            showNotification('正在保存到故事墙...', 'info');
+            
+            // 模拟保存过程
+            setTimeout(() => {
+                showNotification('已成功保存到故事墙，其他小朋友可以看到你的精彩作品了！', 'success');
+            }, 2000);
+        }
+
+        // 导航到首页
+        function navigateToHome() {
+            parent.postMessage({
+                type: 'navigate',
+                page: 'home'
+            }, '*');
+        }
+
+        // 导航到页面
+        function navigateToPage(page) {
+            parent.postMessage({
+                type: 'openPage',
+                url: page + '.html'
+            }, '*');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+    </script>
+</body>
+</html>

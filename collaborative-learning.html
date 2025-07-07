@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亲子协作学习 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="mengya-common.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .collaboration-container {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            min-height: calc(100vh - 120px);
+            position: relative;
+        }
+        .participant-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            transition: all 0.3s ease;
+        }
+        .participant-card.active {
+            border-color: #667eea;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        .activity-workspace {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 24px;
+            margin: 16px 0;
+            border: 2px dashed #e2e8f0;
+            min-height: 300px;
+            position: relative;
+        }
+        .collaboration-tool {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 8px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .collaboration-tool:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        .real-time-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .progress-ring {
+            width: 80px;
+            height: 80px;
+            position: relative;
+        }
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 6;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .turn-indicator {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            animation: turnGlow 2s ease-in-out infinite;
+        }
+        @keyframes turnGlow {
+            0%, 100% { box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+            50% { box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="gradient-bg px-6 py-4">
+        <div class="flex items-center justify-between">
+            <button onclick="navigateBack()" class="text-white text-xl">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="text-center flex-1">
+                <h1 class="text-white text-lg font-bold">亲子协作学习</h1>
+                <p class="text-white text-sm opacity-90" id="activityTitle">选择协作活动</p>
+            </div>
+            <button onclick="showCollaborationSettings()" class="text-white text-xl">
+                <i class="fas fa-users-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="collaboration-container">
+        <!-- 参与者状态 -->
+        <div class="px-6 py-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-users mr-2 text-blue-600"></i>
+                协作参与者
+                <div class="real-time-indicator ml-2"></div>
+            </h3>
+            <div id="participantsList" class="space-y-3">
+                <!-- 参与者将动态生成 -->
+            </div>
+        </div>
+
+        <!-- 活动选择 -->
+        <div class="px-6 py-4" id="activitySelector">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-play-circle mr-2 text-green-600"></i>
+                选择协作活动
+            </h3>
+            <div class="grid grid-cols-1 gap-4">
+                <div class="collaboration-tool" onclick="startCollaborativeActivity('story')">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">协作故事创作</h4>
+                            <p class="text-sm text-gray-600">轮流接龙，共同创作精彩故事</p>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span>推荐: 2-4人</span> • <span>时长: 20-30分钟</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="collaboration-tool" onclick="startCollaborativeActivity('puzzle')">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-teal-400 flex items-center justify-center text-white">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">智力拼图挑战</h4>
+                            <p class="text-sm text-gray-600">共同解决逻辑谜题和拼图游戏</p>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span>推荐: 2-3人</span> • <span>时长: 15-25分钟</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="collaboration-tool" onclick="startCollaborativeActivity('drawing')">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-400 to-red-400 flex items-center justify-center text-white">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">协作绘画创作</h4>
+                            <p class="text-sm text-gray-600">一起画画，发挥创意想象力</p>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span>推荐: 2-4人</span> • <span>时长: 25-35分钟</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+
+                <div class="collaboration-tool" onclick="startCollaborativeActivity('quiz')">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-400 to-blue-400 flex items-center justify-center text-white">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">知识问答比赛</h4>
+                            <p class="text-sm text-gray-600">轮流出题答题，增长知识</p>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span>推荐: 2-4人</span> • <span>时长: 20-30分钟</span>
+                            </div>
+                        </div>
+                        <i class="fas fa-arrow-right text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 协作工作区 -->
+        <div class="px-6 py-4 hidden" id="collaborationWorkspace">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-cogs mr-2 text-purple-600"></i>
+                    协作进行中
+                </h3>
+                <button onclick="endCollaboration()" class="text-red-500 hover:text-red-600">
+                    <i class="fas fa-stop-circle text-xl"></i>
+                </button>
+            </div>
+
+            <!-- 当前轮次指示器 -->
+            <div class="text-center mb-6" id="turnIndicator">
+                <div class="turn-indicator inline-block">
+                    <i class="fas fa-user mr-2"></i>
+                    轮到 <span id="currentPlayer">小明</span> 了
+                </div>
+            </div>
+
+            <!-- 活动工作区 -->
+            <div class="activity-workspace" id="workspaceContent">
+                <!-- 具体活动内容将动态生成 -->
+            </div>
+
+            <!-- 协作工具栏 -->
+            <div class="flex justify-center space-x-4 mt-6" id="collaborationTools">
+                <button onclick="nextTurn()" class="bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-600 transition-colors">
+                    <i class="fas fa-forward mr-2"></i>下一位
+                </button>
+                <button onclick="pauseCollaboration()" class="bg-gray-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-pause mr-2"></i>暂停
+                </button>
+                <button onclick="saveProgress()" class="bg-green-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors">
+                    <i class="fas fa-save mr-2"></i>保存
+                </button>
+            </div>
+        </div>
+
+        <!-- 协作历史 -->
+        <div class="px-6 py-4">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <i class="fas fa-history mr-2 text-indigo-600"></i>
+                协作历史
+            </h3>
+            <div id="collaborationHistory" class="space-y-3">
+                <!-- 历史记录将动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentActivity = null;
+        let participants = [];
+        let currentPlayerIndex = 0;
+        let collaborationData = {};
+
+        // 页面初始化
+        MengyaUtils.Lifecycle.onInit(async () => {
+            await initializeCollaboration();
+            loadParticipants();
+            loadCollaborationHistory();
+        });
+
+        // 初始化协作学习
+        async function initializeCollaboration() {
+            try {
+                // 获取家庭成员信息
+                const familyData = await MengyaUtils.Data.getData('family') || {};
+                participants = familyData.members || [
+                    { id: 'parent1', name: '爸爸', avatar: '👨', role: 'parent', status: 'ready' },
+                    { id: 'child1', name: '小明', avatar: '👦', role: 'child', status: 'ready' }
+                ];
+
+                // 协作学习初始化完成
+            } catch (error) {
+                console.error('协作学习初始化失败:', error);
+                // 使用默认参与者
+                participants = [
+                    { id: 'parent1', name: '爸爸', avatar: '👨', role: 'parent', status: 'ready' },
+                    { id: 'child1', name: '小明', avatar: '👦', role: 'child', status: 'ready' }
+                ];
+            }
+        }
+
+        // 加载参与者列表
+        function loadParticipants() {
+            const container = document.getElementById('participantsList');
+            
+            container.innerHTML = participants.map(participant => {
+                const statusColors = {
+                    ready: 'text-green-500 bg-green-100',
+                    active: 'text-blue-500 bg-blue-100',
+                    waiting: 'text-yellow-500 bg-yellow-100',
+                    offline: 'text-gray-500 bg-gray-100'
+                };
+
+                const statusTexts = {
+                    ready: '准备就绪',
+                    active: '正在参与',
+                    waiting: '等待中',
+                    offline: '离线'
+                };
+
+                return `
+                    <div class="participant-card ${participant.status === 'active' ? 'active' : ''}" id="participant-${participant.id}">
+                        <div class="flex items-center space-x-4">
+                            <div class="text-3xl">${participant.avatar}</div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2">
+                                    <h4 class="font-semibold text-gray-800">${participant.name}</h4>
+                                    <span class="text-xs ${statusColors[participant.status]} px-2 py-1 rounded-full">
+                                        ${statusTexts[participant.status]}
+                                    </span>
+                                </div>
+                                <p class="text-sm text-gray-600">${getRoleDescription(participant.role)}</p>
+                            </div>
+                            <div class="real-time-indicator"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 获取角色描述
+        function getRoleDescription(role) {
+            const descriptions = {
+                parent: '家长 - 引导和协助',
+                child: '孩子 - 主要学习者'
+            };
+            return descriptions[role] || '参与者';
+        }
+
+        // 开始协作活动
+        function startCollaborativeActivity(activityType) {
+            currentActivity = activityType;
+            
+            // 隐藏选择器，显示工作区
+            document.getElementById('activitySelector').classList.add('hidden');
+            document.getElementById('collaborationWorkspace').classList.remove('hidden');
+            
+            // 更新标题
+            const titles = {
+                story: '协作故事创作',
+                puzzle: '智力拼图挑战',
+                drawing: '协作绘画创作',
+                quiz: '知识问答比赛'
+            };
+            document.getElementById('activityTitle').textContent = titles[activityType];
+            
+            // 设置参与者状态
+            participants.forEach((participant, index) => {
+                participant.status = index === 0 ? 'active' : 'waiting';
+            });
+            loadParticipants();
+            
+            // 初始化工作区
+            initializeWorkspace(activityType);
+            
+            // 设置当前玩家
+            currentPlayerIndex = 0;
+            updateCurrentPlayer();
+            
+            MengyaUtils.Notification.success(`${titles[activityType]}开始！`);
+        }
+
+        // 初始化工作区
+        function initializeWorkspace(activityType) {
+            const workspace = document.getElementById('workspaceContent');
+            
+            switch (activityType) {
+                case 'story':
+                    workspace.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">我们的故事</h4>
+                            <p class="text-gray-600">每人轮流添加一句话，创作属于我们的故事</p>
+                        </div>
+                        <div id="storyContent" class="bg-white rounded-lg p-6 min-h-40 mb-4 border-2 border-dashed border-gray-200">
+                            <p class="text-gray-400 text-center">故事即将开始...</p>
+                        </div>
+                        <div class="flex space-x-4">
+                            <input type="text" id="storyInput" placeholder="添加你的故事内容..." 
+                                   class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button onclick="addStoryLine()" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600">
+                                添加
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'puzzle':
+                    workspace.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">智力拼图挑战</h4>
+                            <p class="text-gray-600">合作解决拼图，锻炼逻辑思维</p>
+                        </div>
+                        <div id="puzzleArea" class="bg-white rounded-lg p-6 min-h-60 mb-4 border-2 border-dashed border-gray-200">
+                            <div class="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                                ${generatePuzzlePieces()}
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm text-gray-600 mb-4">移动拼图块到正确位置</p>
+                            <button onclick="resetPuzzle()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+                                重置拼图
+                            </button>
+                        </div>
+                    `;
+                    break;
+                    
+                case 'drawing':
+                    workspace.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">协作绘画创作</h4>
+                            <p class="text-gray-600">一起创作美丽的画作</p>
+                        </div>
+                        <div id="drawingCanvas" class="bg-white rounded-lg p-4 mb-4 border-2 border-dashed border-gray-200">
+                            <canvas width="300" height="200" class="border border-gray-300 mx-auto block"></canvas>
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="clearCanvas()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                                清除画布
+                            </button>
+                            <button onclick="saveDrawing()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                                保存作品
+                            </button>
+                        </div>
+                    `;
+                    initializeDrawingCanvas();
+                    break;
+                    
+                case 'quiz':
+                    workspace.innerHTML = `
+                        <div class="text-center mb-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-2">知识问答比赛</h4>
+                            <p class="text-gray-600">轮流出题和答题，增长知识</p>
+                        </div>
+                        
+                        <!-- 模式选择 -->
+                        <div class="flex space-x-3 mb-4" id="quizModeSelector">
+                            <button onclick="setQuizMode('manual')" class="quiz-mode-btn active flex-1 py-3 bg-blue-500 text-white rounded-lg font-semibold">
+                                自由问答
+                            </button>
+                            <button onclick="setQuizMode('math')" class="quiz-mode-btn flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold">
+                                数学挑战
+                            </button>
+                        </div>
+                        
+                        <div id="quizContent" class="bg-white rounded-lg p-6 min-h-40 mb-4">
+                            <div class="text-center text-gray-400">
+                                <i class="fas fa-question-circle text-4xl mb-4"></i>
+                                <p>准备第一个问题...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 手动问答模式 -->
+                        <div class="space-y-4" id="manualQuizInput">
+                            <input type="text" id="questionInput" placeholder="输入你的问题..." 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input type="text" id="answerInput" placeholder="输入正确答案..." 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button onclick="submitQuestion()" class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600">
+                                提交问题
+                            </button>
+                        </div>
+                        
+                        <!-- 数学挑战模式 -->
+                        <div class="space-y-4 hidden" id="mathQuizControls">
+                            <div class="flex space-x-3">
+                                <button onclick="generateMathProblem()" class="flex-1 bg-green-500 text-white py-3 rounded-lg font-semibold hover:bg-green-600">
+                                    <i class="fas fa-dice mr-2"></i>生成数学题
+                                </button>
+                                <button onclick="increaseMathLevel()" class="bg-yellow-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-yellow-600">
+                                    难度 <span id="mathLevelDisplay">1</span>
+                                </button>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-sm text-gray-600">得分: </span>
+                                <span id="mathScoreDisplay" class="font-bold text-blue-600">0</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+        }
+
+        // 生成拼图块
+        function generatePuzzlePieces() {
+            const pieces = Array.from({length: 9}, (_, i) => i + 1);
+            const shuffled = pieces.sort(() => Math.random() - 0.5);
+            
+            return shuffled.map((piece, index) => `
+                <div class="puzzle-piece bg-blue-${piece}00 h-20 rounded-lg flex items-center justify-center text-white font-bold text-xl cursor-pointer hover:scale-105 transition-transform"
+                     onclick="movePuzzlePiece(${index})" data-piece="${piece}">
+                    ${piece}
+                </div>
+            `).join('');
+        }
+
+        // 初始化绘画画布
+        function initializeDrawingCanvas() {
+            const canvas = document.querySelector('#drawingCanvas canvas');
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false;
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                ctx.beginPath();
+                ctx.moveTo(e.offsetX, e.offsetY);
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isDrawing) {
+                    ctx.lineTo(e.offsetX, e.offsetY);
+                    ctx.stroke();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+
+            // 设置画笔样式
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+        }
+
+        // 添加故事内容
+        function addStoryLine() {
+            const input = document.getElementById('storyInput');
+            const content = input.value.trim();
+            
+            if (content) {
+                const storyContent = document.getElementById('storyContent');
+                const currentPlayer = participants[currentPlayerIndex];
+                
+                const storyLine = document.createElement('div');
+                storyLine.className = 'mb-3 p-3 bg-gray-50 rounded-lg';
+                storyLine.innerHTML = `
+                    <div class="flex items-center space-x-2 mb-2">
+                        <span class="text-sm">${currentPlayer.avatar}</span>
+                        <span class="text-sm font-semibold text-gray-700">${currentPlayer.name}:</span>
+                    </div>
+                    <p class="text-gray-800">${content}</p>
+                `;
+                
+                storyContent.appendChild(storyLine);
+                input.value = '';
+                
+                // 如果是第一句话，清除占位文本
+                const placeholder = storyContent.querySelector('.text-gray-400');
+                if (placeholder) {
+                    placeholder.remove();
+                }
+                
+                nextTurn();
+            }
+        }
+
+        // 下一轮
+        function nextTurn() {
+            currentPlayerIndex = (currentPlayerIndex + 1) % participants.length;
+            updateCurrentPlayer();
+            updateParticipantStatus();
+        }
+
+        // 更新当前玩家
+        function updateCurrentPlayer() {
+            const currentPlayer = participants[currentPlayerIndex];
+            document.getElementById('currentPlayer').textContent = currentPlayer.name;
+        }
+
+        // 更新参与者状态
+        function updateParticipantStatus() {
+            participants.forEach((participant, index) => {
+                participant.status = index === currentPlayerIndex ? 'active' : 'waiting';
+            });
+            loadParticipants();
+        }
+
+        // 暂停协作
+        function pauseCollaboration() {
+            MengyaUtils.Notification.info('协作已暂停');
+        }
+
+        // 保存进度
+        async function saveProgress() {
+            try {
+                const progressData = {
+                    activity: currentActivity,
+                    participants: participants,
+                    timestamp: new Date(),
+                    content: getActivityContent()
+                };
+                
+                await MengyaUtils.Data.setData('collaboration.currentProgress', progressData);
+                MengyaUtils.Notification.success('进度已保存！');
+            } catch (error) {
+                console.error('保存进度失败:', error);
+                MengyaUtils.Notification.error('保存失败，请重试');
+            }
+        }
+
+        // 获取活动内容
+        function getActivityContent() {
+            switch (currentActivity) {
+                case 'story':
+                    const storyLines = document.querySelectorAll('#storyContent .mb-3');
+                    return Array.from(storyLines).map(line => line.textContent.trim());
+                case 'drawing':
+                    const canvas = document.querySelector('#drawingCanvas canvas');
+                    return canvas.toDataURL();
+                default:
+                    return null;
+            }
+        }
+
+        // 结束协作
+        function endCollaboration() {
+            if (confirm('确定要结束当前协作吗？')) {
+                saveCollaborationRecord();
+                
+                // 重置状态
+                currentActivity = null;
+                currentPlayerIndex = 0;
+                participants.forEach(p => p.status = 'ready');
+                
+                // 显示选择器，隐藏工作区
+                document.getElementById('activitySelector').classList.remove('hidden');
+                document.getElementById('collaborationWorkspace').classList.add('hidden');
+                document.getElementById('activityTitle').textContent = '选择协作活动';
+                
+                loadParticipants();
+                MengyaUtils.Notification.success('协作已结束！');
+            }
+        }
+
+        // 保存协作记录
+        async function saveCollaborationRecord() {
+            try {
+                const record = {
+                    id: Date.now(),
+                    activity: currentActivity,
+                    participants: participants.map(p => p.name),
+                    duration: Math.floor(Math.random() * 30) + 15, // 模拟时长
+                    timestamp: new Date(),
+                    content: getActivityContent()
+                };
+
+                const history = await MengyaUtils.Data.getData('collaboration.history') || [];
+                history.unshift(record);
+                
+                await MengyaUtils.Data.setData('collaboration.history', history.slice(0, 10));
+                loadCollaborationHistory();
+            } catch (error) {
+                console.error('保存协作记录失败:', error);
+            }
+        }
+
+        // 加载协作历史
+        async function loadCollaborationHistory() {
+            try {
+                const history = await MengyaUtils.Data.getData('collaboration.history') || [];
+                const container = document.getElementById('collaborationHistory');
+                
+                if (history.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-history text-3xl mb-2"></i>
+                            <p>还没有协作记录，开始第一次协作吧！</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = history.map(record => {
+                    const activityNames = {
+                        story: '故事创作',
+                        puzzle: '智力拼图',
+                        drawing: '绘画创作',
+                        quiz: '知识问答'
+                    };
+
+                    return `
+                        <div class="collaboration-tool" onclick="viewCollaborationRecord('${record.id}')">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400 to-blue-400 flex items-center justify-center text-white">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-semibold text-gray-800">${activityNames[record.activity]}</span>
+                                        <span class="text-xs text-gray-500">${formatTimeAgo(record.timestamp)}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600">
+                                        ${record.participants.join(' & ')} • ${record.duration}分钟
+                                    </p>
+                                </div>
+                                <i class="fas fa-eye text-gray-400"></i>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('加载协作历史失败:', error);
+            }
+        }
+
+        // 格式化时间
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diffInHours = Math.floor((now - time) / (1000 * 60 * 60));
+            
+            if (diffInHours < 1) return '刚刚';
+            if (diffInHours < 24) return `${diffInHours}小时前`;
+            return `${Math.floor(diffInHours / 24)}天前`;
+        }
+
+        // 查看协作记录
+        function viewCollaborationRecord(recordId) {
+            MengyaUtils.Notification.info('正在加载协作记录...');
+        }
+
+        // 显示协作设置
+        function showCollaborationSettings() {
+            MengyaUtils.Notification.info('协作设置功能开发中...');
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            if (currentActivity) {
+                if (confirm('当前有正在进行的协作，确定要离开吗？')) {
+                    MengyaUtils.Navigation.smartBack();
+                }
+            } else {
+                MengyaUtils.Navigation.smartBack();
+            }
+        }
+
+        // 拼图相关函数
+        function movePuzzlePiece(index) {
+            if (!window.puzzleState) {
+                window.puzzleState = {
+                    pieces: Array.from({length: 9}, (_, i) => i + 1).sort(() => Math.random() - 0.5),
+                    solved: false,
+                    moves: 0
+                };
+            }
+
+            // 简化版拼图逻辑：点击交换相邻片段
+            const pieces = window.puzzleState.pieces;
+            const emptyIndex = pieces.indexOf(9); // 假设9是空位置
+            
+            // 检查是否相邻
+            const canMove = checkAdjacent(index, emptyIndex);
+            if (canMove) {
+                // 交换位置
+                [pieces[index], pieces[emptyIndex]] = [pieces[emptyIndex], pieces[index]];
+                window.puzzleState.moves++;
+                
+                // 更新显示
+                updatePuzzleDisplay();
+                
+                // 检查是否完成
+                if (checkPuzzleSolved()) {
+                    setTimeout(() => {
+                        MengyaUtils.Notification.success(`🎉 拼图完成！用了${window.puzzleState.moves}步！`);
+                        nextTurn();
+                    }, 500);
+                }
+            } else {
+                MengyaUtils.Notification.warning('只能移动相邻的拼图块！');
+            }
+        }
+
+        function checkAdjacent(index1, index2) {
+            const row1 = Math.floor(index1 / 3);
+            const col1 = index1 % 3;
+            const row2 = Math.floor(index2 / 3);
+            const col2 = index2 % 3;
+            
+            return Math.abs(row1 - row2) + Math.abs(col1 - col2) === 1;
+        }
+
+        function updatePuzzleDisplay() {
+            const container = document.querySelector('#puzzleArea .grid');
+            container.innerHTML = window.puzzleState.pieces.map((piece, index) => 
+                piece === 9 ? 
+                `<div class="puzzle-piece bg-gray-200 h-20 rounded-lg flex items-center justify-center text-gray-400 text-xl">
+                    <i class="fas fa-plus"></i>
+                </div>` :
+                `<div class="puzzle-piece bg-blue-${piece}00 h-20 rounded-lg flex items-center justify-center text-white font-bold text-xl cursor-pointer hover:scale-105 transition-transform"
+                     onclick="movePuzzlePiece(${index})" data-piece="${piece}">
+                    ${piece}
+                </div>`
+            ).join('');
+        }
+
+        function checkPuzzleSolved() {
+            const pieces = window.puzzleState.pieces;
+            for (let i = 0; i < 8; i++) {
+                if (pieces[i] !== i + 1) return false;
+            }
+            return pieces[8] === 9; // 空位在最后
+        }
+
+        function resetPuzzle() {
+            window.puzzleState = {
+                pieces: Array.from({length: 9}, (_, i) => i + 1).sort(() => Math.random() - 0.5),
+                solved: false,
+                moves: 0
+            };
+            updatePuzzleDisplay();
+            MengyaUtils.Notification.info('拼图已重置！');
+        }
+
+        // 绘画相关函数
+        function clearCanvas() {
+            const canvas = document.querySelector('#drawingCanvas canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function saveDrawing() {
+            const canvas = document.querySelector('#drawingCanvas canvas');
+            const dataURL = canvas.toDataURL();
+            MengyaUtils.Notification.success('绘画作品已保存！');
+        }
+
+        // 问答相关函数
+        function submitQuestion() {
+            const question = document.getElementById('questionInput').value.trim();
+            const answer = document.getElementById('answerInput').value.trim();
+            
+            if (question && answer) {
+                const quizContent = document.getElementById('quizContent');
+                const currentPlayer = participants[currentPlayerIndex];
+                
+                quizContent.innerHTML = `
+                    <div class="text-center mb-4">
+                        <span class="text-lg">${currentPlayer.avatar}</span>
+                        <span class="font-semibold text-gray-700 ml-2">${currentPlayer.name} 的问题:</span>
+                    </div>
+                    <div class="text-xl font-semibold text-gray-800 mb-6 text-center">
+                        ${question}
+                    </div>
+                    <div class="text-center">
+                        <button onclick="showAnswer('${answer}')" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600">
+                            显示答案
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('questionInput').value = '';
+                document.getElementById('answerInput').value = '';
+                
+                nextTurn();
+            }
+        }
+
+        function showAnswer(answer) {
+            MengyaUtils.Notification.success(`正确答案是: ${answer}`);
+        }
+
+        // 问答模式切换
+        function setQuizMode(mode) {
+            // 更新按钮样式
+            const buttons = document.querySelectorAll('.quiz-mode-btn');
+            buttons.forEach(btn => {
+                btn.className = 'quiz-mode-btn flex-1 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold';
+            });
+            
+            event.target.className = 'quiz-mode-btn active flex-1 py-3 bg-blue-500 text-white rounded-lg font-semibold';
+            
+            // 切换输入界面
+            if (mode === 'manual') {
+                document.getElementById('manualQuizInput').classList.remove('hidden');
+                document.getElementById('mathQuizControls').classList.add('hidden');
+                
+                // 重置内容区
+                document.getElementById('quizContent').innerHTML = `
+                    <div class="text-center text-gray-400">
+                        <i class="fas fa-question-circle text-4xl mb-4"></i>
+                        <p>准备第一个问题...</p>
+                    </div>
+                `;
+            } else if (mode === 'math') {
+                document.getElementById('manualQuizInput').classList.add('hidden');
+                document.getElementById('mathQuizControls').classList.remove('hidden');
+                
+                // 初始化数学挑战状态
+                if (!window.mathState) {
+                    window.mathState = {
+                        currentProblem: null,
+                        score: 0,
+                        totalQuestions: 0,
+                        level: 1
+                    };
+                }
+                
+                updateMathDisplay();
+            }
+        }
+
+        // 数学挑战相关函数
+        function generateMathProblem() {
+            if (!window.mathState) {
+                window.mathState = {
+                    currentProblem: null,
+                    score: 0,
+                    totalQuestions: 0,
+                    level: 1
+                };
+            }
+
+            // 根据等级生成不同难度的题目
+            const level = window.mathState.level;
+            let problem;
+            
+            if (level === 1) {
+                // 简单加减法
+                const a = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 10) + 1;
+                const operation = Math.random() > 0.5 ? '+' : '-';
+                
+                if (operation === '+') {
+                    problem = {
+                        question: `${a} + ${b} = ?`,
+                        answer: a + b,
+                        options: generateMathOptions(a + b)
+                    };
+                } else {
+                    const larger = Math.max(a, b);
+                    const smaller = Math.min(a, b);
+                    problem = {
+                        question: `${larger} - ${smaller} = ?`,
+                        answer: larger - smaller,
+                        options: generateMathOptions(larger - smaller)
+                    };
+                }
+            } else if (level === 2) {
+                // 乘法
+                const a = Math.floor(Math.random() * 9) + 1;
+                const b = Math.floor(Math.random() * 9) + 1;
+                problem = {
+                    question: `${a} × ${b} = ?`,
+                    answer: a * b,
+                    options: generateMathOptions(a * b)
+                };
+            } else {
+                // 混合运算
+                const a = Math.floor(Math.random() * 10) + 1;
+                const b = Math.floor(Math.random() * 10) + 1;
+                const c = Math.floor(Math.random() * 5) + 1;
+                problem = {
+                    question: `${a} + ${b} × ${c} = ?`,
+                    answer: a + (b * c),
+                    options: generateMathOptions(a + (b * c))
+                };
+            }
+
+            window.mathState.currentProblem = problem;
+            window.mathState.totalQuestions++;
+
+            // 更新显示
+            updateMathQuizDisplay(problem);
+        }
+
+        function generateMathOptions(correctAnswer) {
+            const options = [correctAnswer];
+            
+            // 生成3个错误选项
+            while (options.length < 4) {
+                const wrongAnswer = correctAnswer + Math.floor(Math.random() * 20) - 10;
+                if (wrongAnswer > 0 && !options.includes(wrongAnswer)) {
+                    options.push(wrongAnswer);
+                }
+            }
+            
+            // 随机排序
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        function updateMathQuizDisplay(problem) {
+            const container = document.getElementById('quizContent');
+            container.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="inline-block bg-green-500 text-white px-4 py-2 rounded-full mb-4">
+                        等级 ${window.mathState.level} | 第 ${window.mathState.totalQuestions} 题
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800">${problem.question}</h3>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    ${problem.options.map((option, index) => `
+                        <button onclick="selectMathAnswer(${option})" class="math-option bg-white border-2 border-gray-200 rounded-lg p-4 text-xl font-bold hover:border-green-400 hover:bg-green-50 transition-colors">
+                            ${option}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function selectMathAnswer(selectedAnswer) {
+            const problem = window.mathState.currentProblem;
+            const isCorrect = selectedAnswer === problem.answer;
+            
+            // 更新选项样式
+            const options = document.querySelectorAll('.math-option');
+            options.forEach(option => {
+                const value = parseInt(option.textContent);
+                if (value === problem.answer) {
+                    option.className = 'math-option bg-green-100 border-2 border-green-400 rounded-lg p-4 text-xl font-bold';
+                } else if (value === selectedAnswer && !isCorrect) {
+                    option.className = 'math-option bg-red-100 border-2 border-red-400 rounded-lg p-4 text-xl font-bold';
+                } else {
+                    option.className = 'math-option bg-gray-100 border-2 border-gray-300 rounded-lg p-4 text-xl font-bold';
+                }
+                option.onclick = null; // 禁用点击
+            });
+            
+            // 显示结果
+            setTimeout(() => {
+                if (isCorrect) {
+                    window.mathState.score += window.mathState.level * 10;
+                    updateMathDisplay();
+                    MengyaUtils.Notification.success(`答对了！+${window.mathState.level * 10}分`);
+                    
+                    // 检查是否自动升级
+                    if (window.mathState.score >= window.mathState.level * 50) {
+                        increaseMathLevel();
+                    }
+                } else {
+                    MengyaUtils.Notification.error(`答错了！正确答案是 ${problem.answer}`);
+                }
+                
+                // 自动切换到下一位
+                setTimeout(() => {
+                    nextTurn();
+                }, 1500);
+            }, 1000);
+        }
+
+        function increaseMathLevel() {
+            if (window.mathState.level < 3) {
+                window.mathState.level++;
+                updateMathDisplay();
+                MengyaUtils.Notification.success(`恭喜升级到等级 ${window.mathState.level}！`);
+            } else {
+                MengyaUtils.Notification.info('已经是最高等级了！');
+            }
+        }
+
+        function updateMathDisplay() {
+            const levelDisplay = document.getElementById('mathLevelDisplay');
+            const scoreDisplay = document.getElementById('mathScoreDisplay');
+            
+            if (levelDisplay) levelDisplay.textContent = window.mathState?.level || 1;
+            if (scoreDisplay) scoreDisplay.textContent = window.mathState?.score || 0;
+        }
+
+    </script>
+</body>
+</html> 

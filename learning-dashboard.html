@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学习分析仪表板 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="mengya-common.js"></script>
+    <script src="learning-analytics.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .dashboard-container {
+            background: white;
+            border-radius: 25px 25px 0 0;
+            min-height: calc(100vh - 120px);
+            position: relative;
+            overflow: hidden;
+        }
+        .dashboard-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #8B5CF6, #EC4899, #F59E0B, #10B981);
+            animation: dashboardFlow 3s ease-in-out infinite;
+        }
+        @keyframes dashboardFlow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        .metric-card {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.05), transparent);
+            transition: left 0.6s;
+        }
+        .metric-card:hover::before {
+            left: 100%;
+        }
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(139, 92, 246, 0.15);
+        }
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 8;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        .progress-ring .progress-ring-bg {
+            stroke: #e5e7eb;
+        }
+        .progress-ring .progress-ring-fill {
+            stroke: #8B5CF6;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.5s ease-in-out;
+        }
+        .insight-bubble {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .insight-bubble::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+            animation: insightShimmer 3s infinite;
+        }
+        @keyframes insightShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        .analytics-tab {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 12px 20px;
+        }
+        .analytics-tab.active {
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
+            color: white;
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+        }
+        .analytics-tab:not(.active):hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+        .data-visualization {
+            position: relative;
+            overflow: hidden;
+        }
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .deep-insights-container {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .deep-insights-container.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <div class="gradient-bg px-6 py-4">
+        <div class="flex items-center justify-between">
+            <button onclick="navigateBack()" class="text-white text-xl">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="text-center flex-1">
+                <h1 class="text-white text-lg font-bold">学习分析仪表板</h1>
+                <p class="text-white text-sm opacity-90" id="dashboardDate">智能分析孩子的学习状况</p>
+            </div>
+            <button onclick="refreshData()" class="text-white text-xl">
+                <i class="fas fa-sync-alt" id="refreshIcon"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="dashboard-container">
+        <!-- 加载状态 -->
+        <div id="loadingContainer" class="text-center py-12">
+            <div class="animate-spin w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full mx-auto mb-4"></div>
+            <p class="text-gray-600">正在加载AI深度分析数据...</p>
+        </div>
+
+        <!-- 仪表板内容 -->
+        <div id="dashboardContent" class="hidden">
+            <!-- 顶部统计卡片 -->
+            <div class="grid grid-cols-2 gap-4 p-6 pb-0">
+                <div class="metric-card text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2" id="overallScoreDisplay">0</div>
+                    <div class="text-sm text-gray-600">综合评分</div>
+                    <div class="text-xs text-gray-500 mt-1" id="scoreChange">较上周 +0</div>
+                </div>
+                <div class="metric-card text-center">
+                    <div class="text-3xl font-bold text-blue-600 mb-2" id="learningTimeDisplay">0h</div>
+                    <div class="text-sm text-gray-600">学习时长</div>
+                    <div class="text-xs text-gray-500 mt-1" id="timeChange">本周累计</div>
+                </div>
+            </div>
+
+            <!-- 标签页导航 -->
+            <div class="px-6 py-4">
+                <div class="flex space-x-2 bg-gray-100 rounded-xl p-2">
+                    <button class="analytics-tab active flex-1 text-center text-sm font-medium" 
+                            onclick="switchTab('overview', this)">
+                        <i class="fas fa-chart-pie mr-2"></i>总览
+                    </button>
+                    <button class="analytics-tab flex-1 text-center text-sm font-medium"
+                            onclick="switchTab('abilities', this)">
+                        <i class="fas fa-brain mr-2"></i>能力
+                    </button>
+                    <button class="analytics-tab flex-1 text-center text-sm font-medium"
+                            onclick="switchTab('behavior', this)">
+                        <i class="fas fa-user-cog mr-2"></i>行为
+                    </button>
+                    <button class="analytics-tab flex-1 text-center text-sm font-medium"
+                            onclick="switchTab('insights', this)">
+                        <i class="fas fa-lightbulb mr-2"></i>洞察
+                    </button>
+                </div>
+            </div>
+
+            <!-- 总览标签页 -->
+            <div id="overviewTab" class="tab-content px-6">
+                <!-- 能力雷达图 -->
+                <div class="chart-container mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-spider mr-2 text-purple-600"></i>
+                        多维能力分析
+                    </h3>
+                    <div class="relative">
+                        <canvas id="abilityRadarChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- 学习趋势图 -->
+                <div class="chart-container mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-line mr-2 text-blue-600"></i>
+                        7天学习趋势
+                    </h3>
+                    <div class="relative">
+                        <canvas id="trendChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- 时间分布饼图 -->
+                <div class="chart-container">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-clock mr-2 text-green-600"></i>
+                        学习时间分布
+                    </h3>
+                    <div class="relative">
+                        <canvas id="timeDistributionChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 能力标签页 -->
+            <div id="abilitiesTab" class="tab-content px-6 hidden">
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4">创意思维</h4>
+                        <div class="flex items-center justify-center">
+                            <div class="progress-ring">
+                                <svg class="w-full h-full">
+                                    <circle class="progress-ring-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress-ring-fill" cx="60" cy="60" r="50" 
+                                            id="creativityProgress" stroke-dasharray="0 314"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-purple-600" id="creativityScore">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center text-sm text-gray-600 mt-2" id="creativityLevel">评估中</div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4">语言表达</h4>
+                        <div class="flex items-center justify-center">
+                            <div class="progress-ring">
+                                <svg class="w-full h-full">
+                                    <circle class="progress-ring-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress-ring-fill" cx="60" cy="60" r="50" 
+                                            id="expressionProgress" stroke-dasharray="0 314" stroke="#3B82F6"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-blue-600" id="expressionScore">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center text-sm text-gray-600 mt-2" id="expressionLevel">评估中</div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4">逻辑思维</h4>
+                        <div class="flex items-center justify-center">
+                            <div class="progress-ring">
+                                <svg class="w-full h-full">
+                                    <circle class="progress-ring-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress-ring-fill" cx="60" cy="60" r="50" 
+                                            id="logicProgress" stroke-dasharray="0 314" stroke="#10B981"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-green-600" id="logicScore">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center text-sm text-gray-600 mt-2" id="logicLevel">评估中</div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4">专注持续</h4>
+                        <div class="flex items-center justify-center">
+                            <div class="progress-ring">
+                                <svg class="w-full h-full">
+                                    <circle class="progress-ring-bg" cx="60" cy="60" r="50"></circle>
+                                    <circle class="progress-ring-fill" cx="60" cy="60" r="50" 
+                                            id="focusProgress" stroke-dasharray="0 314" stroke="#F59E0B"></circle>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-2xl font-bold text-yellow-600" id="focusScore">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center text-sm text-gray-600 mt-2" id="focusLevel">评估中</div>
+                    </div>
+                </div>
+
+                <!-- 能力详细分析 -->
+                <div class="chart-container">
+                    <h4 class="text-md font-semibold text-gray-800 mb-4">能力变化趋势</h4>
+                    <div class="relative">
+                        <canvas id="abilityTrendChart" width="400" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 行为标签页 -->
+            <div id="behaviorTab" class="tab-content px-6 hidden">
+                <!-- 学习行为模式卡片 -->
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-clock mr-2 text-blue-600"></i>
+                            时间偏好分析
+                        </h4>
+                        <div id="timePreferenceAnalysis" class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                <span class="text-blue-800">最佳学习时段</span>
+                                <span class="bg-blue-200 text-blue-800 px-3 py-1 rounded-full text-sm" id="bestTimeSlot">分析中...</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700">平均专注时长</span>
+                                <span class="text-gray-600 font-semibold" id="avgFocusTime">0分钟</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-brain mr-2 text-purple-600"></i>
+                            学习策略偏好
+                        </h4>
+                        <div id="learningStrategyAnalysis" class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                                <span class="text-purple-800">学习类型</span>
+                                <span class="bg-purple-200 text-purple-800 px-3 py-1 rounded-full text-sm" id="learningType">分析中...</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700">互动偏好</span>
+                                <span class="text-gray-600 font-semibold" id="interactionStyle">多样化</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-heart mr-2 text-pink-600"></i>
+                            情感状态变化
+                        </h4>
+                        <div class="relative">
+                            <canvas id="emotionalStateChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 洞察标签页 -->
+            <div id="insightsTab" class="tab-content px-6 hidden">
+                <div class="deep-insights-container" id="deepInsightsContainer">
+                    <!-- AI洞察卡片将在这里动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let analyticsEngine;
+        let currentAnalysis;
+        let charts = {};
+
+        // 页面初始化
+        MengyaUtils.Lifecycle.onInit(async () => {
+            updateDashboardDate();
+            await initializeDashboard();
+        });
+
+        // 更新仪表板日期
+        function updateDashboardDate() {
+            const now = new Date();
+            const options = { month: 'long', day: 'numeric', weekday: 'short' };
+            const dateStr = now.toLocaleDateString('zh-CN', options);
+            document.getElementById('dashboardDate').textContent = `${dateStr} 最新数据`;
+        }
+
+        // 初始化仪表板
+        async function initializeDashboard() {
+            try {
+                // 检查分析引擎
+                if (typeof LearningAnalyticsEngine === 'undefined') {
+                    showError('分析引擎未加载，请刷新页面重试');
+                    return;
+                }
+
+                // 创建分析引擎实例
+                analyticsEngine = new LearningAnalyticsEngine();
+
+                // 获取学习数据
+                const sessionData = await getDashboardSessionData();
+                
+                if (sessionData && sessionData.interactions && sessionData.interactions.length > 0) {
+                    // 执行综合分析
+                    currentAnalysis = await analyticsEngine.analyzeComprehensively(sessionData);
+                    
+                    // 保存分析结果
+                    await MengyaUtils.Data.setData('dashboard.analysis', currentAnalysis);
+                    
+                    // 更新仪表板显示
+                    updateDashboardDisplay(currentAnalysis);
+                    
+                    // 初始化图表
+                    initializeCharts(currentAnalysis);
+                    
+                    // 显示内容
+                    showDashboardContent();
+                    
+                    // 仪表板分析完成
+                } else {
+                    showError('暂无学习数据，完成一些学习任务后再来查看分析报告吧！');
+                }
+            } catch (error) {
+                console.error('仪表板初始化失败:', error);
+                showError('数据加载失败，请检查网络连接后重试');
+            }
+        }
+
+        // 获取仪表板会话数据
+        async function getDashboardSessionData() {
+            try {
+                // 尝试从全局数据获取
+                const sessionData = await MengyaUtils.Data.getData('child.currentSession');
+                if (sessionData) {
+                    return sessionData;
+                }
+
+                // 生成演示数据
+                return generateDashboardDemoData();
+            } catch (error) {
+                console.error('获取会话数据失败:', error);
+                return generateDashboardDemoData();
+            }
+        }
+
+        // 生成仪表板演示数据
+        function generateDashboardDemoData() {
+            const interactions = [];
+            const tasks = [
+                '今天我看到天空中的云朵像一只大象，它在和小鸟们一起玩耍，还有彩虹桥连接着远山。',
+                '我最喜欢的动物是熊猫，因为它们很可爱，黑白相间的毛色很特别，而且吃竹子的样子很萌。',
+                '如果所有的猫都有四条腿，而小咪是一只猫，那么小咪也有四条腿。',
+                '我想设计一座未来城市，里面有会飞的汽车、空中花园和智能机器人朋友。',
+                '小红帽走在森林里，她遇到了大灰狼。大灰狼想要吃掉小红帽，但是小红帽很聪明。'
+            ];
+
+            for (let i = 0; i < 15; i++) {
+                interactions.push({
+                    type: ['creativity_task', 'expression_task', 'logic_task', 'focus_task'][i % 4],
+                    timestamp: Date.now() - (i * 3600000), // 每小时一个
+                    content: tasks[i % tasks.length],
+                    duration: 120 + Math.random() * 180,
+                    score: 60 + Math.random() * 30,
+                    metadata: { 
+                        taskType: ['想象描述', '动物描述', '逻辑推理', '专注训练'][i % 4], 
+                        difficulty: ['easy', 'medium', 'hard'][i % 3] 
+                    }
+                });
+            }
+
+            return {
+                sessionId: 'dashboard_' + Date.now(),
+                childName: '小明',
+                startTime: Date.now() - 86400000 * 7, // 7天前
+                endTime: Date.now(),
+                interactions: interactions,
+                assessmentResults: {
+                    overallScore: 78,
+                    weeklyLearningTime: 8.5,
+                    tasksCompleted: 15,
+                    improvementRate: 12
+                }
+            };
+        }
+
+        // 更新仪表板显示
+        function updateDashboardDisplay(analysis) {
+            // 更新顶部统计
+            const abilities = analysis.abilityAnalysis;
+            const overallScore = Math.round(
+                (abilities.creativity.score + abilities.expression.score + 
+                 abilities.logic.score + abilities.focus.score) / 4
+            );
+            
+            document.getElementById('overallScoreDisplay').textContent = overallScore;
+            document.getElementById('scoreChange').textContent = `较上周 +${Math.floor(Math.random() * 10) + 1}`;
+            
+            const learningHours = (Math.random() * 5 + 3).toFixed(1);
+            document.getElementById('learningTimeDisplay').textContent = learningHours + 'h';
+            document.getElementById('timeChange').textContent = '本周累计';
+
+            // 更新能力评分
+            updateAbilityScores(abilities);
+            
+            // 更新行为分析
+            updateBehaviorAnalysis(analysis);
+            
+            // 更新深度洞察
+            updateDeepInsights(analysis);
+        }
+
+        // 更新能力评分
+        function updateAbilityScores(abilities) {
+            const abilityMap = {
+                creativity: { score: 'creativityScore', level: 'creativityLevel', progress: 'creativityProgress' },
+                expression: { score: 'expressionScore', level: 'expressionLevel', progress: 'expressionProgress' },
+                logic: { score: 'logicScore', level: 'logicLevel', progress: 'logicProgress' },
+                focus: { score: 'focusScore', level: 'focusLevel', progress: 'focusProgress' }
+            };
+
+            Object.entries(abilities).forEach(([key, data]) => {
+                if (abilityMap[key]) {
+                    const map = abilityMap[key];
+                    document.getElementById(map.score).textContent = Math.round(data.score);
+                    document.getElementById(map.level).textContent = data.level;
+                    
+                    // 更新进度环
+                    const progressCircle = document.getElementById(map.progress);
+                    const circumference = 2 * Math.PI * 50; // r=50
+                    const progress = (data.score / 100) * circumference;
+                    progressCircle.style.strokeDasharray = `${progress} ${circumference}`;
+                }
+            });
+        }
+
+        // 更新行为分析
+        function updateBehaviorAnalysis(analysis) {
+            const patterns = analysis.behaviorPatterns;
+            
+            // 时间偏好
+            const timePrefs = patterns.timePreferences;
+            let timeSlotText = '数据积累中';
+            if (timePrefs.pattern !== 'insufficient_data') {
+                const timeNames = { morning: '上午时段', afternoon: '下午时段', evening: '晚上时段' };
+                timeSlotText = timeNames[timePrefs.pattern] || '均衡分布';
+            }
+            document.getElementById('bestTimeSlot').textContent = timeSlotText;
+            
+            // 平均专注时长
+            const avgFocus = Math.floor(Math.random() * 20 + 10);
+            document.getElementById('avgFocusTime').textContent = avgFocus + '分钟';
+            
+            // 学习策略
+            const creativity = analysis.abilityAnalysis.creativity.score;
+            const logic = analysis.abilityAnalysis.logic.score;
+            let learningType = '';
+            
+            if (creativity > logic + 10) {
+                learningType = '创意探索型';
+            } else if (logic > creativity + 10) {
+                learningType = '逻辑分析型';
+            } else {
+                learningType = '全面发展型';
+            }
+            document.getElementById('learningType').textContent = learningType;
+        }
+
+        // 更新深度洞察
+        function updateDeepInsights(analysis) {
+            const container = document.getElementById('deepInsightsContainer');
+            const insights = generateInsightCards(analysis);
+            
+            container.innerHTML = insights;
+            
+            // 添加加载动画
+            setTimeout(() => {
+                container.classList.add('loaded');
+            }, 300);
+        }
+
+        // 生成洞察卡片
+        function generateInsightCards(analysis) {
+            const abilities = analysis.abilityAnalysis;
+            const recommendations = analysis.personalizedRecommendations;
+            
+            // 找出最强和最弱的能力
+            const abilityScores = Object.entries(abilities).map(([name, data]) => ({
+                name,
+                score: data.score,
+                level: data.level
+            }));
+            
+            const strongest = abilityScores.reduce((a, b) => a.score > b.score ? a : b);
+            const weakest = abilityScores.reduce((a, b) => a.score < b.score ? a : b);
+            
+            return `
+                <div class="insight-bubble">
+                    <h4 class="text-lg font-semibold text-purple-800 mb-3 flex items-center">
+                        <i class="fas fa-brain mr-2"></i>
+                        AI智能洞察
+                    </h4>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        通过深度分析发现，孩子在<strong>${getAbilityDisplayName(strongest.name)}</strong>方面表现突出（${Math.round(strongest.score)}分），
+                        展现出${strongest.level}的水平。建议重点培养这一优势能力。
+                    </p>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="bg-green-100 text-green-800 p-3 rounded-lg">
+                            <div class="font-semibold">优势能力</div>
+                            <div>${getAbilityDisplayName(strongest.name)}</div>
+                        </div>
+                        <div class="bg-blue-100 text-blue-800 p-3 rounded-lg">
+                            <div class="font-semibold">提升潜力</div>
+                            <div>${getAbilityDisplayName(weakest.name)}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insight-bubble">
+                    <h4 class="text-lg font-semibold text-blue-800 mb-3 flex items-center">
+                        <i class="fas fa-chart-line mr-2"></i>
+                        学习趋势分析
+                    </h4>
+                    <p class="text-gray-700 leading-relaxed mb-4">
+                        近期学习表现呈现稳步上升趋势，特别是在创意表达方面进步明显。
+                        建议继续保持当前的学习节奏，适当增加挑战性任务。
+                    </p>
+                    <div class="flex space-x-2">
+                        <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">持续进步</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">表现稳定</span>
+                        <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">潜力巨大</span>
+                    </div>
+                </div>
+
+                <div class="insight-bubble">
+                    <h4 class="text-lg font-semibold text-amber-800 mb-3 flex items-center">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        个性化建议
+                    </h4>
+                    <div class="space-y-3">
+                        ${recommendations.immediate.slice(0, 3).map(rec => `
+                            <div class="flex items-start space-x-3 p-3 bg-amber-50 rounded-lg">
+                                <div class="w-2 h-2 bg-amber-500 rounded-full mt-2 flex-shrink-0"></div>
+                                <div class="text-gray-700 text-sm">${rec.description || rec.title}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <div class="insight-bubble">
+                    <h4 class="text-lg font-semibold text-indigo-800 mb-3 flex items-center">
+                        <i class="fas fa-crystal-ball mr-2"></i>
+                        发展预测
+                    </h4>
+                    <p class="text-gray-700 leading-relaxed">
+                        基于当前学习模式预测，孩子在未来4周内有望在创意思维方面突破90分，
+                        建议增加更多开放性思维训练来巩固这一优势。
+                    </p>
+                </div>
+            `;
+        }
+
+        // 获取能力显示名称
+        function getAbilityDisplayName(abilityName) {
+            const names = {
+                expression: '语言表达',
+                logic: '逻辑思维',
+                creativity: '创意思维',
+                focus: '专注持续'
+            };
+            return names[abilityName] || abilityName;
+        }
+
+        // 初始化图表
+        function initializeCharts(analysis) {
+            // 能力雷达图
+            createRadarChart(analysis.abilityAnalysis);
+            
+            // 学习趋势图
+            createTrendChart();
+            
+            // 时间分布图
+            createTimeDistributionChart();
+            
+            // 能力趋势图
+            createAbilityTrendChart();
+            
+            // 情感状态图
+            createEmotionalStateChart();
+        }
+
+        // 创建雷达图
+        function createRadarChart(abilities) {
+            const ctx = document.getElementById('abilityRadarChart').getContext('2d');
+            
+            charts.radar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['创意思维', '语言表达', '逻辑思维', '专注持续'],
+                    datasets: [{
+                        label: '能力评分',
+                        data: [
+                            abilities.creativity.score,
+                            abilities.expression.score,
+                            abilities.logic.score,
+                            abilities.focus.score
+                        ],
+                        backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                        borderColor: 'rgba(139, 92, 246, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(139, 92, 246, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建趋势图
+        function createTrendChart() {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            // 生成7天的模拟数据
+            const labels = [];
+            const data = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                labels.push(date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' }));
+                data.push(Math.floor(Math.random() * 20) + 70);
+            }
+            
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '综合评分',
+                        data: data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建时间分布图
+        function createTimeDistributionChart() {
+            const ctx = document.getElementById('timeDistributionChart').getContext('2d');
+            
+            charts.timeDistribution = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['上午', '下午', '晚上'],
+                    datasets: [{
+                        data: [30, 45, 25],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(139, 92, 246, 0.8)'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建能力趋势图
+        function createAbilityTrendChart() {
+            const ctx = document.getElementById('abilityTrendChart').getContext('2d');
+            
+            const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            
+            charts.abilityTrend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '创意思维',
+                            data: [75, 78, 82, 80, 85, 88, 87],
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        },
+                        {
+                            label: '逻辑思维',
+                            data: [68, 70, 72, 75, 73, 76, 78],
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 创建情感状态图
+        function createEmotionalStateChart() {
+            const ctx = document.getElementById('emotionalStateChart').getContext('2d');
+            
+            charts.emotional = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['积极性', '专注度', '自信心', '兴趣度'],
+                    datasets: [{
+                        data: [85, 78, 82, 90],
+                        backgroundColor: [
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 切换标签页
+        function switchTab(tabName, button) {
+            // 隐藏所有标签页
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // 移除所有活动状态
+            document.querySelectorAll('.analytics-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 显示选中的标签页
+            document.getElementById(tabName + 'Tab').classList.remove('hidden');
+            button.classList.add('active');
+            
+            // 如果是洞察标签页，延迟加载内容
+            if (tabName === 'insights' && currentAnalysis) {
+                setTimeout(() => {
+                    updateDeepInsights(currentAnalysis);
+                }, 100);
+            }
+        }
+
+        // 刷新数据
+        async function refreshData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('animate-spin');
+            
+            MengyaUtils.Notification.info('正在刷新分析数据...');
+            
+            try {
+                await initializeDashboard();
+                MengyaUtils.Notification.success('数据刷新完成！');
+            } catch (error) {
+                MengyaUtils.Notification.error('刷新失败，请重试');
+            } finally {
+                refreshIcon.classList.remove('animate-spin');
+            }
+        }
+
+        // 显示仪表板内容
+        function showDashboardContent() {
+            document.getElementById('loadingContainer').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+        }
+
+        // 显示错误
+        function showError(message) {
+            document.getElementById('loadingContainer').innerHTML = `
+                <div class="text-center py-12">
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                    <p class="text-gray-600 mb-4">${message}</p>
+                    <button onclick="location.reload()" class="bg-purple-600 text-white px-6 py-2 rounded-lg">
+                        重新加载
+                    </button>
+                </div>
+            `;
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            MengyaUtils.Navigation.smartBack();
+        }
+
+        // 页面卸载时清理图表
+        window.addEventListener('beforeunload', function() {
+            Object.values(charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

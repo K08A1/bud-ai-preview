@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家长模式 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+        }
+        .parent-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .welcome-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            margin-bottom: 32px;
+        }
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+        .parent-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .nav-card {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+        .nav-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        .nav-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .nav-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .nav-desc {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .mode-switch-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease;
+        }
+        .mode-switch-btn:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-8 py-8 text-white">
+        <div class="flex items-center justify-between max-w-900px mx-auto">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-tie text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">家长中心</h1>
+                    <p class="text-sm opacity-80">全面了解孩子的学习情况</p>
+                </div>
+            </div>
+            <button class="nav-btn" onclick="navigateToPage('settings')" title="设置">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="parent-container">
+        <!-- 欢迎卡片 -->
+        <div class="welcome-card">
+            <div class="welcome-icon">👨‍👩‍👧‍👦</div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">欢迎进入家长模式</h2>
+            <p class="text-gray-600 mb-6">在这里您可以全面了解孩子的学习进度，设置学习计划，查看详细报告</p>
+            <div class="text-sm text-blue-600 bg-blue-50 rounded-lg p-3">
+                💡 小明本周表现优秀，完成了12个学习任务，表达能力提升显著！
+            </div>
+        </div>
+
+        <!-- 快速统计 -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-number text-green-600">7</div>
+                <div class="stat-label">连续学习天数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-blue-600">85%</div>
+                <div class="stat-label">本周完成率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-purple-600">2.5h</div>
+                <div class="stat-label">本周学习时长</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number text-orange-600">3</div>
+                <div class="stat-label">新获得勋章</div>
+            </div>
+        </div>
+
+        <!-- 功能导航 -->
+        <div class="parent-nav-grid">
+            <div class="nav-card" onclick="navigateToPage('parent-panel')">
+                <div class="nav-icon">📊</div>
+                <div class="nav-title">学习监控</div>
+                <div class="nav-desc">查看孩子的实时学习状态、进度跟踪和详细数据分析</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateToPage('parent-ai')">
+                <div class="nav-icon">🤖</div>
+                <div class="nav-title">AI助教报告</div>
+                <div class="nav-desc">了解AI助教的教学反馈、孩子的互动表现和改进建议</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateToPage('parent-child-task')">
+                <div class="nav-icon">📝</div>
+                <div class="nav-title">任务管理</div>
+                <div class="nav-desc">设置学习任务、调整难度级别、制定个性化学习计划</div>
+            </div>
+
+            <div class="nav-card" onclick="navigateToPage('parent-community')">
+                <div class="nav-icon">👥</div>
+                <div class="nav-title">家长社区</div>
+                <div class="nav-desc">与其他家长交流经验、分享教育心得、获取专家建议</div>
+            </div>
+
+            <div class="nav-card" onclick="showReports()">
+                <div class="nav-icon">📈</div>
+                <div class="nav-title">学习报告</div>
+                <div class="nav-desc">生成详细的学习报告、能力评估和成长轨迹分析</div>
+            </div>
+
+            <div class="nav-card" onclick="showSettings()">
+                <div class="nav-icon">⚙️</div>
+                <div class="nav-title">安全设置</div>
+                <div class="nav-desc">设置使用时间、内容过滤、隐私保护和安全控制</div>
+            </div>
+        </div>
+
+        <!-- 最近活动 -->
+        <div class="bg-white rounded-20px p-6 shadow-lg">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fas fa-clock text-blue-500"></i>
+                最近活动
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-green-600 text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">完成创意表达挑战</div>
+                        <div class="text-xs text-gray-500">15分钟前 · 获得50经验</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-robot text-blue-600 text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">与AI助教对话练习</div>
+                        <div class="text-xs text-gray-500">1小时前 · 持续20分钟</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-trophy text-purple-600 text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium">获得"创意大师"勋章</div>
+                        <div class="text-xs text-gray-500">2小时前 · 成就解锁</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模式切换按钮 -->
+    <div class="mode-switch-btn" onclick="switchToChildMode()" title="切换到儿童模式">
+        <i class="fas fa-child"></i>
+    </div>
+
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            animateCards();
+            loadParentData();
+        });
+
+        // 卡片动画
+        function animateCards() {
+            const cards = document.querySelectorAll('.nav-card, .stat-card, .welcome-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'all 0.6s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // 加载家长数据
+        function loadParentData() {
+            // 模拟加载数据
+            setTimeout(() => {
+                animateNumbers();
+            }, 1000);
+        }
+
+        // 数字动画
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-number');
+            numbers.forEach(number => {
+                const text = number.textContent;
+                const value = parseInt(text) || 0;
+                let current = 0;
+                const increment = value / 30;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= value) {
+                        current = value;
+                        clearInterval(timer);
+                    }
+                    number.textContent = Math.floor(current) + (text.includes('%') ? '%' : text.includes('h') ? 'h' : '');
+                }, 50);
+            });
+        }
+
+        // 显示报告
+        function showReports() {
+            showNotification('正在生成详细学习报告...', 'info');
+            setTimeout(() => {
+                navigateToPage('evaluation');
+            }, 1500);
+        }
+
+        // 显示设置
+        function showSettings() {
+            const settings = `
+⚙️ 家长安全设置
+
+🕐 使用时间控制：
+• 每日学习时长：30分钟
+• 使用时间段：9:00-21:00
+• 休息提醒：每20分钟提醒
+
+🛡️ 内容安全：
+• 启用内容过滤
+• 禁止不适宜内容
+• AI对话监控
+
+👥 隐私保护：
+• 学习数据加密存储
+• 不收集个人敏感信息
+• 支持数据导出删除
+
+📱 设备管理：
+• 最多绑定3台设备
+• 远程锁定功能
+• 紧急联系设置
+            `;
+            showNotification(settings, 'info');
+        }
+
+        // 切换到儿童模式
+        function switchToChildMode() {
+            if (confirm('确定要切换回儿童模式吗？')) {
+                showNotification('正在切换到儿童模式...', 'info');
+                setTimeout(() => {
+                    navigateToPage('home');
+                }, 1000);
+            }
+        }
+
+        // 导航函数
+        function navigateToPage(page) {
+            parent.postMessage({
+                type: 'navigate',
+                page: page
+            }, '*');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家长社区 - 萌芽AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .community-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.1);
+            overflow: hidden;
+            margin: 16px;
+        }
+        .community-header {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .community-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: communityGlow 4s ease-in-out infinite;
+        }
+        @keyframes communityGlow {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(180deg); }
+        }
+        .community-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            animation: communityFloat 3s ease-in-out infinite;
+        }
+        @keyframes communityFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .tab-navigation {
+            display: flex;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .tab-item {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-item.active {
+            color: #10B981;
+            border-bottom-color: #10B981;
+            background: white;
+        }
+        .tab-item:hover:not(.active) {
+            color: #374151;
+            background: #f3f4f6;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .post-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .post-card:hover {
+            border-color: #10B981;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+            transform: translateY(-1px);
+        }
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .user-info {
+            flex: 1;
+        }
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+        .post-time {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .post-content {
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .post-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        .post-text {
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .post-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .post-image {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #9ca3af;
+            overflow: hidden;
+        }
+        .post-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+        .action-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .action-button:hover {
+            color: #10B981;
+        }
+        .action-button.liked {
+            color: #EF4444;
+        }
+        .expert-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .expert-card::before {
+            content: '👩‍🎓';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .expert-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 4px;
+        }
+        .expert-title {
+            font-size: 12px;
+            color: #d97706;
+            margin-bottom: 12px;
+        }
+        .expert-advice {
+            font-size: 14px;
+            color: #92400e;
+            line-height: 1.5;
+        }
+        .activity-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .activity-card::before {
+            content: '🎪';
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 24px;
+        }
+        .activity-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 8px;
+        }
+        .activity-info {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+        .activity-detail {
+            color: #0369a1;
+        }
+        .activity-description {
+            font-size: 14px;
+            color: #0c4a6e;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .join-button {
+            background: linear-gradient(45deg, #0ea5e9, #0284c7);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .join-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+        .floating-publish {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            animation: publishFloat 3s ease-in-out infinite;
+            z-index: 1000;
+        }
+        @keyframes publishFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .search-bar {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            color: #374151;
+        }
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 18px;
+            font-weight: bold;
+            color: #10B981;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        .topic-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            margin: 2px;
+        }
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            animation: notificationPulse 2s infinite;
+        }
+        @keyframes notificationPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+        }
+        .comment-preview {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .hot-badge {
+            background: linear-gradient(45deg, #EF4444, #DC2626);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航 -->
+    <div class="gradient-bg px-6 py-6 text-white">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button class="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all" onclick="navigateBack()">
+                    <i class="fas fa-arrow-left text-sm"></i>
+                </button>
+                <h1 class="text-xl font-bold">家长社区</h1>
+            </div>
+            <div class="text-sm opacity-90 relative">
+                <i class="fas fa-users mr-1"></i>
+                <span>在线 1,235</span>
+                <div class="notification-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="pb-32">
+        <div class="community-container">
+            <!-- 社区头部 -->
+            <div class="community-header">
+                <div class="community-icon">👨‍👩‍👧‍👦</div>
+                <h2 class="text-2xl font-bold mb-2">萌芽家长社区</h2>
+                <p class="text-green-100">分享育儿经验，共同陪伴孩子成长</p>
+            </div>
+
+            <!-- 标签导航 -->
+            <div class="tab-navigation">
+                <div class="tab-item active" onclick="switchTab('posts')">
+                    <i class="fas fa-comments mr-1"></i>
+                    <span>动态</span>
+                </div>
+                <div class="tab-item" onclick="switchTab('experts')">
+                    <i class="fas fa-user-graduate mr-1"></i>
+                    <span>专家</span>
+                </div>
+                <div class="tab-item" onclick="switchTab('activities')">
+                    <i class="fas fa-calendar-alt mr-1"></i>
+                    <span>活动</span>
+                </div>
+                <div class="tab-item" onclick="switchTab('topics')">
+                    <i class="fas fa-hashtag mr-1"></i>
+                    <span>话题</span>
+                </div>
+            </div>
+
+            <!-- 动态内容 -->
+            <div class="tab-content active" id="posts">
+                <!-- 搜索栏 -->
+                <div class="search-bar">
+                    <i class="fas fa-search text-gray-400"></i>
+                    <input type="text" class="search-input" placeholder="搜索社区内容...">
+                    <button class="text-green-600">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+
+                <!-- 社区统计 -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">1,235</div>
+                        <div class="stat-label">活跃家长</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">486</div>
+                        <div class="stat-label">今日动态</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2,847</div>
+                        <div class="stat-label">互动次数</div>
+                    </div>
+                </div>
+
+                <!-- 动态列表 -->
+                <div class="posts-list">
+                    <!-- 热门动态 -->
+                    <div class="post-card" onclick="openPost('post1')">
+                        <div class="post-header">
+                            <div class="user-avatar">李</div>
+                            <div class="user-info">
+                                <div class="user-name">李妈妈 
+                                    <span class="hot-badge">HOT</span>
+                                </div>
+                                <div class="post-time">2小时前</div>
+                            </div>
+                            <div class="topic-tag">学习方法</div>
+                        </div>
+                        
+                        <div class="post-content">
+                            <div class="post-title">分享一个超有效的专注力训练方法！</div>
+                            <div class="post-text">
+                                我家小明最近专注力有了很大提升，想分享一下我们用的"番茄钟学习法"。把学习时间分成25分钟一段，中间休息5分钟，效果真的很棒！
+                                <br><br>
+                                具体做法是：设定25分钟专注学习→5分钟自由活动→重复4次后长休息20分钟。孩子更容易接受，学习效率也明显提高了。
+                            </div>
+                        </div>
+
+                        <div class="post-images">
+                            <div class="post-image">📝</div>
+                            <div class="post-image">⏰</div>
+                        </div>
+
+                        <div class="comment-preview">
+                            <strong>王妈妈：</strong>太实用了！我也试试这个方法...
+                        </div>
+
+                        <div class="post-actions">
+                            <div class="action-button liked" onclick="toggleLike(this, event)">
+                                <i class="fas fa-heart"></i>
+                                <span>128</span>
+                            </div>
+                            <div class="action-button" onclick="openComments('post1', event)">
+                                <i class="fas fa-comment"></i>
+                                <span>45</span>
+                            </div>
+                            <div class="action-button" onclick="sharePost('post1', event)">
+                                <i class="fas fa-share"></i>
+                                <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 普通动态 -->
+                    <div class="post-card" onclick="openPost('post2')">
+                        <div class="post-header">
+                            <div class="user-avatar">王</div>
+                            <div class="user-info">
+                                <div class="user-name">王爸爸</div>
+                                <div class="post-time">4小时前</div>
+                            </div>
+                            <div class="topic-tag">亲子互动</div>
+                        </div>
+                        
+                        <div class="post-content">
+                            <div class="post-title">周末亲子故事创作活动反馈</div>
+                            <div class="post-text">
+                                和女儿一起完成了萌芽AI的亲子任务，她创作了一个关于小兔子的故事，想象力真的让我惊喜！AI的引导很棒，让亲子时光更有意义。
+                            </div>
+                        </div>
+
+                        <div class="post-actions">
+                            <div class="action-button" onclick="toggleLike(this, event)">
+                                <i class="far fa-heart"></i>
+                                <span>76</span>
+                            </div>
+                            <div class="action-button" onclick="openComments('post2', event)">
+                                <i class="fas fa-comment"></i>
+                                <span>23</span>
+                            </div>
+                            <div class="action-button" onclick="sharePost('post2', event)">
+                                <i class="fas fa-share"></i>
+                                <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post-card" onclick="openPost('post3')">
+                        <div class="post-header">
+                            <div class="user-avatar">张</div>
+                            <div class="user-info">
+                                <div class="user-name">张妈妈</div>
+                                <div class="post-time">6小时前</div>
+                            </div>
+                            <div class="topic-tag">成长记录</div>
+                        </div>
+                        
+                        <div class="post-content">
+                            <div class="post-title">孩子的表达能力突飞猛进！</div>
+                            <div class="post-text">
+                                用萌芽AI三个月了，儿子从内向不爱说话，到现在能完整讲述一个故事，变化真的很大。特别是AI助手的耐心引导，让孩子愿意开口表达。
+                            </div>
+                        </div>
+
+                        <div class="comment-preview">
+                            <strong>李妈妈：</strong>我家也是这样，AI真的很有耐心呢...
+                        </div>
+
+                        <div class="post-actions">
+                            <div class="action-button" onclick="toggleLike(this, event)">
+                                <i class="far fa-heart"></i>
+                                <span>92</span>
+                            </div>
+                            <div class="action-button" onclick="openComments('post3', event)">
+                                <i class="fas fa-comment"></i>
+                                <span>31</span>
+                            </div>
+                            <div class="action-button" onclick="sharePost('post3', event)">
+                                <i class="fas fa-share"></i>
+                                <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post-card" onclick="openPost('post4')">
+                        <div class="post-header">
+                            <div class="user-avatar">陈</div>
+                            <div class="user-info">
+                                <div class="user-name">陈爸爸</div>
+                                <div class="post-time">1天前</div>
+                            </div>
+                            <div class="topic-tag">问题求助</div>
+                        </div>
+                        
+                        <div class="post-content">
+                            <div class="post-title">求助：孩子做任务时容易分心怎么办？</div>
+                            <div class="post-text">
+                                我家女儿5岁，很聪明但专注力不够，做萌芽AI的任务时总是做一半就被其他事情吸引。各位家长有什么好的建议吗？
+                            </div>
+                        </div>
+
+                        <div class="comment-preview">
+                            <strong>专家小贴士：</strong>建议从短时间任务开始，逐步延长...
+                        </div>
+
+                        <div class="post-actions">
+                            <div class="action-button" onclick="toggleLike(this, event)">
+                                <i class="far fa-heart"></i>
+                                <span>24</span>
+                            </div>
+                            <div class="action-button" onclick="openComments('post4', event)">
+                                <i class="fas fa-comment"></i>
+                                <span>67</span>
+                            </div>
+                            <div class="action-button" onclick="sharePost('post4', event)">
+                                <i class="fas fa-share"></i>
+                                <span>分享</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 专家内容 -->
+            <div class="tab-content" id="experts">
+                <div class="expert-card">
+                    <div class="expert-name">李教授</div>
+                    <div class="expert-title">儿童心理发展专家 • 北京师范大学</div>
+                    <div class="expert-advice">
+                        <strong>本周专家建议：</strong><br>
+                        4-6岁是语言表达能力发展的黄金期。家长要多创造让孩子表达的机会，比如让孩子复述故事、描述一天的经历等。萌芽AI的互动式学习能很好地激发孩子的表达欲望。
+                    </div>
+                </div>
+
+                <div class="expert-card">
+                    <div class="expert-name">王博士</div>
+                    <div class="expert-title">教育技术专家 • 清华大学</div>
+                    <div class="expert-advice">
+                        <strong>AI教育观点：</strong><br>
+                        AI辅助学习的关键在于"个性化"。每个孩子的学习节奏和兴趣点都不同，AI能够根据孩子的反应调整教学策略，这是传统教育难以做到的。家长要相信AI的专业判断。
+                    </div>
+                </div>
+
+                <div class="expert-card">
+                    <div class="expert-name">张主任</div>
+                    <div class="expert-title">幼儿教育专家 • 中国学前教育协会</div>
+                    <div class="expert-advice">
+                        <strong>家庭教育指导：</strong><br>
+                        家长的鼓励和陪伴是孩子学习的最大动力。建议每天抽出20-30分钟和孩子一起使用萌芽AI，不仅能增进亲子关系，还能及时了解孩子的学习情况。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 活动内容 -->
+            <div class="tab-content" id="activities">
+                <div class="activity-card">
+                    <div class="activity-title">【本周活动】亲子故事创作大赛</div>
+                    <div class="activity-info">
+                        <div class="activity-detail">
+                            <i class="fas fa-calendar text-sky-500"></i>
+                            <span>12月15-21日</span>
+                        </div>
+                        <div class="activity-detail">
+                            <i class="fas fa-users text-sky-500"></i>
+                            <span>已报名：156组</span>
+                        </div>
+                        <div class="activity-detail">
+                            <i class="fas fa-gift text-sky-500"></i>
+                            <span>丰厚奖品</span>
+                        </div>
+                    </div>
+                    <div class="activity-description">
+                        和孩子一起创作原创故事，培养想象力和表达能力。优秀作品将收录进萌芽AI故事库，让更多小朋友看到你们的创意！
+                    </div>
+                    <button class="join-button" onclick="joinActivity('story-contest')">
+                        <i class="fas fa-plus mr-1"></i>
+                        立即报名
+                    </button>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-title">【专家讲座】如何培养孩子的专注力</div>
+                    <div class="activity-info">
+                        <div class="activity-detail">
+                            <i class="fas fa-calendar text-sky-500"></i>
+                            <span>12月18日 20:00</span>
+                        </div>
+                        <div class="activity-detail">
+                            <i class="fas fa-video text-sky-500"></i>
+                            <span>线上直播</span>
+                        </div>
+                        <div class="activity-detail">
+                            <i class="fas fa-user-graduate text-sky-500"></i>
+                            <span>李教授主讲</span>
+                        </div>
+                    </div>
+                    <div class="activity-description">
+                        儿童心理专家李教授将分享科学的专注力训练方法，并解答家长们的疑问。现场还会演示萌芽AI的专注力提升功能。
+                    </div>
+                    <button class="join-button" onclick="joinActivity('focus-lecture')">
+                        <i class="fas fa-calendar-plus mr-1"></i>
+                        预约参加
+                    </button>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-title">【线下聚会】北京地区家长面对面交流</div>
+                    <div class="activity-info">
+                        <div class="activity-detail">
+                            <i class="fas fa-map-marker-alt text-sky-500"></i>
+                            <span>北京朝阳公园</span>
+                        </div>
+                        <div class="activity-detail">
+                            <i class="fas fa-calendar text-sky-500"></i>
+                            <span>12月20日 14:00</span>
+                        </div>
+                        <div class="activity-detail">
+                            <i class="fas fa-users text-sky-500"></i>
+                            <span>限20组家庭</span>
+                        </div>
+                    </div>
+                    <div class="activity-description">
+                        面对面分享育儿经验，孩子们一起玩耍学习，家长们深度交流。还有萌芽AI团队现场答疑和产品体验。
+                    </div>
+                    <button class="join-button" onclick="joinActivity('beijing-meetup')">
+                        <i class="fas fa-handshake mr-1"></i>
+                        我要参加
+                    </button>
+                </div>
+            </div>
+
+            <!-- 话题内容 -->
+            <div class="tab-content" id="topics">
+                <div class="mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">热门话题</h4>
+                    <div class="flex flex-wrap gap-2">
+                        <div class="topic-tag">#专注力训练</div>
+                        <div class="topic-tag">#AI教育</div>
+                        <div class="topic-tag">#亲子互动</div>
+                        <div class="topic-tag">#创意表达</div>
+                        <div class="topic-tag">#学习方法</div>
+                        <div class="topic-tag">#成长记录</div>
+                        <div class="topic-tag">#问题求助</div>
+                        <div class="topic-tag">#经验分享</div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">今日讨论</h4>
+                    <div class="space-y-3">
+                        <div class="post-card" onclick="openTopic('focus-training')">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-semibold text-gray-800">#专注力训练</div>
+                                    <div class="text-sm text-gray-600 mt-1">如何帮助孩子提高专注力？分享你的方法</div>
+                                    <div class="text-xs text-gray-500 mt-2">168条讨论 • 今日新增32条</div>
+                                </div>
+                                <div class="text-2xl">🎯</div>
+                            </div>
+                        </div>
+
+                        <div class="post-card" onclick="openTopic('ai-education')">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-semibold text-gray-800">#AI教育</div>
+                                    <div class="text-sm text-gray-600 mt-1">AI时代，我们应该如何教育孩子？</div>
+                                    <div class="text-xs text-gray-500 mt-2">245条讨论 • 今日新增45条</div>
+                                </div>
+                                <div class="text-2xl">🤖</div>
+                            </div>
+                        </div>
+
+                        <div class="post-card" onclick="openTopic('parent-child')">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="font-semibold text-gray-800">#亲子互动</div>
+                                    <div class="text-sm text-gray-600 mt-1">晒一晒你和孩子的温馨时光</div>
+                                    <div class="text-xs text-gray-500 mt-2">89条讨论 • 今日新增18条</div>
+                                </div>
+                                <div class="text-2xl">👨‍👧‍👦</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮动发布按钮 -->
+    <div class="floating-publish" onclick="publishPost()" title="发布动态">
+        <i class="fas fa-plus"></i>
+    </div>
+
+    <script>
+        // 页面初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCommunity();
+        });
+
+        // 初始化社区
+        function initializeCommunity() {
+            loadCommunityData();
+        }
+
+        // 加载社区数据
+        function loadCommunityData() {
+            // 模拟数据加载
+            setTimeout(() => {
+                animateStats();
+            }, 500);
+        }
+
+        // 统计数据动画
+        function animateStats() {
+            const statNumbers = document.querySelectorAll('.stat-number');
+            const values = [1235, 486, 2847];
+            
+            statNumbers.forEach((stat, index) => {
+                const target = values[index];
+                const increment = target / 30;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    stat.textContent = Math.floor(current).toLocaleString();
+                }, 30);
+            });
+        }
+
+        // 切换标签
+        function switchTab(tabName) {
+            // 移除所有活动状态
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 激活选中的标签
+            event.target.closest('.tab-item').classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // 打开帖子详情
+        function openPost(postId) {
+            showNotification('正在打开帖子详情...', 'info');
+            // 这里可以导航到帖子详情页面
+        }
+
+        // 切换点赞状态
+        function toggleLike(button, event) {
+            event.stopPropagation();
+            
+            const isLiked = button.classList.contains('liked');
+            const countSpan = button.querySelector('span');
+            let count = parseInt(countSpan.textContent);
+            
+            if (isLiked) {
+                button.classList.remove('liked');
+                button.querySelector('i').className = 'far fa-heart';
+                count--;
+            } else {
+                button.classList.add('liked');
+                button.querySelector('i').className = 'fas fa-heart';
+                count++;
+            }
+            
+            countSpan.textContent = count;
+            
+            // 添加点赞动画
+            button.style.transform = 'scale(1.2)';
+            setTimeout(() => {
+                button.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        // 打开评论
+        function openComments(postId, event) {
+            event.stopPropagation();
+            showNotification('正在打开评论区...', 'info');
+        }
+
+        // 分享帖子
+        function sharePost(postId, event) {
+            event.stopPropagation();
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '萌芽AI家长社区分享',
+                    text: '来看看这个有用的育儿经验分享',
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showNotification('链接已复制到剪贴板', 'success');
+                });
+            }
+        }
+
+        // 参加活动
+        function joinActivity(activityId) {
+            const activities = {
+                'story-contest': '亲子故事创作大赛',
+                'focus-lecture': '专注力培养讲座',
+                'beijing-meetup': '北京家长聚会'
+            };
+            
+            const activityName = activities[activityId];
+            showNotification(`正在报名参加：${activityName}`, 'info');
+            
+            setTimeout(() => {
+                showNotification(`报名成功！我们会通过消息通知您活动详情`, 'success');
+            }, 1500);
+        }
+
+        // 打开话题
+        function openTopic(topicId) {
+            showNotification('正在加载话题讨论...', 'info');
+        }
+
+        // 发布动态
+        function publishPost() {
+            showNotification('发布功能开发中...', 'info');
+            // 这里可以打开发布动态的模态框或跳转到发布页面
+        }
+
+        // 返回上一页
+        function navigateBack() {
+            parent.postMessage({
+                type: 'navigate',
+                page: 'parent-panel'
+            }, '*');
+        }
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            parent.postMessage({
+                type: 'showNotification',
+                message: message,
+                notificationType: type
+            }, '*');
+        }
+
+        // 搜索功能
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            if (searchTerm.length > 2) {
+                // 实际应用中这里会调用搜索API
+                // 搜索功能执行
+            }
+        });
+
+        // 滚动加载更多
+        let isLoading = false;
+        window.addEventListener('scroll', function() {
+            if (isLoading) return;
+            
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+                isLoading = true;
+                showNotification('正在加载更多内容...', 'info');
+                
+                setTimeout(() => {
+                    isLoading = false;
+                    // 这里可以加载更多帖子
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>
